@@ -6,7 +6,7 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  * Model for API field: info
  */
 export default function createInfo(obj: JSONObject): ParserModel {
-  obj.$meta.multilang = toBool(obj.$meta.multilang)
+  obj.meta.multilang = toBool(obj.meta.multilang)
   const inject: Object = {
     $type: 'info',
     $meta: obj.meta,

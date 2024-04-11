@@ -11,7 +11,7 @@ export default function objToParams(obj: Object): string {
       res.push(`${key}=${encodeURIComponent(val)}`)
     } else if (isArr(val)) {
       each (val, (entry: any) => {
-        if (isStr(val) || isNum(val)) {
+        if (isStr(entry) || isNum(entry)) {
           res.push(`${key}[]=${encodeURIComponent(entry)}`)
         }
       })

@@ -11,7 +11,7 @@ export default function createText(obj: JSONObject): ParserModel {
     $type: 'text',
     $str(options: Object = {}): string {
       let str: string = this.$val()
-      if(getOption('text.nl2br', options)) {
+      if(getOption('text', 'nl2br', options)) {
         str = str.replace(/\n/mg, '<br />')
       }
       return str

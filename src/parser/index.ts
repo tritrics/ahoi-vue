@@ -13,8 +13,7 @@ const Options = new ParserOptions()
  * Get as subnode of Options determined by dot-separated path.
  * Example: `link.router`
  */
-export function getOption(path: string, params: Object = {}): any {
-  const [ field, prop ] = path.split('.')
+export function getOption(field: string, prop: string, params: Object = {}): any {
   return Options.get(field, prop, params)
 }
 

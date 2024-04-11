@@ -27,8 +27,8 @@ export default function createDateTime(obj: JSONObject): ParserModel {
     },
     $str(options: Object = {}): string {
       return this.$value.toLocaleString(
-        getOption('global.locale', options)
-        , { ...getOption('date.format', options), ...getOption('time.format', options) }
+        getOption('global', 'locale', options)
+        , { ...getOption('date', 'format', options), ...getOption('time', 'format', options) }
       )
     }
   }

@@ -26,14 +26,14 @@ export default function createNumber(obj: JSONObject): ParserModel {
       return isNum(this.$value, min, max)
     },
     $str(options: Object = {}) {
-      const fixed: number|null = getOption('number.fixed', options)
+      const fixed: number|null = getOption('number', 'fixed', options)
       const stringOptions: Object = {}
       if (isInt(fixed, 1)) {
         stringOptions.minimumFractionDigits = fixed
         stringOptions.maximumFractionDigits = fixed
       }
       return this.$value.toLocaleString(
-        getOption('global.locale', options),
+        getOption('global', 'locale', options),
         stringOptions
       )
     },

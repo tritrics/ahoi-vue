@@ -14,7 +14,7 @@ export function getLinkAttributes(
   options: Object
 ): Object|string
 {
-  const router: boolean = toBool(getOption('link.router', options))
+  const router: boolean = toBool(getOption('link', 'router', options))
   const elemAttr: Object = { ...(attributes || {}) }
   if (elemAttr.type === 'page' && router) {
     elemAttr.to = elemAttr.href
@@ -23,8 +23,9 @@ export function getLinkAttributes(
   }
   elemAttr[`data-link-${elemAttr.type}`] = null
   delete(elemAttr.type)
-  const add = getOption('html.attr', options)
-  const res = { ...elemAttr, ...(add[element] || {}) }
+  const add = getOption('html', 'a', { a: options }) ?? {}
+  console.log(options, add)
+  const res = { ...elemAttr, ...add }
   return toBool(asString) ? objToAttr(res) : res
 }
 

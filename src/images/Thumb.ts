@@ -244,7 +244,7 @@ class Thumb {
     if (isInt(this.params.width, 1) && isInt(this.params.height, 1)) {
 
       // crop to fit in width and height
-      if (isStr(this.crop)) {
+      if (isStr(this.params.crop)) {
         res.width = this.params.width!
         res.height = this.params.height!
       }
@@ -275,6 +275,8 @@ class Thumb {
 
     // nothing given, use original dimensions
     else {
+
+      console.log(4)
       res.width = this.params.image.width
       res.height = this.params.image.height
     }

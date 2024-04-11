@@ -17,7 +17,7 @@ export default function createHtmlNode(obj: JSONObject): ParserModel {
     $type: 'htmlnode',
     $element: has(obj, 'elem') ? toKey(obj.elem) : null,
     $value: obj.value,
-    $attributes: obj.attr ?? null,
+    $attributes: obj.attr ?? {},
     $isSelfClosing() {
       return has(this, '$element') && inArr(this.$element, selfClosing)
     },
@@ -39,11 +39,12 @@ export default function createHtmlNode(obj: JSONObject): ParserModel {
     $attr(asString: boolean = false, options: Object = {}): string|Object { // attributes as string or object
       if (this.$isLink()) {
         return getLinkAttributes(this.$element, this.$attributes, asString, options)
-      } else {
-        const add: Object = getOption('html.attr', options)
-        const res: Object = { ...(this.$attributes || {}), ...(add[this.$element] || {}) }
+      } else if(this.$element) {
+        const add: Object = getOption('html', this.$element, options) ?? {}
+        const res: Object = { ...(this.$attributes), ...(add) }
         return isTrue(asString) ? objToAttr(res) : res
       }
+      return isTrue(asString) ? '' : {}
     },
     $tag(options: Object = {}) { // string including this elem = complete html-tag
       if (this.$isText()) {

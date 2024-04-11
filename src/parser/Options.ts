@@ -24,9 +24,7 @@ class Options {
     link: {
       router: false
     },
-    html: {
-      attr: {}
-    },
+    html: {},
     text: {
       nl2br: false
     },
@@ -48,7 +46,7 @@ class Options {
    * Setter
    */
   set(field: string, prop: string, value: any): void {
-    if (has(this.paramsDefault, field, prop)) {
+    if (has(this.paramsDefault, field, prop) || field === 'html') {
       if (!isObj(this.params[field][prop])) {
         this.params[field]![prop] = value
       } else if (isObj(value)) {
@@ -62,14 +60,15 @@ class Options {
    * the user-given option.
    */
   get(field: string, prop: string, user: Object = {}): any {
-    if (has(this.params, field, prop)) {
-      if (has(user, prop)) {
-        if (isObj(this.params[field][prop])) {
-          return merge(clone(this.params[field][prop]), user[prop])
-        }
-        return user[prop]
+    if (has(this.params, field, prop) && has(user, prop)) {
+      if (isObj(this.params[field][prop])) {
+        return merge(clone(this.params[field][prop]), user[prop])
       }
+      return user[prop]
+    } else if (has(this.params, field, prop)) {
       return this.params[field][prop]
+    } else if (has(user, prop)) {
+      return user[prop]
     }
     return null
   }
