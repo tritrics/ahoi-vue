@@ -1,6 +1,6 @@
 /**
  * Get the window (inner) width.
  */
-export default function getWinWidth(): number {
+export default function winWidth(): number {
   return  window.innerWidth
 }

@@ -1,7 +1,7 @@
 /**
  * Get the HTML's document width (including invisible parts).
  */
-export default function getDocWidth(): number {
+export default function docWidth(): number {
   return Math.max(
     document.documentElement['clientWidth'],
     document.body['scrollWidth'],

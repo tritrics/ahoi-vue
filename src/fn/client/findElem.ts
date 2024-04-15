@@ -1,9 +1,9 @@
-import { isStr, has } from '../'
+import { isStr, has } from '..'
 
 /**
  * Tries to find an HTML element.
  */
-export default function getElem(mixed: any): HTMLElement | null {
+export default function findElem(mixed: any): HTMLElement | null {
   if (mixed instanceof HTMLElement || mixed === window) {
     return mixed
   } else if (isStr(mixed)) {

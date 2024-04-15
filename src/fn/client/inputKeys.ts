@@ -1,4 +1,4 @@
-import { sanArr, inArr, lower } from '../'
+import { sanArr, inArr, lower } from '..'
 
 const controlKeys: string[] = [
   'Backspace',
@@ -31,7 +31,7 @@ type ReturnType<T extends boolean> = T extends true ? string[] : string
  *    meta-alt-ctrl-[controlKey] OR
  *    meta-alt-ctrl-[char]
  */
-export default function getKeys<T extends boolean>(
+export default function inputKeys<T extends boolean>(
   Event: KeyboardEvent,
   getInput: boolean = true,
   getControl: boolean = true,

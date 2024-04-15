@@ -1,7 +1,7 @@
 /**
  * Get the HTML's document height (including invisible parts).
  */
-export default function getDocHeight(): number {
+export default function docHeight(): number {
   return Math.max(
     document.documentElement['clientHeight'],
     document.body['scrollHeight'],
