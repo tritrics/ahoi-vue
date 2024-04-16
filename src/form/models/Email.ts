@@ -10,7 +10,7 @@ export default function createEmail(def: Object): FormModel {
   const inject: Object = {
     type: 'email',
     value: has(def, 'value') ? toStr(def.value) : '',
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     validate() {
       if (isEmpty(this.value)) {
         if (this.required) {

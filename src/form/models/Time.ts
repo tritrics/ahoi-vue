@@ -12,7 +12,7 @@ export default function createTime(def: Object): FormModel {
   const inject: Object = {
     type: 'time',
     value: has(def, 'value') ? toStr(def.value) : '',
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     format: formatReg,
     min: has(def, 'min') && isDate(def.min, null, null, false, format) ? toDate(def.min, formatReg) : null,
     max: has(def, 'max') && isDate(def.max, null, null, false, format) ? toDate(def.max, formatReg) : null,

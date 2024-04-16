@@ -11,8 +11,8 @@ export default function createSelect(def: Object): FormModel {
   // Base select object
   const injectBase: Object = {
     type: 'select',
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
-    multiple: has(def, 'multiple') && isTrue(def.multiple),
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
+    multiple: has(def, 'multiple') && isTrue(def.multiple, false),
     options: has(def, 'options') && isArr(def.options) ? def.options : [],
     validate() {
       if (isEmpty(this.value)) {

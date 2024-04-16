@@ -11,7 +11,7 @@ export default function createList(def: Object): FormModel {
   const inject: Object = {
     type: 'list',
     value: [],
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     min: has(def, 'min') && isInt(def.min, 1, null, false) ? toInt(def.min) : null,
     max: has(def, 'max') && isInt(def.max, 1, null, false) ? toInt(def.max) : null,
     minlength: has(def, 'minlength') && isInt(def.minlength, 1, null, false) ? toInt(def.minlength) : null,

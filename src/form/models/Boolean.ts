@@ -10,7 +10,7 @@ export default function createBoolean(def: Object): FormModel {
   const inject: Object = {
     type: 'boolean',
     value: has(def, 'value') && isTrue(def.value, false) ? true : false,
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     validate() {
       if (this.required && !isTrue(this.value, false)) {
         return this.setValid('required')

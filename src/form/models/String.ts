@@ -10,7 +10,7 @@ export default function createString(def: Object, parent = {}): FormModel {
   const inject: Object = {
     type: 'string',
     value: has(def, 'value') ? toStr(def.value) : '',
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     minlength: has(def, 'minlength') && isInt(def.minlength, 1, null, false) ? toInt(def.minlength) : null,
     maxlength: has(def, 'maxlength') && isInt(def.maxlength, 1, null, false) ? toInt(def.maxlength) : null,
     linebreaks: false,

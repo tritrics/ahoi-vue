@@ -124,12 +124,14 @@ function setMultilang(multilang: boolean) {
 export async function createApi(params: ApiParams) {
   const name: string = has(params, 'name') ? params.name! : 'api'
   defineConfig(params)
+  subscribe('on-changed-langcode', setLang)
+  subscribe('on-changed-multilang', setMultilang)
+
+  // load Plugin-Plugins
   let plugins: ApiPlugin[] = []
   if (has(params, 'plugins')) {
     plugins = await loadPlugins(params.plugins!)
   }
-  subscribe('on-changed-langcode', setLang)
-  subscribe('on-changed-multilang', setMultilang)
   
   // register plugin
   return {

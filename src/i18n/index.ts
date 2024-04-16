@@ -137,7 +137,17 @@ export async function setLanguage(lang: string|null): Promise<string|null> {
   if (isMultilang() && isStr(lang, 1)) {
     const res = toKey(lang)
     if (isValidLanguage(res) && (res !== data.value.current)) {
-      await requestLanguage(lang)
+      const json: JSONObject = await getLanguageRequest(lang, { raw: true })
+      if (!isObj(json) || !json.ok) {
+        return data.value.current
+      }
+      data.value.current = lang
+      data.value.map[data.value.current].locale = normalizeLocale(json.body.meta.locale)
+      terms.value = clone(json.body.terms)
+      language.value = parseResponse(json.body)
+      publish('on-changed-langcode', getLangcode())
+      publish('on-changed-locale', getLocale())
+      publish('on-changed-language', getLanguage())
     }
   }
   return data.value.current
@@ -162,25 +172,6 @@ async function requestLanguages(): Promise<void> {
   publish('on-changed-multilang', data.value.multilang)
   if (isMultilang()) {
     publish('on-changed-languages', getLanguages())
-  }
-}
-
-/**
- * Request a single language.
- */
-async function requestLanguage(lang: string): Promise<void> {
-  if (isMultilang()) {
-    const json: JSONObject = await getLanguageRequest(lang, { raw: true })
-    if (!isObj(json) || !json.ok) {
-      return
-    }
-    data.value.current = lang
-    data.value.map[data.value.current].locale = normalizeLocale(json.body.meta.locale)
-    terms.value = clone(json.body.terms)
-    language.value = parseResponse(json.body)
-    publish('on-changed-langcode', getLangcode())
-    publish('on-changed-locale', getLocale())
-    publish('on-changed-language', getLanguage())
   }
 }
 

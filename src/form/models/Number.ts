@@ -10,7 +10,7 @@ export default function createNumber(def: Object): FormModel {
   const inject: Object = {
     type: 'number',
     value: has(def, 'value') ? toStr(def.value) : '',
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     min: has(def, 'min') && isNum(def.min, 1, null, false) ? toNum(def.min) : null,
     max: has(def, 'max') && isNum(def.max, 1, null, false) ? toNum(def.max) : null,
     validate() {

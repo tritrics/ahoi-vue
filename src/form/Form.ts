@@ -98,7 +98,7 @@ class Form {
     each(this.defs, (def: Object, key: string) => {
       switch(toKey(def.type)) {
         case 'boolean':
-          this.fields.value[key] = models.createString(def)
+          this.fields.value[key] = models.createBoolean(def)
           break
         case 'date':
           this.fields.value[key] = models.createDate(def)

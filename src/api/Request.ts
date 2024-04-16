@@ -253,7 +253,9 @@ class Request {
     if (!response.ok || !json.ok) {
       const msg = json.msg || response.status
       const status = json.status || response.statusText
-      throw new Error(`API reports an error while requesting ${url}: ${msg} (Error ${status})`)
+      const out = `API reports an error while requesting ${url}: ${msg} (Error ${status})`
+      console.error(out)
+      throw new Error(out)
     }
     return json
   }

@@ -4,9 +4,9 @@ import type { Object } from '../types'
 /**
  * Get information of scroll position.
  */
-export default function scrollPos() {
+export default function scrollPos(fromDocument: boolean = true): Object {
   const doc: number = docHeight()
-  const win: number = winHeight()
+  const win: number = winHeight(fromDocument)
   const res: Object = {
     top: window.scrollY,
     bottom: window.scrollY + win,

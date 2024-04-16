@@ -12,7 +12,7 @@ export default function createDate(def: Object): FormModel {
   const inject: Object = {
     type: 'date',
     value: has(def, 'value') ? toStr(def.value) : '',
-    required: has(def, 'required') && isTrue(def.required) ? true : false,
+    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
     time: has(def, 'time') && isTrue(def.time),
     format: formatReg,
     min: has(def, 'min') && isDate(def.min, null, null, false, format) ? toDate(def.min, formatReg) : null,
