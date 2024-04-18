@@ -14,7 +14,7 @@ class Options {
   params: ApiRequestParams = {
     host: null,
     lang:  null,
-    fields: false, // true = all fields, or array with field names
+    fields: true, // true = all fields, false = no fields, array with field names
     limit: 10,
     set: 1,
     order: 'asc',

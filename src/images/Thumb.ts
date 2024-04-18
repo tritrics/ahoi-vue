@@ -275,8 +275,6 @@ class Thumb {
 
     // nothing given, use original dimensions
     else {
-
-      console.log(4)
       res.width = this.params.image.width
       res.height = this.params.image.height
     }

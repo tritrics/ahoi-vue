@@ -24,7 +24,6 @@ export function getLinkAttributes(
   elemAttr[`data-link-${elemAttr.type}`] = null
   delete(elemAttr.type)
   const add = getOption('html', 'a', { a: options }) ?? {}
-  console.log(options, add)
   const res = { ...elemAttr, ...add }
   return toBool(asString) ? objToAttr(res) : res
 }
