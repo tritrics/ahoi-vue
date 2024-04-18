@@ -1,7 +1,7 @@
 {
   "name": "aflevere-api-vue",
   "description": "Vue.js plugin to use AflevereAPI Plugin for Kirby",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Michael Adams <ma@tritrics.dk>",
   "license": "ISC",
   "keywords": [
