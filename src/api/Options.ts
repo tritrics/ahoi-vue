@@ -1,6 +1,6 @@
 import { APIVERSION } from './index'
 import { each, has, toKey, lower, isArr, isTrue, isInt, isObj, isStr, isUrl, isBool, toBool, toInt } from '../fn'
-import { hasPlugin } from '../plugins'
+import { hasPlugin } from './plugins'
 import type { ApiRequestParams, ApiOrder } from '../types'
 
 /**

@@ -5,6 +5,7 @@ export interface ApiPlugin {
   id: string
   name: string
   export: Object
+  components?: Object
   setup?: Function // before init
   init?: Function
 }

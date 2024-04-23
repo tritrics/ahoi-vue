@@ -1,6 +1,6 @@
 import { isObj, toPath, isUrl, upper, objToParam } from '../fn'
 import Options from './Options'
-import { inject } from '../plugins'
+import { inject } from './plugins'
 import type { ApiOrder, Object, FormPostData, ApiMethods, JSONObject } from '../types'
 
 /**

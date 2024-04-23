@@ -23,7 +23,7 @@ const registeredMethods: { [ key: string ]: Object } = {}
  */
 function createThisPlugin(): ApiPlugin {
   return {
-    id: 'avlevere-api-vue-plugins-plugin',
+    id: 'aflevere-api-vue-plugins-plugin',
     name: 'plugins',
     export: {
       hasPlugin,

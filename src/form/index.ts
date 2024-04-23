@@ -22,7 +22,7 @@ function createUserForm(options: FormParams = {}, fields: Object|null = null): O
  */
 export function createForm(): ApiPlugin {
   return {
-    id: 'avlevere-api-vue-form-plugin',
+    id: 'aflevere-api-vue-form-plugin',
     name: 'form',
     export: {
       createUserForm,

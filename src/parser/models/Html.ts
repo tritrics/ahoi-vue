@@ -1,17 +1,49 @@
 import { has, each, extend, isArr } from '../../fn'
-import { createBase, createHtmlNode } from './index'
+import { createBase, createNode, createLink } from './index'
 import type { Object, JSONObject, ParserModel } from '../../types'
 
 /**
- * Recoursive function to create HtmlNodes from html field value.
+ * Recoursive function to create Nodes from html field value.
+ * Node is either a general node or a link.
  */
-function createNodes(nodes: JSONObject[]): ParserModel[] {
+function createNodesRec(nodes: JSONObject[]): ParserModel[] {
   const res: ParserModel[] = []
   each(nodes, (fragment: JSONObject) => {
     if (has(fragment, 'value') && isArr(fragment.value)) {
-      fragment.value = createNodes(fragment.value)
+      fragment.value = createNodesRec(fragment.value)
     }
-    res.push(createHtmlNode(fragment))
+
+    // Create text element
+    if (!has(fragment, 'elem')) {
+      res.push(createNode(fragment, 'node-text'))
+    }
+    
+    // Create node element, eventually with special classes
+    else {    
+      switch(fragment?.elem) {
+        case 'a':
+          res.push(createLink(fragment))
+          break
+        case 'area':
+        case 'base':
+        case 'br':
+        case 'col':
+        case 'embed':
+        case 'hr':
+        case 'img':
+        case 'input':
+        case 'link':
+        case 'meta':
+        case 'param':
+        case 'source':
+        case 'track':
+        case 'wbr':
+          res.push(createNode(fragment, 'node-self-closing'))
+          break
+        default:
+          res.push(createNode(fragment))
+      }
+    }
   })
   return res
 }
@@ -22,22 +54,13 @@ function createNodes(nodes: JSONObject[]): ParserModel[] {
 export default function createHtml(obj: JSONObject): ParserModel {
   const inject: Object = {
     $type: 'html',
-    $value: createNodes(isArr(obj.value) ? obj.value : [ obj.value ]),
-
-    // unlike in Node, the functions $tag() and $str() both return the same,
-    // because this object is a representation of the writer-field and 
-    // $value holds only a collection of html-nodes.
-    // Other functions like $attr() don't make sense here.
-    $tag(options: Object = {}): string {
-      return this.$str(options)
+    $value: createNodesRec(isArr(obj.value) ? obj.value : [ obj.value ]),
+    $hasChildren() {
+      return isArr(this.$value)
     },
-    $str(options: Object = {}): string {
-      const res: string[] = []
-      each(this.$value, (node: ParserModel) => {
-        res.push(node.$tag(options))
-      })
-      return res.join('')
-    },
+    $str(): string {
+      return 'html-nodes'
+    }
   }
   return extend(createBase(), inject) as ParserModel
 }

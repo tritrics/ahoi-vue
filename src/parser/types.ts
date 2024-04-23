@@ -40,7 +40,7 @@ export type ParserModelTypes =
   'datetime' |
   'file' |
   'html' |
-  'htmlnode' |
+  'node' |
   'image' |
   'info' |
   'language' |
@@ -58,7 +58,7 @@ export type ParserModelTypes =
   'user'
 
 /**
- * Form Model
+ * Parser Model
  */
 export interface ParserModel {
   $type: ParserModelTypes

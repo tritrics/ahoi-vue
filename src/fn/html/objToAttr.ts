@@ -6,19 +6,19 @@ import type { Object } from '../../types'
  * an empty attribute (only name) is added.
  */
 export default function objToAttr(obj: Object): string {
-  const start: string[] = []
-  const end: string[] = []
+  const res: string[] = []
   each(obj, (val: any, key: string) => {
+    let attr: string
     if (isStr(val) || isNum(val)) {
-      const attr = `${key}="${addSlashes(toStr(val))}"`
-      if (key === 'href' || key === 'to') {
-        start.unshift(attr)
-      } else {
-        start.push(attr)
-      }
+      attr = `${key}="${addSlashes(toStr(val))}"`
     } else {
-      end.push(key)
+      attr = `${key}="${addSlashes(key)}"`
+    }
+    if (key === 'href' || key === 'to') {
+      res.unshift(attr)
+    } else {
+      res.push(attr)
     }
   })
-  return start.concat(end).join(' ')
+  return res.join(' ')
 }

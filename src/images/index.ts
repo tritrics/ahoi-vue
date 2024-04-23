@@ -31,7 +31,7 @@ export function createThumb(
  */
 export function createImages(): ApiPlugin {
   return {
-    id: 'avlevere-api-vue-images-plugin',
+    id: 'aflevere-api-vue-images-plugin',
     name: 'images',
     export: {
       createThumb,

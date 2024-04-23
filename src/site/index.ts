@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { getPage } from '../api'
-import { publish, subscribe, inject } from '../plugins'
+import { publish, subscribe, inject } from '../api/plugins'
 import type { ApiPlugin, JSONObject } from '../types'
 
 /**
@@ -39,7 +39,7 @@ export function getData(): JSONObject {
  */
 export function createSite(): ApiPlugin {
   return {
-    id: 'avlevere-api-vue-site-plugin',
+    id: 'aflevere-api-vue-site-plugin',
     name: 'site',
     init: async (): Promise<void> => {
       await requestSite()

@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { each, toKey, has, clone, toBool, isStr, isUndef, isObj } from '../fn'
 import { getInfo, getLanguage as getLanguageRequest } from '../api'
-import { publish, inject } from '../plugins'
+import { publish, inject } from '../api/plugins'
 import type { ApiPlugin, JSONObject, Object } from '../types'
 
 /**
@@ -203,7 +203,7 @@ function parseResponse(json: JSONObject): JSONObject {
  */
 export function createI18n(): ApiPlugin {
   return {
-    id: 'avlevere-api-vue-i18n-plugin',
+    id: 'aflevere-api-vue-i18n-plugin',
     name: 'i18n',
     setup: async (): Promise<void> => {
       await requestLanguages()

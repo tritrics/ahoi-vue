@@ -1,7 +1,7 @@
 import { has, each } from '../fn'
 import Request from './Request'
 import RequestOptions from './Options'
-import { loadPlugins, subscribe } from '../plugins'
+import { loadPlugins, subscribe } from './plugins'
 import { version } from '../../package.json'
 import type { FormPostData, ApiParams, ApiRequestParams, ApiMethods, ApiPlugin, JSONObject } from '../types'
 
@@ -153,6 +153,9 @@ export async function createApi(params: ApiParams) {
       each(plugins, (def: ApiPlugin) => {
         app.config.globalProperties[`$${name}`][def.name] = def.export
         app.provide(`${name}.${def.name}`, def.export)
+        each(def?.components, (component: any, name: string) => {
+          app.component(name, component)
+        })
       })
     }
   }

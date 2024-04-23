@@ -1,7 +1,9 @@
 import { each, has, isArr, isObj } from '../fn'
-import { subscribe } from '../plugins'
+import { subscribe } from '../api/plugins'
 import ParserOptions from './Options'
 import * as models from './models'
+import TheNodes from './components/TheNodes.vue'
+import TheLink from './components/TheLink.vue'
 import type { ApiPlugin, Object, JSONObject, ParserModel } from '../types'
 
 /**
@@ -174,8 +176,12 @@ export function parseResponse(json: JSONObject): Object {
 export function createParser(params: Object = {}): ApiPlugin {
   initOptions(params)
   return {
-    id: 'avlevere-api-vue-parser-plugin',
+    id: 'aflevere-api-vue-parser-plugin',
     name: 'parser',
+    components: {
+      'TheHtml': TheNodes,
+      'TheLink': TheLink
+    },
     init: () => {
       subscribe('on-changed-locale', setLocale)
     },
