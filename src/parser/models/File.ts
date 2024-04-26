@@ -1,5 +1,5 @@
 import { has, isStr, extend } from '../../fn'
-import { createBase, createLink } from './index'
+import { createBase, createLinkByValues } from './index'
 import type { Object, JSONObject, ParserModel } from '../../types'
 
 /**
@@ -9,7 +9,7 @@ export default function createFile(obj: JSONObject): ParserModel {
   const inject: Object = {
     $type: 'file',
     $meta: obj.meta,
-    $link: createLink(obj),
+    $link: createLinkByValues('file', obj.meta.title, obj.meta.href),
     $val(): string {
       return this.$meta.filename
     },

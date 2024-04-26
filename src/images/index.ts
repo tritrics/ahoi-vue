@@ -1,29 +1,30 @@
 import { has } from '../fn'
-import Thumb from './Thumb'
-import type { ApiPlugin, ImageModel, ImageParams, JSONObject } from '../types'
+import Image from './Image'
+import TricImage from './components/TricImage.vue'
+import type { ApiPlugin, ImageModel, ImageOptions, JSONObject } from '../types'
 
 /**
  * Create a Thumb instance with handy image resizing and handling methods.
  */
-export function createThumb(
+export function createImage(
   image: JSONObject|ImageModel,
   width: number|null = null,
   height: number|null = null,
-  params: ImageParams = {}
-): Thumb
+  options: ImageOptions = {}
+): Image
 {
   // parser object given
   if (has(image, '$meta')) {
-    return new Thumb(image.$meta, width, height, params)
+    return new Image(image.$meta, width, height, options)
   }
   
   // raw file object given
   else if (has(image, 'meta')) {
-    return new Thumb(image.meta, width, height, params)
+    return new Image(image.meta, width, height, options)
   }
 
   // image-node given
-  return new Thumb(image as ImageModel, width, height, params)
+  return new Image(image as ImageModel, width, height, options)
 }
 
 /**
@@ -31,10 +32,13 @@ export function createThumb(
  */
 export function createImages(): ApiPlugin {
   return {
-    id: 'aflevere-api-vue-images-plugin',
+    id: 'tric-vue-images-plugin',
     name: 'images',
+    components: {
+      'TricImage': TricImage
+    },
     export: {
-      createThumb,
+      createImage,
     }
   }
 }

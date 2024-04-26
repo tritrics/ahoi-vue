@@ -1,10 +1,5 @@
 import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, has, round } from '../fn'
-import type { ImageParams, ImageCropParams, Object, ImageModel } from '../types'
-
-interface CalulatedImageDimensions {
-  width: number
-  height: number
-}
+import type { ImageOptions, ImageCropOptions, Object, ImageModel, ImageDimensions } from '../types'
 
 /**
  * Representation of an image with helper functions to create scaled thumbs.
@@ -23,18 +18,18 @@ interface CalulatedImageDimensions {
  * - greyscale (default false)
  * - quality (default 90)
  */
-class Thumb {
+class KirbyImage { // name Image is reservated by JS
 
   /**
    * Thumb options
    * 
    * {object}
    */
-  params: {
+  options: {
     image: ImageModel|null,
     width: number|null,
     height: number|null,
-    crop: ImageCropParams|boolean,
+    crop: ImageCropOptions|boolean,
     blur: number,
     bw: boolean,
     quality: number|null,
@@ -55,7 +50,7 @@ class Thumb {
   /**
    * Cropping options
    */
-  croppingParams: any[] = [
+  croppingOptions: any[] = [
     'top-left',
     'top',
     'top-right',
@@ -76,30 +71,31 @@ class Thumb {
     image: ImageModel,
     width: number|null = null,
     height: number|null = null,
-    params: ImageParams = {}
+    options: ImageOptions = {}
   ) {
     if (
-      has(image, 'width') &&
-      has(image, 'height') &&
-      has(image, 'ext') &&
+      has(image, 'host') &&
       has(image, 'dir') &&
-      has(image, 'filename')
+      has(image, 'name') &&
+      has(image, 'ext') &&
+      has(image, 'width') &&
+      has(image, 'height')
     ) {
-      this.params.image = image
-      this.params.title = image.title ?? ''
-      this.params.hires = window.devicePixelRatio > 1
-      this.dim(width, height)
-      if (has(params, 'crop')) {
-        this.crop(params.crop!)
+      this.options.image = image
+      this.options.title = image.title ?? ''
+      this.options.hires = window.devicePixelRatio > 1
+      this.dim(width ?? options?.width, height ?? options?.height)
+      if (has(options, 'crop')) {
+        this.crop(options.crop!)
       }
-      if (has(params, 'blur')) {
-        this.blur(params.blur!)
+      if (has(options, 'blur')) {
+        this.blur(options.blur!)
       }
-      if (isTrue(params.bw)) {
+      if (isTrue(options.bw)) {
         this.bw()
       }
-      if (has(params, 'blur')) {
-        this.blur(params.blur!)
+      if (has(options, 'blur')) {
+        this.blur(options.blur!)
       }
     }
   }
@@ -107,13 +103,13 @@ class Thumb {
   /**
    * Chaining function to set dimension
    */
-  dim(width: number|null, height: number|null|undefined): this {
-    if (isObj(this.params.image)) {
-      this.params.width = isInt(width, 1, this.params.image!.width) ? width : null
-      this.params.height = isInt(height, 1, this.params.image!.height) ? height : null
+  dim(width: number|null|undefined, height: number|null|undefined): this {
+    if (isObj(this.options.image)) {
+      this.options.width = isInt(width, 1, this.options.image!.width) ? width : null
+      this.options.height = isInt(height, 1, this.options.image!.height) ? height : null
     } else {
-      this.params.width = isInt(width, 1) ? width : null
-      this.params.height = isInt(height, 1) ? height : null
+      this.options.width = isInt(width, 1) ? width : null
+      this.options.height = isInt(height, 1) ? height : null
     }
     return this
   }
@@ -121,13 +117,13 @@ class Thumb {
   /**
    * Chaining function to set crop
    */
-  crop(crop: ImageCropParams|boolean): this {
+  crop(crop: ImageCropOptions|boolean): this {
     if (isBool(crop)) {
-      this.params.crop = isTrue(crop) ? 'center' : false
+      this.options.crop = isTrue(crop) ? 'center' : false
     } else if (isStr(crop)) {
       const val = toKey(crop)
-      if (inArr(val, this.croppingParams)) {
-        this.params.crop = crop
+      if (inArr(val, this.croppingOptions)) {
+        this.options.crop = crop
       }
     }
     return this
@@ -138,7 +134,7 @@ class Thumb {
    */
   blur(blur: number): this {
     if (isInt(blur, 0)) {
-      this.params.blur = blur
+      this.options.blur = blur
     }
     return this
   }
@@ -147,7 +143,7 @@ class Thumb {
    * Chaining function to set image to black/white.
    */
   bw(): this {
-    this.params.bw = true
+    this.options.bw = true
     return this
   }
 
@@ -156,7 +152,7 @@ class Thumb {
    */
   quality(quality: number): this {
     if (isInt(quality, 1, 100)) {
-      this.params.quality = quality
+      this.options.quality = quality
     }
     return this
   }
@@ -165,28 +161,21 @@ class Thumb {
    * Getter for thumb-tag attributes, optionally as object or string.
    */
   attr(asString: boolean = false): string|Object {
-    if (!isObj(this.params.image)) {
+    if (!isObj(this.options.image)) {
       return isTrue(asString) ? '' : []
     }
     const attr: Object = this.calculateThumb()
-    if (isStr(this.params.title, 1)) {
-      attr.alt = this.params.title
+    if (isStr(this.options.title, 1)) {
+      attr.alt = this.options.title
     }
     return isTrue(asString) ? objToAttr(attr) : attr
-  }
-
-  /**
-   * Getter for the thumb html-tag.
-   */
-  tag(): string {
-    return `<img ${this.attr(true)} />`
   }
 
   /**
    * Preload the image.
    */
   async preload(): Promise<any> {
-    if (!isObj(this.params.image)) {
+    if (!isObj(this.options.image)) {
       return Promise.resolve()
     }
     const attr = this.calculateThumb()
@@ -202,27 +191,32 @@ class Thumb {
    * Helper to calculate all options for the thumb-url.
    */
   calculateThumb(): Object {
-    if (!isObj(this.params.image)) {
+    if (!isObj(this.options.image)) {
       return {}
     }
     const res: Object = this.calculateDimensions()
-    const ext = this.params.image.ext.toLowerCase().replace(/jpeg/, 'jpg')
+    const ext = this.options.image.ext.toLowerCase().replace(/jpeg/, 'jpg')
     const src = []
-    src.push(this.params.image.dir + this.params.image.filename)
-    src.push(`${res.width}x${res.height}`)
-    if (isStr(this.params.crop)) {
-      src.push(`crop-${this.params.crop}`)
+    if (window.location.origin !== this.options.image.host) {
+      src.push(this.options.image.host)
     }
-    if (this.params.blur !== null && this.params.blur > 0) {
-      src.push(`blur${this.params.blur}`)
+    src.push(this.options.image.dir)
+    src.push('/')
+    src.push(this.options.image.name)
+    src.push(`-${res.width}x${res.height}`)
+    if (isStr(this.options.crop)) {
+      src.push(`-crop-${this.options.crop}`)
     }
-    if (this.params.bw === true) {
-      src.push('bw')
+    if (this.options.blur !== null && this.options.blur > 0) {
+      src.push(`-blur${this.options.blur}`)
     }
-    if (this.params.quality !== null && this.params.quality > 0) {
-      src.push(`q${this.params.quality}`)
+    if (this.options.bw === true) {
+      src.push('-bw')
     }
-    res.src = `${src.join('-')}.${ext}`
+    if (this.options.quality !== null && this.options.quality > 0) {
+      src.push(`-q${this.options.quality}`)
+    }
+    res.src = `${src.join('')}.${ext}`
     res.crossorigin = null
     return res
   }
@@ -230,60 +224,60 @@ class Thumb {
   /**
    * Helper to calculate the dimensions for the thumb-url.
    */
-  calculateDimensions(): CalulatedImageDimensions {
-    const res: CalulatedImageDimensions = {
+  calculateDimensions(): ImageDimensions {
+    const res: ImageDimensions = {
       width: 0,
       height: 0
     }
-    if (!isObj(this.params.image)) {
+    if (!isObj(this.options.image)) {
       return res
     }
-    const ratio = this.params.image.width / this.params.image.height
+    const ratio = this.options.image.width / this.options.image.height
 
     // width and height given
-    if (isInt(this.params.width, 1) && isInt(this.params.height, 1)) {
+    if (isInt(this.options.width, 1) && isInt(this.options.height, 1)) {
 
       // crop to fit in width and height
-      if (isStr(this.params.crop)) {
-        res.width = this.params.width!
-        res.height = this.params.height!
+      if (isStr(this.options.crop)) {
+        res.width = this.options.width!
+        res.height = this.options.height!
       }
       
       // fit either width or height, keep ratio
       else {
-        res.width = round(this.params.height! * ratio, 0)
-        if (res.width <= this.params.width!) {
-          res.height = this.params.height!
+        res.width = round(this.options.height! * ratio, 0)
+        if (res.width <= this.options.width!) {
+          res.height = this.options.height!
         } else {
-          res.width = this.params.width!
-          res.height = round(this.params.width! / ratio, 0)
+          res.width = this.options.width!
+          res.height = round(this.options.width! / ratio, 0)
         }
       }
     }
 
     // only width given: keep ratio, calculate height
-    else if (isInt(this.params.width, 1)) {
-      res.width = this.params.width!
-      res.height = round(this.params.width! / ratio, 0)
+    else if (isInt(this.options.width, 1)) {
+      res.width = this.options.width!
+      res.height = round(this.options.width! / ratio, 0)
     }
 
     // only height given: keep ratio, calculate width
-    else if (isInt(this.params.height, 1)) {
-      res.width = round(this.params.height! * ratio, 0)
-      res.height = this.params.height!
+    else if (isInt(this.options.height, 1)) {
+      res.width = round(this.options.height! * ratio, 0)
+      res.height = this.options.height!
     }
 
     // nothing given, use original dimensions
     else {
-      res.width = this.params.image.width
-      res.height = this.params.image.height
+      res.width = this.options.image.width
+      res.height = this.options.image.height
     }
 
     // double resolution for hiRes displays
     if (
-      this.params.hires &&
-      isInt(res.width * 2, 1, this.params.image.width) &&
-      isInt(res.height * 2, 1, this.params.image.height)
+      this.options.hires &&
+      isInt(res.width * 2, 1, this.options.image.width) &&
+      isInt(res.height * 2, 1, this.options.image.height)
     ) {
       res.width *= 2
       res.height *= 2
@@ -292,8 +286,8 @@ class Thumb {
   }
 
   toString() {
-    return 'Instance of class Thumb'
+    return 'Instance of class Image'
   }
 }
 
-export default Thumb
+export default KirbyImage

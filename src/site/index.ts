@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { isObj } from '../fn'
 import { getPage } from '../api'
 import { publish, subscribe, inject } from '../api/plugins'
 import type { ApiPlugin, JSONObject } from '../types'
@@ -13,8 +14,19 @@ const data = ref<JSONObject>({})
  */
 async function requestSite(): Promise<void> {
   const json = await getPage('/', { fields: true, raw: true })
-  data.value = parseResponse(json)
-  publish('on-changed-site', json.body)
+  if (isObj(json) && json.ok) {
+    data.value = parseResponse(json)
+    publish('on-changed-site', json.body)
+  }
+}
+
+/**
+ * Get site's data.
+ * 
+ * @returns {object}
+ */
+export function getSite(): JSONObject {
+  return data
 }
 
 /**
@@ -26,27 +38,18 @@ function parseResponse(json: JSONObject): JSONObject {
 }
 
 /**
- * Get site's data.
- * 
- * @returns {object}
- */
-export function getData(): JSONObject {
-  return data.value
-}
-
-/**
  * Plugin
  */
 export function createSite(): ApiPlugin {
   return {
-    id: 'aflevere-api-vue-site-plugin',
+    id: 'tric-vue-site-plugin',
     name: 'site',
     init: async (): Promise<void> => {
       await requestSite()
       subscribe('on-changed-langcode', requestSite)
     },
     export: {
-      getData,
+      getSite,
     }
   }
 }

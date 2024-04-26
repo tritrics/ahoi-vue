@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { createAction } from '../api'
 import { each, has, toKey, isBool, isTrue, isObj, isStr, toBool } from '../fn'
 import * as models  from './models'
-import type { Object, FormParams, FormModel, FormPostData, JSONObject } from '../types'
+import type { Object, FormOptions, FormModel, FormPostData, JSONObject } from '../types'
 
 class Form {
 
@@ -20,7 +20,7 @@ class Form {
   /**
    * Plugin-options
    */
-  options = ref<FormParams>({
+  options = ref<FormOptions>({
     // action
     // lang
     immediate: false,
@@ -51,7 +51,7 @@ class Form {
 
   /**
    */
-  constructor(options: FormParams = {}, fields: Object|null = null) {
+  constructor(options: FormOptions = {}, fields: Object|null = null) {
     this.setOptions(options)
     if(isObj(fields)) {
       this.defs = fields
@@ -66,7 +66,7 @@ class Form {
   /**
    * Setting options
    */
-  setOptions(options: FormParams): void {
+  setOptions(options: FormOptions): void {
     if (isObj(options)) {
       if (has(options, 'action') && isStr(options.action, 1)) {
         this.options.value.action = toKey(options.action)

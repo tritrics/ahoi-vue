@@ -13,9 +13,9 @@ export interface FormPostData {
 }
 
 /**
- * API-plugin-plugin Form params
+ * API-plugin-plugin Form options
  */
-export interface FormParams {
+export interface FormOptions {
   action?: string
   lang?: string
   immediate?: boolean

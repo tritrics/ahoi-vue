@@ -1,9 +1,9 @@
 import type { Object, DateTimeFormat } from "../types"
 
 /**
- * API-plugin-plugin Parser params, not used
+ * API-plugin-plugin Parser options, not used
  */
-export interface ParserParams {
+export interface ParserOptions {
   global?: {
     [ locale: string ]: string|null
   }
@@ -44,7 +44,6 @@ export type ParserModelTypes =
   'image' |
   'info' |
   'language' |
-  'languages' |
   'link' |
   'markdown' |
   'number' |
@@ -53,9 +52,10 @@ export type ParserModelTypes =
   'site' |
   'string' |
   'text' |
-  'thumb' |
   'time' |
   'user'
+
+export type LinkTypes = 'page' | 'file' | 'email' | 'tel' | 'anchor' | 'custom'
 
 /**
  * Parser Model

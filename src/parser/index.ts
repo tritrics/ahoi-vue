@@ -2,8 +2,8 @@ import { each, has, isArr, isObj } from '../fn'
 import { subscribe } from '../api/plugins'
 import ParserOptions from './Options'
 import * as models from './models'
-import TheNodes from './components/TheNodes.vue'
-import TheLink from './components/TheLink.vue'
+import TricNodes from './components/TricNodes.vue'
+import TricLink from './components/TricLink.vue'
 import type { ApiPlugin, Object, JSONObject, ParserModel } from '../types'
 
 /**
@@ -15,24 +15,24 @@ const Options = new ParserOptions()
  * Get as subnode of Options determined by dot-separated path.
  * Example: `link.router`
  */
-export function getOption(field: string, prop: string, params: Object = {}): any {
-  return Options.get(field, prop, params)
+export function getOption(field: string, prop: string, options: Object = {}): any {
+  return Options.get(field, prop, options)
 }
 
 /**
  * Set a subnode of Options
  */
-export function setOption(path: string, params: Object = {}): void {
+export function setOption(path: string, options: Object = {}): void {
   const [ field, prop ] = path.split('.')
-  Options.set(field, prop, params)
+  Options.set(field, prop, options)
 }
 
 /**
  * Setting or resetting all options at once.
  * Intern defaults are used if a node is not given.
  */
-export function initOptions(params: Object = {}) {
-  Options.init(params)
+export function initOptions(options: Object = {}) {
+  Options.init(options)
 }
 
 /**
@@ -98,8 +98,6 @@ function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
       return models.createInfo(createChildModels(node))
     case 'language':
       return models.createLanguage(node)
-    case 'languages':
-      return models.createLanguages(createChildModels(node))
     case 'link':
       return models.createLink(node)
     case 'markdown':
@@ -148,7 +146,7 @@ function createChildModels(node: JSONObject): Object {
  * This is the case when it has subnodes `type` and `value` or is of type `page`.
  */
 function isField(node: JSONObject): boolean {
-  return has(node, 'type') && (has(node, 'value') || node.type === 'page')
+  return has(node, 'type') && (has(node, 'value') || node.type === 'page' || node.type === 'language')
 }
 
 /**
@@ -173,14 +171,14 @@ export function parseResponse(json: JSONObject): Object {
 /**
  * Plugin
  */
-export function createParser(params: Object = {}): ApiPlugin {
-  initOptions(params)
+export function createParser(options: Object = {}): ApiPlugin {
+  initOptions(options)
   return {
-    id: 'aflevere-api-vue-parser-plugin',
+    id: 'tric-vue-parser-plugin',
     name: 'parser',
     components: {
-      'TheHtml': TheNodes,
-      'TheLink': TheLink
+      'TricHtml': TricNodes,
+      'TricLink': TricLink
     },
     init: () => {
       subscribe('on-changed-locale', setLocale)

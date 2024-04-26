@@ -1,7 +1,17 @@
 import { objToAttr, extend, toBool } from '../../fn'
 import { getOption } from '../index'
 import { createNode } from './index'
-import type { Object, JSONObject, ParserModel } from '../../types'
+import type { Object, JSONObject, ParserModel, LinkTypes } from '../../types'
+
+export function createLinkByValues(type: LinkTypes, title: string, href: string): ParserModel {
+  return createLink({
+    value: title,
+    link: {
+      type,
+      href
+    }
+  })
+}
 
 /**
  * Model for API field: link, tel, email, url

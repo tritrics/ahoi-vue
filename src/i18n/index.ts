@@ -1,105 +1,92 @@
 import { ref } from 'vue'
-import { each, toKey, has, clone, toBool, isStr, isUndef, isObj } from '../fn'
+import { each, toKey, has, toBool, isStr, isUndef, isObj } from '../fn'
 import { getInfo, getLanguage as getLanguageRequest } from '../api'
 import { publish, inject } from '../api/plugins'
 import type { ApiPlugin, JSONObject, Object } from '../types'
 
 /**
- * list of languages like returned from getInfo()
- */
-const languages = ref<JSONObject>({})
-
-/**
  * Details of current language like returned from getLanguage()
  */
-const language = ref<JSONObject>({})
+const data = ref<JSONObject>({})
 
 /**
- * Terms as (optionally) defined in Kirby's language settings.
+ * list of languages like returned from getInfo()
  */
-const terms = ref<JSONObject>({})
+const all = ref<JSONObject>({})
 
 /**
  * INTERN lookup.
  * Needed, because languages and language may be parsed and have an unknown structure.
  */
-const data = ref<{
+const props = ref<{
   multilang: boolean
-  current: string|null
+  code: string|null
+  locale: string|null
   map: Object
 }>({
   multilang: false,
-  current: null,
-  map: {}
+  code: null, // current selected language
+  locale: null, // current locale
+  map: {} // map with all languages code => isDefault
 })
 
 /**
  * Is it a multilanguage site or not.
  */
 export function isMultilang(): boolean {
-  return data.value.multilang === true
+  return props.value.multilang === true
 }
 
 /**
  * Check, if the given language is the current language.
  */
-export function isLanguage(lang: string): boolean {
-  return data.value.current === lang
+export function isCurrent(code: string): boolean {
+  return props.value.code === code
 }
 
 /**
  * Check, if the given language is valid.
  */
-export function isValidLanguage(lang: string|null): boolean {
-  if (isStr(lang, 1)) {
-    return has(data.value.map, lang)
+export function isValid(code: string|null): boolean {
+  if (isStr(code, 1)) {
+    return has(props.value.map, code)
   }
   return false
 }
 
 /**
- * Get list with all languages.
+ * Get object with all information from the current language.
  */
-export function getLanguages(): JSONObject {
-  return languages.value
+export function getLang(): JSONObject {
+  return data
 }
 
 /**
- * Get object with all information from the current language.
+ * Get list with all languages.
  */
-export function getLanguage(): JSONObject {
-  return language.value
+export function getAll(): JSONObject {
+  return all
 }
 
 /**
  * Get the current 2-chars language code.
  */
-export function getLangcode(): string|null {
-  return data.value.current
+export function getCode(): string|null {
+  return props.value.code
 }
 
 /**
  * Get locale of current language.
  */
 export function getLocale(): string|null {
-  if (isStr(data.value.current, 1)) {
-    return data.value.map[data.value.current].locale
-  }
-  return null
+  return props.value.locale
 }
 
 /**
  * Get a term given by key.
  */
 export function getTerm(key: string): string|number|null {
-  return terms.value[key] || null
-}
-
-/**
- * Get all terms.
- */
-export function getTerms(): JSONObject {
-  return terms.value
+  return data.value[key] ?? null
 }
 
 /**
@@ -108,21 +95,21 @@ export function getTerms(): JSONObject {
  * @param {boolean} getUser try to get the language from browser
  * @param {boolean} getDefault get default language like defined in Kirby if detection fails
  */
-export function detectLanguage(getUser: boolean = true, getDefault: boolean = true): string|null {
+export function detect(getUser: boolean = true, getDefault: boolean = true): string|null {
   let res: string|null = null
   if (getUser) {
     for (let i = 0; i < navigator.languages.length; i++) {
-      const lang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
-      if (!isUndef(lang) && isValidLanguage(lang)) {
-        res = lang
+      const code: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
+      if (!isUndef(code) && isValid(code)) {
+        res = code
         break
       }
     }
   }
-  if (getDefault && !isValidLanguage(res)) {
-    for (const lang in data.value.map) {
-      if (data.value.map[lang].default) {
-        res = lang
+  if (getDefault && !isValid(res)) {
+    for (const code in props.value.map) {
+      if (props.value.map[code].default) {
+        res = code
         break
       }
     }
@@ -133,24 +120,23 @@ export function detectLanguage(getUser: boolean = true, getDefault: boolean = tr
 /**
  * Setting a language with implicit requesting all language data from Kirby.
  */
-export async function setLanguage(lang: string|null): Promise<string|null> {
-  if (isMultilang() && isStr(lang, 1)) {
-    const res = toKey(lang)
-    if (isValidLanguage(res) && (res !== data.value.current)) {
-      const json: JSONObject = await getLanguageRequest(lang, { raw: true })
+export async function setLang(code: string|null): Promise<string|null> {
+  if (isMultilang() && isStr(code, 1)) {
+    const res = toKey(code)
+    if (isValid(res) && (res !== props.value.code)) {
+      const json: JSONObject = await getLanguageRequest(code, { raw: true })
       if (!isObj(json) || !json.ok) {
-        return data.value.current
+        return props.value.code
       }
-      data.value.current = lang
-      data.value.map[data.value.current].locale = normalizeLocale(json.body.meta.locale)
-      terms.value = clone(json.body.terms)
-      language.value = parseResponse(json.body)
-      publish('on-changed-langcode', getLangcode())
+      props.value.code = code
+      props.value.locale = normalizeLocale(json.body.meta.locale)
+      data.value = parseResponse(json.body)
+      publish('on-changed-langcode', getCode())
       publish('on-changed-locale', getLocale())
-      publish('on-changed-language', getLanguage())
+      publish('on-changed-language', getLang())
     }
   }
-  return data.value.current
+  return props.value.code
 }
 
 /**
@@ -158,20 +144,19 @@ export async function setLanguage(lang: string|null): Promise<string|null> {
  */
 async function requestLanguages(): Promise<void> {
   const json = await getInfo({ raw: true })
-  data.value.multilang = toBool(json.body.meta.multilang)
+  props.value.multilang = toBool(json.body.meta.multilang)
   if (isMultilang()) {
-    each(json.body.value.languages.value, (props: Object) => {
-      data.value.map[props.meta.code] = {
-        default: toBool(props.meta.default),
-      }
+    each(json.body.languages, (lang: Object) => {
+      props.value.map[lang.meta.code] =  toBool(lang.meta.default)
     })
-    languages.value = parseResponse(json.body.value.languages) // parse does nothing if not parser exists
+    const body = parseResponse(json)
+    all.value = body.languages
   } else {
-     data.value.map = {}
+    props.value.map = {}
   }
-  publish('on-changed-multilang', data.value.multilang)
+  publish('on-changed-multilang', props.value.multilang)
   if (isMultilang()) {
-    publish('on-changed-languages', getLanguages())
+    publish('on-changed-languages', getAll())
   }
 }
 
@@ -203,24 +188,23 @@ function parseResponse(json: JSONObject): JSONObject {
  */
 export function createI18n(): ApiPlugin {
   return {
-    id: 'aflevere-api-vue-i18n-plugin',
+    id: 'tric-vue-i18n-plugin',
     name: 'i18n',
     setup: async (): Promise<void> => {
       await requestLanguages()
-      await setLanguage(detectLanguage())
+      await setLang(detect())
     },
     export: {
-      detectLanguage,
-      getLangcode,
-      getLanguage,
-      getLanguages,
-      getLocale,
       isMultilang,
-      isLanguage,
-      isValidLanguage,
-      setLanguage,
+      isCurrent,
+      isValid,
+      detect,
+      getLang,
+      getAll,
+      getCode,
+      getLocale,
       getTerm,
-      getTerms,
+      setLang,
     }
   }
 }

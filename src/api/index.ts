@@ -3,7 +3,7 @@ import Request from './Request'
 import RequestOptions from './Options'
 import { loadPlugins, subscribe } from './plugins'
 import { version } from '../../package.json'
-import type { FormPostData, ApiParams, ApiRequestParams, ApiMethods, ApiPlugin, JSONObject } from '../types'
+import type { FormPostData, ApiOptions, ApiRequestOptions, ApiMethods, ApiPlugin, JSONObject } from '../types'
 
 /**
  * The API interface version.
@@ -33,50 +33,50 @@ let Options: RequestOptions = new RequestOptions()
  * Create (default) options for all requests.
  */
 export function defineConfig(
-  params: ApiRequestParams,
+  options: ApiRequestOptions,
   reset: boolean = false
 ): void
 {
-  Options = Options.clone(params, reset)
+  Options = Options.clone(options, reset)
 }
 
 /**
  * Create a request object for use with chainging-functions.
  */
-export function createRequest(params: ApiRequestParams = {}): Request {
-  return new Request(Options.clone(params))
+export function createRequest(options: ApiRequestOptions = {}): Request {
+  return new Request(Options.clone(options))
 }
 
 /**
  * Call API interface /info.
  * Returns global information about the site.
  */
-export async function getInfo(params: ApiRequestParams = {}): Promise<JSONObject> {
-  return await createRequest(params).info()
+export async function getInfo(options: ApiRequestOptions = {}): Promise<JSONObject> {
+  return await createRequest(options).info()
 }
 
 /**
  * Call API interface /language/(:any).
  * Returns information from a single language.
  */
-export async function getLanguage(lang: string, params: ApiRequestParams = {} ): Promise<JSONObject> {
-  return await createRequest(params).language(lang)
+export async function getLanguage(lang: string, options: ApiRequestOptions = {} ): Promise<JSONObject> {
+  return await createRequest(options).language(lang)
 }
 
 /**
  * Call API interface /page/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getPage( path: string, params: ApiRequestParams = {}): Promise<JSONObject> {
-  return await createRequest(params).page(path)
+export async function getPage( path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+  return await createRequest(options).page(path)
 }
 
 /**
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getPages(path: string, params: ApiRequestParams = {}): Promise<JSONObject> {
-  return await createRequest(params).pages(path)
+export async function getPages(path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+  return await createRequest(options).pages(path)
 }
 
 /**
@@ -85,10 +85,10 @@ export async function getPages(path: string, params: ApiRequestParams = {}): Pro
 export async function createAction(
   action: string,
   data: FormPostData = {},
-  params: ApiRequestParams = {}
+  options: ApiRequestOptions = {}
 ): Promise<JSONObject>
 {
-  return await createRequest(params).create(action, data)
+  return await createRequest(options).create(action, data)
 }
 
 /**
@@ -98,10 +98,10 @@ export async function apiCall(
   path: string,
   method: ApiMethods = 'GET',
   data: FormPostData = {},
-  params: ApiRequestParams = {}
+  options: ApiRequestOptions = {}
 ): Promise<JSONObject>
 {
-  return await createRequest(params).call(path, method, data)
+  return await createRequest(options).call(path, method, data)
 }
 
 /**
@@ -121,16 +121,16 @@ function setMultilang(multilang: boolean) {
 /**
  * Creating the Vue-Plugin. 
  */
-export async function createApi(params: ApiParams) {
-  const name: string = has(params, 'name') ? params.name! : 'api'
-  defineConfig(params)
+export async function createApi(options: ApiOptions) {
+  const name: string = has(options, 'name') ? options.name! : 'api'
+  defineConfig(options)
   subscribe('on-changed-langcode', setLang)
   subscribe('on-changed-multilang', setMultilang)
 
   // load Plugin-Plugins
   let plugins: ApiPlugin[] = []
-  if (has(params, 'plugins')) {
-    plugins = await loadPlugins(params.plugins!)
+  if (has(options, 'plugins')) {
+    plugins = await loadPlugins(options.plugins!)
   }
   
   // register plugin

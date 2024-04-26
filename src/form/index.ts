@@ -1,10 +1,10 @@
 import Form from './Form'
-import type { ApiPlugin, Object, FormParams } from '../types'
+import type { ApiPlugin, Object, FormOptions } from '../types'
 
 /**
  * Factory to create a new form, returns the interface.
  */
-function createUserForm(options: FormParams = {}, fields: Object|null = null): Object {
+function createUserForm(options: FormOptions = {}, fields: Object|null = null): Object {
   const form: Form = new Form(options, fields)
   return {
     fields: form.fields,
@@ -22,7 +22,7 @@ function createUserForm(options: FormParams = {}, fields: Object|null = null): O
  */
 export function createForm(): ApiPlugin {
   return {
-    id: 'aflevere-api-vue-form-plugin',
+    id: 'tric-vue-form-plugin',
     name: 'form',
     export: {
       createUserForm,

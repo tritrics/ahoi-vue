@@ -3,7 +3,7 @@ import { createImages } from '../images'
 import type { Object, ApiPlugin } from '../types'
 
 /**
- * Registered plugins as given with createApi(params)
+ * Registered plugins as given with createApi(options)
  * Plugins here mean: Plugins of the API-Plugin.
  */
 const registeredPlugins: string[] = []
@@ -23,7 +23,7 @@ const registeredMethods: { [ key: string ]: Object } = {}
  */
 function createThisPlugin(): ApiPlugin {
   return {
-    id: 'aflevere-api-vue-plugins-plugin',
+    id: 'tric-vue-plugins-plugin',
     name: 'plugins',
     export: {
       hasPlugin,

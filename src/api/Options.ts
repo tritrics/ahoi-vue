@@ -1,7 +1,7 @@
 import { APIVERSION } from './index'
 import { each, has, toKey, lower, isArr, isTrue, isInt, isObj, isStr, isUrl, isBool, toBool, toInt } from '../fn'
 import { hasPlugin } from './plugins'
-import type { ApiRequestParams, ApiOrder } from '../types'
+import type { ApiRequestOptions, ApiOrder } from '../types'
 
 /**
  * Options for an API request
@@ -11,7 +11,7 @@ class Options {
   /**
    * Default options
    */
-  params: ApiRequestParams = {
+  options: ApiRequestOptions = {
     host: null,
     lang:  null,
     fields: true, // true = all fields, false = no fields, array with field names
@@ -24,22 +24,22 @@ class Options {
 
   /**
    */
-  constructor(params: ApiRequestParams = {}) {
-    if (!has(params, 'raw') || !isBool(params.raw)) {
-      params.raw = hasPlugin('parser')
+  constructor(options: ApiRequestOptions = {}) {
+    if (!has(options, 'raw') || !isBool(options.raw)) {
+      options.raw = hasPlugin('parser')
     }
-    this.set(params)
+    this.set(options)
   }
 
   /**
-   * Create a new Options instance and merge optionally given params.
+   * Create a new Options instance and merge optionally given options.
    */
-  clone(params: ApiRequestParams, reset: boolean = false): Options {
+  clone(options: ApiRequestOptions, reset: boolean = false): Options {
     const clone: Options = new Options()
     if (!reset) {
-      clone.set(structuredClone(this.params))
+      clone.set(structuredClone(this.options))
     }
-    clone.set(params)
+    clone.set(options)
     return clone
   }
 
@@ -54,7 +54,7 @@ class Options {
    * @see setter
    */
   getHost(): string|null {
-    return this.params.host!
+    return this.options.host!
   }
 
   /**
@@ -62,27 +62,27 @@ class Options {
    * Optionally overwrite it with the prefered language.
    */
   getLang(langPrefered: string|null = null): string|null {
-    if (!this.params.multilang) {
+    if (!this.options.multilang) {
       return null
     }
-    return isStr(langPrefered, 1) ? langPrefered : this.params.lang!
+    return isStr(langPrefered, 1) ? langPrefered : this.options.lang!
   }
 
   /**
    * @see setter
    */
   getFields(): string[]|boolean {
-    return this.params.fields!
+    return this.options.fields!
   }
 
   /**
    * Getter for fields for use in request, where true translates to 'all'
    */
   getFieldsRequest(): string[]|'all' {
-    if (isTrue(this.params.fields)) {
+    if (isTrue(this.options.fields)) {
       return 'all'
-    } else if (isArr(this.params.fields)) {
-      return this.params.fields
+    } else if (isArr(this.options.fields)) {
+      return this.options.fields
     }
     return []
   }
@@ -91,38 +91,38 @@ class Options {
    * @see setter
    */
   getLimit(): number {
-    return this.params.limit!
+    return this.options.limit!
   }
 
   /**
    * @see setter
    */
   getSet(): number {
-    return this.params.set!
+    return this.options.set!
   }
 
   /**
    * @see setter
    */
   getOrder(): ApiOrder {
-    return this.params.order!
+    return this.options.order!
   }
 
   /**
    * @see setter
    */
   getRaw(): boolean {
-    return this.params.raw!
+    return this.options.raw!
   }
 
   /**
    * Set multiple options at once.
    */
-  set(params: ApiRequestParams): void {
-    if (!isObj(params)) {
+  set(options: ApiRequestOptions): void {
+    if (!isObj(options)) {
       return
     }
-    each(params, (val: any, prop: string) => {
+    each(options, (val: any, prop: string) => {
       switch(prop) {
         case 'host':
           return this.setHost(val)
@@ -150,9 +150,9 @@ class Options {
   setHost(host: string): void {
     if (isUrl(host)) {
       if (host.endsWith('/')) {
-        this.params.host = host.substring(0, host.length - 1)
+        this.options.host = host.substring(0, host.length - 1)
       } else {
-        this.params.host = host
+        this.options.host = host
       }
     }
   }
@@ -163,9 +163,9 @@ class Options {
    */
   setLang(lang: string): void {
     if (isStr(lang)) {
-      this.params.lang = toKey(lang)
+      this.options.lang = toKey(lang)
     } else {
-      this.params.lang = null
+      this.options.lang = null
     }
   }
 
@@ -178,7 +178,7 @@ class Options {
    */
   setFields(...args: (string|string[])[]|[boolean]): void {
     if (args.length === 1 && isBool(args[0])) {
-      this.params.fields = toBool(args[0])
+      this.options.fields = toBool(args[0])
       return
     }
     const fields: string[] = []
@@ -189,7 +189,7 @@ class Options {
         }
       })
     })
-    this.params.fields = fields
+    this.options.fields = fields
   }
 
   /**
@@ -198,7 +198,7 @@ class Options {
    */
   setLimit(limit: number): void {
     if (isInt(limit, 1)) {
-      this.params.limit = toInt(limit)
+      this.options.limit = toInt(limit)
     }
   }
 
@@ -208,7 +208,7 @@ class Options {
    */
   setSet(no: number): void {
     if (isInt(no, 1)) {
-      this.params.set = toInt(no)
+      this.options.set = toInt(no)
     }
   }
 
@@ -220,7 +220,7 @@ class Options {
     if (isStr(order)) {
       const val: string = toKey(order)
       if (val === 'asc' || val === 'desc') {
-        this.params.order = val
+        this.options.order = val
       }
     }
   }
@@ -231,7 +231,7 @@ class Options {
    * Can only be set to true, if parser plugin exists.
    */
   setRaw(raw: boolean = true): void {
-    this.params.raw = isTrue(raw) && hasPlugin('parser')
+    this.options.raw = isTrue(raw) && hasPlugin('parser')
   }
 
   /**
@@ -241,7 +241,7 @@ class Options {
    * @param {boolean} isMultilang 
    */
   setMultilang(isMultilang: boolean): void {
-    this.params.multilang = toBool(isMultilang)
+    this.options.multilang = toBool(isMultilang)
   }
 }
 

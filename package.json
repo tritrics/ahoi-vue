@@ -1,7 +1,7 @@
 {
-  "name": "aflevere-api-vue",
-  "description": "Vue.js plugin to use AflevereAPI Plugin for Kirby",
-  "version": "0.2.3",
+  "name": "tric-vue",
+  "description": "Vue.js plugin to use Tric Plugin for Kirby",
+  "version": "0.3.0",
   "author": "Michael Adams <ma@tritrics.dk>",
   "license": "ISC",
   "keywords": [
@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tritrics/aflevere-api-vue"
+    "url": "https://github.com/tritrics/tric-vue"
   },
   "scripts": {
     "dev": "vite",
@@ -54,40 +54,36 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/api/lib.cjs",
-  "module": "./dist/api/lib.js",
+  "main": "./dist/api.cjs",
+  "module": "./dist/api.js",
   "exports": {
     "./api": {
-      "import": "./dist/api/lib.js",
-      "require": "./dist/api/lib.cjs"
+      "import": "./dist/api.js",
+      "require": "./dist/api.cjs"
     },
     "./fn": {
-      "import": "./dist/fn/lib.js",
-      "require": "./dist/fn/lib.cjs"
+      "import": "./dist/fn.js",
+      "require": "./dist/fn.cjs"
     },
     "./form": {
-      "import": "./dist/form/lib.js",
-      "require": "./dist/form/lib.cjs"
+      "import": "./dist/form.js",
+      "require": "./dist/form.cjs"
     },
     "./i18n": {
-      "import": "./dist/i18n/lib.js",
-      "require": "./dist/i18n/lib.cjs"
+      "import": "./dist/i18n.js",
+      "require": "./dist/i18n.cjs"
     },
     "./images": {
-      "import": "./dist/images/lib.js",
-      "require": "./dist/images/lib.cjs"
+      "import": "./dist/images.js",
+      "require": "./dist/images.cjs"
     },
     "./parser": {
-      "import": "./dist/parser/lib.js",
-      "require": "./dist/parser/lib.cjs"
-    },
-    "./plugins": {
-      "import": "./dist/plugins/lib.js",
-      "require": "./dist/plugins/lib.cjs"
+      "import": "./dist/parser.js",
+      "require": "./dist/parser.cjs"
     },
     "./site": {
-      "import": "./dist/site/lib.js",
-      "require": "./dist/site/lib.cjs"
+      "import": "./dist/site.js",
+      "require": "./dist/site.cjs"
     }
   }
 }

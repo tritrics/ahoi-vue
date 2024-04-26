@@ -23,18 +23,18 @@ export type ApiOrder = 'asc' | 'desc'
 /**
  * API-Plugin parameter
  */
-export interface ApiParams {
+export interface ApiOptions {
   name?: string,
   host?: string,
   lang?: string,
   plugins?: ApiPlugin[],
-  request?: ApiRequestParams
+  request?: ApiRequestOptions
 }
 
 /**
  * Request parameter
  */
-export interface ApiRequestParams {
+export interface ApiRequestOptions {
   host?: string|null
   lang?: string|null
   fields?: string[]|boolean

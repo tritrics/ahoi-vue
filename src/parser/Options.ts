@@ -7,14 +7,14 @@ import type { Object } from '../types'
 class Options {
 
   /**
-   * Params
+   * Options
    */
-  params: Object = {}
+  options: Object = {}
 
   /**
-   * Default values for params
+   * Default values for options
    */
-  paramsDefault: Object = {
+  optionsDefault: Object = {
     global: {
       locale: null
     },
@@ -38,35 +38,35 @@ class Options {
 
   /**
    */
-  constructor(params: Object = {}) {
-    this.init(params)
+  constructor(options: Object = {}) {
+    this.init(options)
   }
 
   /**
    * Setter
    */
   set(field: string, prop: string, value: any): void {
-    if (has(this.paramsDefault, field, prop) || field === 'html') {
-      if (!isObj(this.params[field][prop])) {
-        this.params[field]![prop] = value
+    if (has(this.optionsDefault, field, prop) || field === 'html') {
+      if (!isObj(this.options[field][prop])) {
+        this.options[field]![prop] = value
       } else if (isObj(value)) {
-        this.params[field]![prop] = merge(this.params[field][prop], value)
+        this.options[field]![prop] = merge(this.options[field][prop], value)
       }
     }
   }
 
   /**
-   * Get a specific option from this.params or optionally return 
+   * Get a specific option from this.options or optionally return 
    * the user-given option.
    */
   get(field: string, prop: string, user: Object = {}): any {
-    if (has(this.params, field, prop) && has(user, prop)) {
-      if (isObj(this.params[field][prop])) {
-        return merge(clone(this.params[field][prop]), user[prop])
+    if (has(this.options, field, prop) && has(user, prop)) {
+      if (isObj(this.options[field][prop])) {
+        return merge(clone(this.options[field][prop]), user[prop])
       }
       return user[prop]
-    } else if (has(this.params, field, prop)) {
-      return this.params[field][prop]
+    } else if (has(this.options, field, prop)) {
+      return this.options[field][prop]
     } else if (has(user, prop)) {
       return user[prop]
     }
@@ -74,11 +74,11 @@ class Options {
   }
 
   /**
-   * Init Params
+   * Init options
    */
-  init(params: Object = {}): void {
-    this.params = clone(this.paramsDefault)
-    each(params, (props: Object, field: string) => {
+  init(options: Object = {}): void {
+    this.options = clone(this.optionsDefault)
+    each(options, (props: Object, field: string) => {
       if (isObj(props)) {
         each(props, (value: any, prop: string) => {
           this.set(field, prop, value)

@@ -1,7 +1,9 @@
 /**
- * Image params for thumbs
+ * Image options for thumbs
  */
-export interface ImageParams {
+export interface ImageOptions {
+  width?: number,
+  height?: number,
   crop?: boolean
   blur?: number
   bw?: boolean
@@ -21,10 +23,15 @@ export interface ImageModel {
   [ index: string ]: any
 }
 
+export interface ImageDimensions {
+  width: number
+  height: number
+}
+
 /**
- * Image crop params
+ * Image crop options
  */
-export type ImageCropParams =
+export type ImageCropOptions =
   'top-left' |
   'top' |
   'top-right' |

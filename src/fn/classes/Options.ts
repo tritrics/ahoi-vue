@@ -10,20 +10,19 @@ class Options {
    * The options like { key: value }
    * {object}
    */
-  params: Object = {}
+  options: Object = {}
 
   /**
-   * @param {object} params 
    */
-  constructor(params: Object = {}) {
-    this.set(params)
+  constructor(options: Object = {}) {
+    this.set(options)
   }
 
   /**
    * Getter
    */
   get(key: keyof Object): any {
-    return this.params[key]
+    return this.options[key]
   }
 
   /**
@@ -33,10 +32,10 @@ class Options {
   set(mixed: Object|string, val?: any): void {
     if (isObj(mixed)) {
       each(mixed, (val: any, key: string) => {
-        this.params[key] = val
+        this.options[key] = val
       })
     } else if (isStr(mixed)) {
-      this.params[mixed] = val
+      this.options[mixed] = val
     }
   }
 }

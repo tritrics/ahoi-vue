@@ -1,5 +1,5 @@
 import { toBool, extend } from '../../fn'
-import { createBase, createLink } from './index'
+import { createBase, createLinkByValues } from './index'
 import type { Object, JSONObject, ParserModel } from '../../types'
 
 /**
@@ -9,10 +9,9 @@ export default function createLanguage(obj: JSONObject): ParserModel {
   obj.meta.default = toBool(obj.meta.default)
   const inject: Object = {
     $type: 'language',
-    $value: obj.value,
+    $value: obj.meta.title,
     $meta: obj.meta,
-    $link: createLink(obj),
-    $terms: obj.terms ?? null,
+    $link: createLinkByValues('page', obj.meta.title, obj.meta.href),
     $isDefault() {
       return this.$meta.default
     },
@@ -25,12 +24,9 @@ export default function createLanguage(obj: JSONObject): ParserModel {
     $direction() {
       return this.$meta.direction
     },
-    $tag(options: Object = {}) {
-      return this.$link.$tag(options)
-    },
     $attr(asString: boolean = false, options: Object = {}) { // { router: false , attr: { class: 'link-class' } }
       return this.$link.$attr(asString, options)
     },
   }
-  return extend(createBase(), inject) as ParserModel
+  return extend(createBase(), inject, obj.value ?? {}) as ParserModel
 }

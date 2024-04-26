@@ -15,8 +15,8 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     target: 'esnext',
-    sourcemap: true,
-    minify: 'terser',
+    //sourcemap: true,
+    //minify: 'terser',
     lib: {
       entry: [
         'src/api/index.ts',
@@ -25,10 +25,8 @@ export default defineConfig({
         'src/i18n/index.ts',
         'src/images/index.ts',
         'src/parser/index.ts',
-        'src/plugins/index.ts',
         'src/site/index.ts',
       ],
-      name: 'AflevereApiVue',
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
@@ -38,14 +36,13 @@ export default defineConfig({
       ],
       external: ['vue'], // external deps, don't bundle in library
       input: {
-        'api/lib': './src/api/index.ts',
-        'fn/lib': './src/fn/index.ts',
-        'form/lib': './src/form/index.ts',
-        'i18n/lib': './src/i18n/index.ts',
-        'images/lib': './src/images/index.ts',
-        'parser/lib': './src/parser/index.ts',
-        'plugins/lib': './src/plugins/index.ts',
-        'site/lib': './src/site/index.ts',
+        'api': './src/api/index.ts',
+        'fn': './src/fn/index.ts',
+        'form': './src/form/index.ts',
+        'i18n': './src/i18n/index.ts',
+        'images': './src/images/index.ts',
+        'parser': './src/parser/index.ts',
+        'site': './src/site/index.ts',
       },
       output: {
         manualChunks(id: any) {
@@ -55,7 +52,6 @@ export default defineConfig({
 		      if(id.includes('/i18n')) { return 'i18n'; }
 		      if(id.includes('/images')) { return 'images'; }
 		      if(id.includes('/parser')) { return 'parser'; }
-		      if(id.includes('/plugins')) { return 'plugins'; }
 		      if(id.includes('/site')) { return 'site'; }
 	      },
         globals: {
