@@ -7,7 +7,7 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createImage(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'image',
+    type: 'image',
   }
   return extend(createFile(obj), inject) as ParserModel
 }

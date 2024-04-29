@@ -8,7 +8,7 @@ export type FormPostValue = string | number | (string|number)[]
 /**
  * Post object
  */
-export interface FormPostData {
+export interface FormParams {
   [ key: string ]: FormPostValue
 }
 

@@ -7,10 +7,7 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createMarkdown(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'markdown',
-    $html() {
-      return 'mardown converting to html is not implemented yet'
-    },
+    type: 'markdown',
   }
   return extend(createString(obj), inject) as ParserModel
 }

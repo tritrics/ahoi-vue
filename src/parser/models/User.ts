@@ -7,11 +7,9 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createUser(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'user',
-    $meta: obj.meta,
-    $val(): string {
-      return this.$meta.id
-    },
+    type: 'user',
+    value: obj.meta.id,
+    meta: obj.meta,
   }
   return extend(createBase(), inject, obj.value ?? {}) as ParserModel
 }

@@ -18,8 +18,8 @@ export default function createString(mixed: JSONObject): ParserModel {
     }
   }
   const inject: Object = {
-    $type: 'string',
-    $value: value,
+    type: 'string',
+    value: value,
   }
   return extend(createBase(), inject) as ParserModel
 }

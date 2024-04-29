@@ -7,21 +7,20 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createFile(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'file',
-    $meta: obj.meta,
-    $link: createLinkByValues('file', obj.meta.title, obj.meta.href),
-    $val(): string {
-      return this.$meta.filename
-    },
-    $has(prop: any): boolean {
+    type: 'file',
+    value: obj.meta.filename,
+    meta: obj.meta,
+    link: createLinkByValues('file', obj.meta.title, obj.meta.href),
+    has(prop: any): boolean {
       return isStr(prop) && has(this, prop)
     },
-    $tag(options: Object = {}): string {
-      return this.$link.$tag(options)
-    },
-    $attr(asString: boolean = false, options: Object = {}): string|Object { // { router: false , attr: { class: 'link-class' } }
-      return this.$link.$attr(asString, options)
+    attr(asString: boolean = false, options: Object = {}): string|Object { // { router: false , attr: { class: 'link-class' } }
+      return this.link.attr(asString, options)
     },
   }
-  return extend(createBase(), inject, obj.value ?? {}) as ParserModel
+  const fields: Object = {}
+  if (has(obj, 'fields')) {
+    fields.fields = obj.fields
+  }
+  return extend(createBase(), inject, fields) as ParserModel
 }

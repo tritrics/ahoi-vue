@@ -6,10 +6,7 @@ import type { Object, JSONObject, ParserModel, LinkTypes } from '../../types'
 export function createLinkByValues(type: LinkTypes, title: string, href: string): ParserModel {
   return createLink({
     value: title,
-    link: {
-      type,
-      href
-    }
+    link: { type, href  }
   })
 }
 
@@ -19,11 +16,11 @@ export function createLinkByValues(type: LinkTypes, title: string, href: string)
  */
 export default function createLink(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'link',
-    $value: obj.meta?.title ?? obj.value,
-    $attributes: obj.type === 'site' ? obj.home : obj.link ?? obj.attr,
-    $attr(asString: boolean = false, options: Object = {}): string|Object {
-      const elemAttr: Object = { ...(this.$attributes || {}) }
+    type: 'link',
+    value: obj.meta?.title ?? obj.value,
+    attributes: obj.type === 'site' ? obj.home : obj.link ?? obj.attr,
+    attr(asString: boolean = false, options: Object = {}): string|Object {
+      const elemAttr: Object = { ...(this.attributes || {}) }
       delete(elemAttr.type)
       const add = getOption('html', 'a', { a: options }) ?? {}
       const res = { ...elemAttr, ...add }

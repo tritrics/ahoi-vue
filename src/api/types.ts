@@ -34,13 +34,26 @@ export interface ApiOptions {
 /**
  * Request parameter
  */
+export interface ApiRequestOptionsAll {
+  host: string|null
+  lang: string|null
+  fields: string[]
+  limit: number
+  set: number
+  order: ApiOrder
+  raw: boolean
+  multilang: boolean
+}
+
+/**
+ * Request parameter given by user
+ */
 export interface ApiRequestOptions {
   host?: string|null
   lang?: string|null
-  fields?: string[]|boolean
+  fields?: string[]
   limit?: number
   set?: number
   order?: ApiOrder
   raw?: boolean
-  multilang?: boolean
 }

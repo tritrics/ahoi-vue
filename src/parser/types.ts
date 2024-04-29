@@ -31,40 +31,20 @@ export interface ParserOptions {
   }
 }
 
-export type ParserModelTypes =
-  'string' |
-  'block' |
-  'boolean' |
-  'color' |
-  'date' |
-  'datetime' |
-  'file' |
-  'html' |
-  'node' |
-  'image' |
-  'info' |
-  'language' |
-  'link' |
-  'markdown' |
-  'number' |
-  'option' |
-  'page' |
-  'site' |
-  'string' |
-  'text' |
-  'time' |
-  'user'
+export type ResponseModelTypes = 'info' | 'language' | 'fields' | 'pages' | 'files'
 
 export type LinkTypes = 'page' | 'file' | 'email' | 'tel' | 'anchor' | 'custom'
 
-/**
- * Parser Model
- */
+export type ParserModelTypes = 'string' | 'block' | 'boolean' | 'color' | 'date' | 'datetime' | 'file' | 'html' | 'node' | 'image' | 'info' | 'language' | 'link' | 'markdown' | 'number' | 'option' | 'page' | 'site' | 'string' | 'text' | 'time' | 'user'
+
+export interface ResponseModel {
+  type: ResponseModelTypes
+  [ key: string ]: any
+}
+
 export interface ParserModel {
-  $type: ParserModelTypes
-  $value: any
-  $val: () => any
-  $str: (options?: Object) => string
+  type: ParserModelTypes
+  value: any
   toString: (options?: Object) => string
   [ key: string ]: any
 }

@@ -7,12 +7,12 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createOption(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'option',
-    $value: obj.value,
+    type: 'option',
+    value: obj.value,
   }
   const label: Object = {}
   if (has(obj, 'label')) {
-    label.$label = createString(obj.label)
+    label.label = createString(obj.label)
   }
   return extend(createBase(), inject, label) as ParserModel
 }

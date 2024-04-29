@@ -10,38 +10,43 @@ import type { ApiPlugin, JSONObject, Object } from '../types'
 const data = ref<JSONObject>({})
 
 /**
- * list of languages like returned from getInfo()
+ * List of languages like returned from getInfo()
  */
 const all = ref<JSONObject>({})
 
 /**
- * INTERN lookup.
- * Needed, because languages and language may be parsed and have an unknown structure.
+ * Language code of current language
  */
-const props = ref<{
-  multilang: boolean
-  code: string|null
-  locale: string|null
-  map: Object
-}>({
-  multilang: false,
-  code: null, // current selected language
-  locale: null, // current locale
-  map: {} // map with all languages code => isDefault
-})
+const langcode = ref<string>('')
+
+/**
+ * Locale of current language
+ */
+const locale = ref<string>('')
+
+/**
+ * Flag if page is a multilanguage page
+ */
+const multilang = ref<boolean>(false)
+
+/**
+ * Lookup for valid languages
+ * { [code]: is default }
+ */
+const map = ref<Object>({})
 
 /**
  * Is it a multilanguage site or not.
  */
 export function isMultilang(): boolean {
-  return props.value.multilang === true
+  return multilang.value === true
 }
 
 /**
  * Check, if the given language is the current language.
  */
 export function isCurrent(code: string): boolean {
-  return props.value.code === code
+  return langcode.value === code
 }
 
 /**
@@ -49,37 +54,9 @@ export function isCurrent(code: string): boolean {
  */
 export function isValid(code: string|null): boolean {
   if (isStr(code, 1)) {
-    return has(props.value.map, code)
+    return has(map.value, code)
   }
   return false
-}
-
-/**
- * Get object with all information from the current language.
- */
-export function getLang(): JSONObject {
-  return data
-}
-
-/**
- * Get list with all languages.
- */
-export function getAll(): JSONObject {
-  return all
-}
-
-/**
- * Get the current 2-chars language code.
- */
-export function getCode(): string|null {
-  return props.value.code
-}
-
-/**
- * Get locale of current language.
- */
-export function getLocale(): string|null {
-  return props.value.locale
 }
 
 /**
@@ -107,8 +84,8 @@ export function detect(getUser: boolean = true, getDefault: boolean = true): str
     }
   }
   if (getDefault && !isValid(res)) {
-    for (const code in props.value.map) {
-      if (props.value.map[code].default) {
+    for (const code in map.value) {
+      if (map.value[code].default) {
         res = code
         break
       }
@@ -122,21 +99,21 @@ export function detect(getUser: boolean = true, getDefault: boolean = true): str
  */
 export async function setLang(code: string|null): Promise<string|null> {
   if (isMultilang() && isStr(code, 1)) {
-    const res = toKey(code)
-    if (isValid(res) && (res !== props.value.code)) {
-      const json: JSONObject = await getLanguageRequest(code, { raw: true })
+    const normCode = toKey(code)
+    if (isValid(normCode) && (normCode !== langcode.value)) {
+      const json: JSONObject = await getLanguageRequest(normCode, { raw: true })
       if (!isObj(json) || !json.ok) {
-        return props.value.code
+        return langcode.value
       }
-      props.value.code = code
-      props.value.locale = normalizeLocale(json.body.meta.locale)
+      langcode.value = normCode
+      locale.value = normalizeLocale(json.body.meta.locale)
       data.value = parseResponse(json.body)
-      publish('on-changed-langcode', getCode())
-      publish('on-changed-locale', getLocale())
-      publish('on-changed-language', getLang())
+      publish('on-changed-langcode', langcode.value)
+      publish('on-changed-locale', locale.value)
+      publish('on-changed-language', data.value)
     }
   }
-  return props.value.code
+  return langcode.value
 }
 
 /**
@@ -144,32 +121,32 @@ export async function setLang(code: string|null): Promise<string|null> {
  */
 async function requestLanguages(): Promise<void> {
   const json = await getInfo({ raw: true })
-  props.value.multilang = toBool(json.body.meta.multilang)
+  multilang.value = toBool(json.body.meta.multilang)
   if (isMultilang()) {
     each(json.body.languages, (lang: Object) => {
-      props.value.map[lang.meta.code] =  toBool(lang.meta.default)
+      map.value[lang.meta.code] =  toBool(lang.meta.default)
     })
     const body = parseResponse(json)
     all.value = body.languages
   } else {
-    props.value.map = {}
+    map.value = {}
   }
-  publish('on-changed-multilang', props.value.multilang)
+  publish('on-changed-multilang', multilang.value)
   if (isMultilang()) {
-    publish('on-changed-languages', getAll())
+    publish('on-changed-languages', () => all)
   }
 }
 
 /**
  * Check and convert to javascript locale format.
  */
-function normalizeLocale(locale: string): string {
-  if (isStr(locale)) {
-    if(/^[a-z]{2,}[_]{1,}[A-Z]{2,}$/.test(locale)) {
-      locale = locale.replace('_', '-')
+function normalizeLocale(val: string): string {
+  if (isStr(val)) {
+    if(/^[a-z]{2,}[_]{1,}[A-Z]{2,}$/.test(val)) {
+      val = val.replace('_', '-')
     }
-    if(/^[a-z]{2,}[-]{1,}[A-Z]{2,}$/.test(locale)) {
-      return locale
+    if(/^[a-z]{2,}[-]{1,}[A-Z]{2,}$/.test(val)) {
+      return val
     }
   }
   return 'en-US'
@@ -195,14 +172,14 @@ export function createI18n(): ApiPlugin {
       await setLang(detect())
     },
     export: {
+      data,
+      all,
+      langcode,
+      locale,
       isMultilang,
       isCurrent,
       isValid,
       detect,
-      getLang,
-      getAll,
-      getCode,
-      getLocale,
       getTerm,
       setLang,
     }

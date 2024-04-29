@@ -58,7 +58,7 @@ const to = computed<Object|string|null>(() => {
 
 const value = computed((): string => {
   if (link.value.source === 'parser') {
-    return link.value.data.$val()
+    return link.value.data.value
   }
   return ''
 })

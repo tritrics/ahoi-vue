@@ -8,34 +8,34 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createNumber(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'number',
-    $value: toNum(obj.value),
-    $isMin(min: number): boolean {
-      return isNum(this.$value, min, null, true)
-    },
-    $isMax(max: number): boolean {
-      return isNum(this.$value, null, max, true)
-    },
-    $isGreater(min: number): boolean {
-      return isNum(this.$value, min, null, false)
-    },
-    $isSmaller(max: number): boolean {
-      return isNum(this.$value, null, max, false)
-    },
-    $isBetween(min: number, max: number): boolean {
-      return isNum(this.$value, min, max)
-    },
-    $str(options: Object = {}) {
+    type: 'number',
+    value: toNum(obj.value),
+    str(options: Object = {}) {
       const fixed: number|null = getOption('number', 'fixed', options)
       const stringOptions: Object = {}
       if (isInt(fixed, 1)) {
         stringOptions.minimumFractionDigits = fixed
         stringOptions.maximumFractionDigits = fixed
       }
-      return this.$value.toLocaleString(
+      return this.value.toLocaleString(
         getOption('global', 'locale', options),
         stringOptions
       )
+    },
+    isMin(min: number): boolean {
+      return isNum(this.value, min, null, true)
+    },
+    isMax(max: number): boolean {
+      return isNum(this.value, null, max, true)
+    },
+    isGreater(min: number): boolean {
+      return isNum(this.value, min, null, false)
+    },
+    isSmaller(max: number): boolean {
+      return isNum(this.value, null, max, false)
+    },
+    isBetween(min: number, max: number): boolean {
+      return isNum(this.value, min, max)
     },
   }
   return extend(createBase(), inject) as ParserModel

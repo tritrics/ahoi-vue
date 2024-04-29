@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { isObj } from '../fn'
-import { getPage } from '../api'
+import { getFields } from '../api'
 import { publish, subscribe, inject } from '../api/plugins'
 import type { ApiPlugin, JSONObject } from '../types'
 
@@ -13,20 +13,11 @@ const data = ref<JSONObject>({})
  * Init = request site.
  */
 async function requestSite(): Promise<void> {
-  const json = await getPage('/', { fields: true, raw: true })
+  const json = await getFields('/', { fields: true, raw: true })
   if (isObj(json) && json.ok) {
     data.value = parseResponse(json)
     publish('on-changed-site', json.body)
   }
-}
-
-/**
- * Get site's data.
- * 
- * @returns {object}
- */
-export function getSite(): JSONObject {
-  return data
 }
 
 /**
@@ -49,7 +40,7 @@ export function createSite(): ApiPlugin {
       subscribe('on-changed-langcode', requestSite)
     },
     export: {
-      getSite,
+      data,
     }
   }
 }

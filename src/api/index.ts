@@ -23,7 +23,7 @@ export const VERSION: string = version
  * by defineConfig(). Default Options are used for every request.
  * 
  * Default options can be optionally overwritten for a single request in three ways:
- * 1. getPage(node, {Object} options)
+ * 1. getFields(node, {Object} options)
  * 2. createRequest({Object} options)[...]
  * 3. createRequest().limit(5).fields(...)[...]
  */
@@ -52,7 +52,7 @@ export function createRequest(options: ApiRequestOptions = {}): Request {
  * Returns global information about the site.
  */
 export async function getInfo(options: ApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).info()
+  return await createRequest(options).getInfo()
 }
 
 /**
@@ -60,15 +60,15 @@ export async function getInfo(options: ApiRequestOptions = {}): Promise<JSONObje
  * Returns information from a single language.
  */
 export async function getLanguage(lang: string, options: ApiRequestOptions = {} ): Promise<JSONObject> {
-  return await createRequest(options).language(lang)
+  return await createRequest(options).getLanguage(lang)
 }
 
 /**
  * Call API interface /page/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getPage( path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).page(path)
+export async function getFields( path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+  return await createRequest(options).getFields(path)
 }
 
 /**
@@ -76,7 +76,15 @@ export async function getPage( path: string, options: ApiRequestOptions = {}): P
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
 export async function getPages(path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).pages(path)
+  return await createRequest(options).getPages(path)
+}
+
+/**
+ * Call API interface /pages/(:all?).
+ * Returns information of sub-pages of a single page or site (if node is empty).
+ */
+export async function getFiles(path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+  return await createRequest(options).getFiles(path)
 }
 
 /**
@@ -88,7 +96,7 @@ export async function createAction(
   options: ApiRequestOptions = {}
 ): Promise<JSONObject>
 {
-  return await createRequest(options).create(action, data)
+  return await createRequest(options).postCreate(action, data)
 }
 
 /**
@@ -142,7 +150,7 @@ export async function createApi(options: ApiOptions) {
         defineConfig,
         createRequest,
         getInfo,
-        getPage,
+        getFields,
         getPages,
         createAction,
         apiCall,

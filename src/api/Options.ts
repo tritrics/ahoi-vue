@@ -1,7 +1,7 @@
 import { APIVERSION } from './index'
-import { each, has, toKey, lower, isArr, isTrue, isInt, isObj, isStr, isUrl, isBool, toBool, toInt } from '../fn'
+import { each, has, count, toKey, lower, isArr, isTrue, isInt, isObj, isStr, isUrl, isBool, toBool, toInt } from '../fn'
 import { hasPlugin } from './plugins'
-import type { ApiRequestOptions, ApiOrder } from '../types'
+import type { ApiRequestOptionsAll, ApiRequestOptions, ApiOrder } from '../types'
 
 /**
  * Options for an API request
@@ -11,10 +11,10 @@ class Options {
   /**
    * Default options
    */
-  options: ApiRequestOptions = {
+  options: ApiRequestOptionsAll = {
     host: null,
     lang:  null,
-    fields: true, // true = all fields, false = no fields, array with field names
+    fields: [],
     limit: 10,
     set: 1,
     order: 'asc',
@@ -54,7 +54,7 @@ class Options {
    * @see setter
    */
   getHost(): string|null {
-    return this.options.host!
+    return this.options.host
   }
 
   /**
@@ -71,48 +71,43 @@ class Options {
   /**
    * @see setter
    */
-  getFields(): string[]|boolean {
-    return this.options.fields!
-  }
-
-  /**
-   * Getter for fields for use in request, where true translates to 'all'
-   */
-  getFieldsRequest(): string[]|'all' {
-    if (isTrue(this.options.fields)) {
-      return 'all'
-    } else if (isArr(this.options.fields)) {
-      return this.options.fields
-    }
-    return []
+  getFields(): string[] {
+    return this.options.fields
   }
 
   /**
    * @see setter
    */
   getLimit(): number {
-    return this.options.limit!
+    return this.options.limit
   }
 
   /**
    * @see setter
    */
   getSet(): number {
-    return this.options.set!
+    return this.options.set
   }
 
   /**
    * @see setter
    */
   getOrder(): ApiOrder {
-    return this.options.order!
+    return this.options.order
   }
 
   /**
    * @see setter
    */
   getRaw(): boolean {
-    return this.options.raw!
+    return this.options.raw
+  }
+
+  /**
+   * Is the request limited to certain fields?
+   */
+  hasFields(): boolean {
+    return count(this.options.fields) > 0
   }
 
   /**
@@ -170,26 +165,19 @@ class Options {
   }
 
   /**
-   * Set option `fields`. Given parameter can be:
-   * - setFields(true) to request all fields
-   * - setFields(false) to request no fields
-   * - one or multiple strings with fieldnames or array with fieldnames
-   *   setFields('field1', 'field2', 'field3', ['field4', 'field5', 'field6'])
+   * Set option `fields`. Given parameter can be one or multiple strings
+   * with fieldnames or array with fieldnames
+   * setFields('field1', 'field2', 'field3', ['field4', 'field5', 'field6'])
    */
-  setFields(...args: (string|string[])[]|[boolean]): void {
-    if (args.length === 1 && isBool(args[0])) {
-      this.options.fields = toBool(args[0])
-      return
-    }
-    const fields: string[] = []
+  setFields(...args: (string|string[])[]): void {
+    this.options.fields = []
     each (args, (arg: any) => {
       each(isArr(arg) ? arg : [ arg ], (field: any) => {
         if (isStr(field, 1)) {
-          fields.push(lower(field))
+          this.options.fields.push(lower(field))
         }
       })
     })
-    this.options.fields = fields
   }
 
   /**

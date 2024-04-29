@@ -6,16 +6,13 @@ import type { Object, ParserModel } from '../../types'
  */
 export default function createBase(): ParserModel {
   const base: ParserModel = {
-    $type: 'string',
-    $value: '',
-    $val(): string|number|boolean|Array<any> {
-      return this.$value
-    },
-    $str(): string {
-      return toStr(this.$val())
+    type: 'string',
+    value: '',
+    str(): string {
+      return toStr(this.value)
     },
     toString(): string {
-      return this.$str()
+      return this.str()
     },
   }
   return Object.create(base)

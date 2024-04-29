@@ -8,20 +8,25 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createTime(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'time',
-    $value: new Date(obj.meta.iso),
-    $timezone: obj.meta.timezone,
-    $isOver(): boolean {
-      return now(this.$value) > this.$value
-    },
-    $isComing(): boolean {
-      return now(this.$value) <= this.$value
-    },
-    $str(options: Object = {}) {
-      return this.$value.toLocaleTimeString(
+    type: 'time',
+    value: new Date(obj.iso),
+    utc: obj.utc,
+    iso: obj.iso,
+    timezone: obj.timezone,
+    str(options: Object = {}) {
+      return this.value.toLocaleTimeString(
         getOption('global', 'locale', options),
         getOption('time', 'format', options)
       )
+    },
+    isOver(): boolean {
+      return now(this.value) > this.value
+    },
+    isComing(): boolean {
+      return now(this.value) < this.value
+    },
+    isNow(): boolean {
+      return now(this.value) === this.value
     }
   }
   return extend(createBase(), inject) as ParserModel

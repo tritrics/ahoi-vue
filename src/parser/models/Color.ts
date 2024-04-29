@@ -7,10 +7,10 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createColor(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'color',
-    $format: obj.meta.format,
-    $alpha: toBool(obj.meta.alpha),
-    $value: obj.value,
+    type: 'color',
+    value: obj.value,
+    format: obj.format,
+    alpha: obj.alpha
   }
   return extend(createBase(), inject) as ParserModel
 }

@@ -7,11 +7,9 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createBlock(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'block',
-    $block: obj.block,
-    $val(): string {
-      return this.$meta.id
-    },
+    type: 'block',
+    value: obj.block,
+    block: obj.block,
   }
   return extend(createBase(), inject, obj.value ?? {}) as ParserModel
 }

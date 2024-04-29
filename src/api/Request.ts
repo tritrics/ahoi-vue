@@ -1,7 +1,7 @@
-import { isObj, toPath, isUrl, upper, objToParam } from '../fn'
+import { isObj, toPath, isUrl, upper, objToParam, count } from '../fn'
 import Options from './Options'
 import { inject } from './plugins'
-import type { ApiOrder, Object, FormPostData, ApiMethods, JSONObject } from '../types'
+import type { ApiOrder, Object, FormParams, ApiMethods, JSONObject } from '../types'
 
 /**
  * Class to handle a single request
@@ -48,7 +48,7 @@ class Request {
    * Shortcut for fields(true)
    */
   all(): this {
-    this.Options.setFields(true)
+    this.Options.setFields([])
     return this
   }
 
@@ -87,7 +87,7 @@ class Request {
   /**
    * Call API interface /info.
    */
-  async info(): Promise<JSONObject> {
+  async getInfo(): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.Options.getHost(), 
       this.Options.getVersion(),
@@ -100,7 +100,7 @@ class Request {
   /**
    * Call API interface /language/(:any).
    */
-  async language(lang: string): Promise<JSONObject> {
+  async getLanguage(lang: string): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.Options.getHost(),
       this.Options.getVersion(),
@@ -114,16 +114,17 @@ class Request {
   /**
    * Call API interface /page/(:all?).
    */
-  async page(path: string): Promise<JSONObject> {
+  async getFields(path: string): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.Options.getHost(),
       this.Options.getVersion(),
-      'page',
+      'fields',
       this.Options.getLang(),
       path
     )
-    const data: FormPostData = {
-      fields: this.Options.getFieldsRequest(),
+    const data: FormParams = {}
+    if (this.Options.hasFields()) {
+      data.fields = this.Options.getFields()
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
     return this.parseResponse(res)
@@ -132,19 +133,35 @@ class Request {
   /**
    * Call API interface /pages/(:all?).
    */
-  async pages(path: string): Promise<JSONObject> {
+  async getPages(path: string): Promise<JSONObject> {
+    return this.getCollection('pages', path)
+  }
+
+  /**
+   * Call API interface /files/(:all?).
+   */
+  async getFiles(path: string): Promise<JSONObject> {
+    return this.getCollection('files', path)
+  }
+
+  /**
+   * getPages and getFiles are identical
+   */
+  async getCollection(node: 'pages'|'files', path: string): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.Options.getHost(), 
       this.Options.getVersion(),
-      'pages',
+      node,
       this.Options.getLang(),
       path
     )
-    const data: FormPostData = {
+    const data: FormParams = {
       set: this.Options.getSet(),
       limit: this.Options.getLimit(),
       order: this.Options.getOrder(),
-      fields: this.Options.getFieldsRequest(),
+    }
+    if (this.Options.hasFields()) {
+      data.fields = this.Options.getFields()
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
     return this.parseResponse(res)
@@ -153,7 +170,7 @@ class Request {
   /**
    * Post data to a specified action /action/(:any).
    */
-  async create(action: string, data: FormPostData): Promise<JSONObject> {
+  async postCreate(action: string, data: FormParams): Promise<JSONObject> {
 
     // get token
     const urlToken: string = this.getUrl(
@@ -187,7 +204,7 @@ class Request {
   async call(
     path: string,
     method: ApiMethods = 'GET',
-    data: FormPostData|null = null
+    data: FormParams|null = null
   ): Promise<Object>
   {
     const url: string = this.getUrl(

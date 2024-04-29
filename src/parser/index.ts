@@ -1,4 +1,4 @@
-import { each, has, isArr, isObj } from '../fn'
+import { each, has, isArr, isObj, camelCase } from '../fn'
 import { subscribe } from '../api/plugins'
 import ParserOptions from './Options'
 import * as models from './models'
@@ -36,9 +36,40 @@ export function initOptions(options: Object = {}) {
 }
 
 /**
+ * Main function to parse json from response.
+ */
+export function parseResponse(json: JSONObject): Object {
+  if (has(json, 'body')) {
+    const res: Object = { type: json.body.type }
+    each(
+      ['meta', 'translations', 'interface', 'languages', 'collection', 'fields', 'pages', 'files'],
+      (node: string) => addToResponse(res, json.body, node)
+    )
+    return res
+  } else if (isField(json)) {
+    return createModel(json)
+  }
+  return {}
+}
+
+/**
+ * Add a given node to response object.
+ */
+function addToResponse(res: Object, body: JSONObject, node: string): void {
+  if (node === 'translations' && has(body, 'translations')) { // special case
+    res.translations = {}
+    each(body.translations, (href: string, lang: string) => {
+      res.translations[lang] = models.createLinkByValues('page', lang, href)
+    })
+  } else if (has(body, node)) {
+    res[node] = parseFields(body[node]);
+  }
+}
+
+/**
  * Recoursive function to parse the response from Kirby
  */
-function parseNodes(nodes: JSONObject): Object {
+function parseFields(nodes: JSONObject): Object {
 
   // node is Object
   if (isObj(nodes)) {
@@ -50,11 +81,11 @@ function parseNodes(nodes: JSONObject): Object {
     
     // node with value
     else if (has(nodes, 'value')) {
-      return parseNodes(nodes.value)
+      return parseFields(nodes.value)
     }
     const res: Object = {}
     each(nodes, (node: JSONObject, key: string) => {
-      res[key] = parseNodes(node)
+      res[key] = parseFields(node)
     })
     return res as ParserModel
   }
@@ -62,8 +93,8 @@ function parseNodes(nodes: JSONObject): Object {
   // node is Array
   else if (isArr(nodes)) {
     const res: Object[] = []
-    each(nodes, (node: JSONObject, key: number) => {
-      res[key] = parseNodes(node)
+    each(nodes, (node: JSONObject) => {
+      res.push(parseFields(node))
     })
     return res
   }
@@ -72,7 +103,7 @@ function parseNodes(nodes: JSONObject): Object {
 
 /**
  * Model factory
- * Sub-method of parseNodes() creating the model for a given field.
+ * Sub-method of parseFields() creating the model for a given field.
  */
 function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
   switch(node.type) {
@@ -85,7 +116,7 @@ function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
     case 'date':
       return models.createDate(node)
     case 'datetime':
-      return models.createDateTime(node)
+      return models.createDatetime(node)
     case 'email':
       return models.createLink(node)
     case 'file':
@@ -94,8 +125,6 @@ function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
       return models.createHtml(node)
     case 'image':
       return models.createImage(createChildModels(node))
-    case 'info':
-      return models.createInfo(createChildModels(node))
     case 'language':
       return models.createLanguage(node)
     case 'link':
@@ -108,8 +137,6 @@ function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
       return models.createNumber(node)
     case 'option':
       return models.createOption(node)
-    case 'site':
-      return models.createSite(createChildModels(node))
     case 'tel':
       return models.createLink(node)
     case 'text':
@@ -121,10 +148,8 @@ function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
     case 'user':
       return models.createUser(createChildModels(node))
     default:
-      
-      // also files, object, pages, structure, users, options
       if (isArr(node.value) || isObj(node.value)) {
-        return parseNodes(node.value)
+        return parseFields(node.value)
       } else {
         return models.createString(node) 
       }
@@ -136,7 +161,9 @@ function createModel(node: JSONObject): Object|ParserModel|ParserModel[] {
  */
 function createChildModels(node: JSONObject): Object {
   if (has(node, 'value')) {
-    node.value = parseNodes(node.value)
+    node.value = parseFields(node.value)
+  } else if (has(node, 'fields')) {
+    node.fields = parseFields(node.fields)
   }
   return node
 }
@@ -146,7 +173,7 @@ function createChildModels(node: JSONObject): Object {
  * This is the case when it has subnodes `type` and `value` or is of type `page`.
  */
 function isField(node: JSONObject): boolean {
-  return has(node, 'type') && (has(node, 'value') || node.type === 'page' || node.type === 'language')
+  return has(node, 'type') && has(node, 'value')
 }
 
 /**
@@ -154,18 +181,6 @@ function isField(node: JSONObject): boolean {
  */
 function setLocale(locale: string): void {
   Options.set('global', 'locale', locale)
-}
-
-/**
- * Main function to parse json from response.
- */
-export function parseResponse(json: JSONObject): Object {
-  if (has(json, 'body')) {
-    return parseNodes(json.body)
-  } else if (isField(json)) {
-    return createModel(json)
-  }
-  return {}
 }
 
 /**

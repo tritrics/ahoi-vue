@@ -7,17 +7,20 @@ import type { Object, JSONObject, ParserModel } from '../../types'
  */
 export default function createBoolean(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'boolean',
-    $value: toBool(obj.value),
-    $is(prop: any): boolean {
-      return this.$value === toBool(prop)
+    type: 'boolean',
+    value: toBool(obj.value),
+    str(): string {
+      return this.value ? 'true' : 'false'
     },
-    $isTrue(): boolean {
-      return this.$value === true
+    is(val: any): boolean {
+      return toBool(val) === this.value
     },
-    $isFalse(): boolean {
-      return this.$value === false
+    isTrue(): boolean {
+      return this.value === true
     },
+    isFalse(): boolean {
+      return this.value === false
+    }
   }
   return extend(createBase(), inject) as ParserModel
 }

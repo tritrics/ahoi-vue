@@ -53,14 +53,14 @@ function createNodesRec(nodes: JSONObject[]): ParserModel[] {
  */
 export default function createHtml(obj: JSONObject): ParserModel {
   const inject: Object = {
-    $type: 'html',
-    $value: createNodesRec(isArr(obj.value) ? obj.value : [ obj.value ]),
-    $hasChildren() {
-      return isArr(this.$value)
-    },
-    $str(): string {
+    type: 'html',
+    value: createNodesRec(isArr(obj.value) ? obj.value : [ obj.value ]),
+    str(): string {
       return 'html-nodes'
-    }
+    },
+    hasChildren() {
+      return isArr(this.value)
+    },
   }
   return extend(createBase(), inject) as ParserModel
 }
