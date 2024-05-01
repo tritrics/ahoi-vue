@@ -1,7 +1,7 @@
 import { APIVERSION } from './index'
 import { each, has, count, toKey, lower, isArr, isTrue, isInt, isObj, isStr, isUrl, isBool, toBool, toInt } from '../fn'
 import { hasPlugin } from './plugins'
-import type { ApiRequestOptionsAll, ApiRequestOptions, ApiOrder } from '../types'
+import type { IApiRequestOptionsAll, IApiRequestOptions, ApiOrder } from '../types'
 
 /**
  * Options for an API request
@@ -11,22 +11,22 @@ class Options {
   /**
    * Default options
    */
-  options: ApiRequestOptionsAll = {
+  options: IApiRequestOptionsAll = {
     host: null,
     lang:  null,
     fields: [],
     limit: 10,
     set: 1,
     order: 'asc',
-    raw: false, // is set to true if parser exists
+    raw: false, // is set to true if core exists
     multilang: true, // multilang is only set to false by i18n-plugin
   }
 
   /**
    */
-  constructor(options: ApiRequestOptions = {}) {
+  constructor(options: IApiRequestOptions = {}) {
     if (!has(options, 'raw') || !isBool(options.raw)) {
-      options.raw = hasPlugin('parser')
+      options.raw = hasPlugin('core')
     }
     this.set(options)
   }
@@ -34,7 +34,7 @@ class Options {
   /**
    * Create a new Options instance and merge optionally given options.
    */
-  clone(options: ApiRequestOptions, reset: boolean = false): Options {
+  clone(options: IApiRequestOptions, reset: boolean = false): Options {
     const clone: Options = new Options()
     if (!reset) {
       clone.set(structuredClone(this.options))
@@ -113,7 +113,7 @@ class Options {
   /**
    * Set multiple options at once.
    */
-  set(options: ApiRequestOptions): void {
+  set(options: IApiRequestOptions): void {
     if (!isObj(options)) {
       return
     }
@@ -215,11 +215,11 @@ class Options {
 
   /**
    * Set option `raw`.
-   * Override parser-plugin if existing for this request.
-   * Can only be set to true, if parser plugin exists.
+   * Override core-plugin if existing for this request.
+   * Can only be set to true, if core plugin exists.
    */
   setRaw(raw: boolean = true): void {
-    this.options.raw = isTrue(raw) && hasPlugin('parser')
+    this.options.raw = isTrue(raw) && hasPlugin('core')
   }
 
   /**

@@ -1,12 +1,12 @@
 import { extend, has, toStr, isTrue, isNum, toNum, isEmpty} from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * Number field
  * Kirby: Number
  */
-export default function createNumber(def: Object): FormModel {
+export default function createNumber(def: Object): IFormModel {
   const inject: Object = {
     type: 'number',
     value: has(def, 'value') ? toStr(def.value) : '',
@@ -31,5 +31,5 @@ export default function createNumber(def: Object): FormModel {
       return toNum(this.value)
     }
   }
-  return extend(createBase(), inject) as FormModel
+  return extend(createBase(), inject) as IFormModel
 }

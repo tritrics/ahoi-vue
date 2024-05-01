@@ -1,13 +1,13 @@
 import { watchEffect } from 'vue'
 import { extend, has, each, unset, isTrue, isInt, isArr, toInt, isEmpty } from '../../fn'
 import { createBase, createString } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * List field
  * Kirby: Tags
  */
-export default function createList(def: Object): FormModel {
+export default function createList(def: Object): IFormModel {
   const inject: Object = {
     type: 'list',
     value: [],
@@ -17,7 +17,7 @@ export default function createList(def: Object): FormModel {
     minlength: has(def, 'minlength') && isInt(def.minlength, 1, null, false) ? toInt(def.minlength) : null,
     maxlength: has(def, 'maxlength') && isInt(def.maxlength, 1, null, false) ? toInt(def.maxlength) : null,
     validate() {
-      each (this.value, (field: FormModel) => {
+      each (this.value, (field: IFormModel) => {
         field.validate()
       })
       if (isEmpty(this.value)) {
@@ -56,7 +56,7 @@ export default function createList(def: Object): FormModel {
       }
     },
     data() {
-      return this.value.map((field: FormModel) => field.data())
+      return this.value.map((field: IFormModel) => field.data())
     },
     toString() {
       this.data().toString()
@@ -72,7 +72,7 @@ export default function createList(def: Object): FormModel {
         this.stop()
         this.stop = null
       }
-      each(this.value, (field: FormModel) => {
+      each(this.value, (field: IFormModel) => {
         field.watch(start)
       })
     },
@@ -88,5 +88,5 @@ export default function createList(def: Object): FormModel {
   each(values, (value: string) => {
     inject.add(value)
   })
-  return extend(createBase(), inject) as FormModel
+  return extend(createBase(), inject) as IFormModel
 }

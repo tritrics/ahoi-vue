@@ -61,6 +61,10 @@
       "import": "./dist/api.js",
       "require": "./dist/api.cjs"
     },
+    "./core": {
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
     "./fn": {
       "import": "./dist/fn.js",
       "require": "./dist/fn.cjs"
@@ -72,14 +76,6 @@
     "./i18n": {
       "import": "./dist/i18n.js",
       "require": "./dist/i18n.cjs"
-    },
-    "./images": {
-      "import": "./dist/images.js",
-      "require": "./dist/images.cjs"
-    },
-    "./parser": {
-      "import": "./dist/parser.js",
-      "require": "./dist/parser.cjs"
     },
     "./site": {
       "import": "./dist/site.js",

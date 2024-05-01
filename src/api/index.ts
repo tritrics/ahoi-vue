@@ -3,7 +3,7 @@ import Request from './Request'
 import RequestOptions from './Options'
 import { loadPlugins, subscribe } from './plugins'
 import { version } from '../../package.json'
-import type { FormPostData, ApiOptions, ApiRequestOptions, ApiMethods, ApiPlugin, JSONObject } from '../types'
+import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiPlugin, JSONObject } from '../types'
 
 /**
  * The API interface version.
@@ -33,7 +33,7 @@ let Options: RequestOptions = new RequestOptions()
  * Create (default) options for all requests.
  */
 export function defineConfig(
-  options: ApiRequestOptions,
+  options: IApiRequestOptions,
   reset: boolean = false
 ): void
 {
@@ -43,7 +43,7 @@ export function defineConfig(
 /**
  * Create a request object for use with chainging-functions.
  */
-export function createRequest(options: ApiRequestOptions = {}): Request {
+export function createRequest(options: IApiRequestOptions = {}): Request {
   return new Request(Options.clone(options))
 }
 
@@ -51,7 +51,7 @@ export function createRequest(options: ApiRequestOptions = {}): Request {
  * Call API interface /info.
  * Returns global information about the site.
  */
-export async function getInfo(options: ApiRequestOptions = {}): Promise<JSONObject> {
+export async function getInfo(options: IApiRequestOptions = {}): Promise<JSONObject> {
   return await createRequest(options).getInfo()
 }
 
@@ -59,7 +59,7 @@ export async function getInfo(options: ApiRequestOptions = {}): Promise<JSONObje
  * Call API interface /language/(:any).
  * Returns information from a single language.
  */
-export async function getLanguage(lang: string, options: ApiRequestOptions = {} ): Promise<JSONObject> {
+export async function getLanguage(lang: string, options: IApiRequestOptions = {} ): Promise<JSONObject> {
   return await createRequest(options).getLanguage(lang)
 }
 
@@ -67,7 +67,7 @@ export async function getLanguage(lang: string, options: ApiRequestOptions = {} 
  * Call API interface /page/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getFields( path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+export async function getFields( path: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
   return await createRequest(options).getFields(path)
 }
 
@@ -75,7 +75,7 @@ export async function getFields( path: string, options: ApiRequestOptions = {}):
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getPages(path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+export async function getPages(path: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
   return await createRequest(options).getPages(path)
 }
 
@@ -83,7 +83,7 @@ export async function getPages(path: string, options: ApiRequestOptions = {}): P
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getFiles(path: string, options: ApiRequestOptions = {}): Promise<JSONObject> {
+export async function getFiles(path: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
   return await createRequest(options).getFiles(path)
 }
 
@@ -92,8 +92,8 @@ export async function getFiles(path: string, options: ApiRequestOptions = {}): P
  */
 export async function createAction(
   action: string,
-  data: FormPostData = {},
-  options: ApiRequestOptions = {}
+  data: IFormParams = {},
+  options: IApiRequestOptions = {}
 ): Promise<JSONObject>
 {
   return await createRequest(options).postCreate(action, data)
@@ -105,8 +105,8 @@ export async function createAction(
 export async function apiCall(
   path: string,
   method: ApiMethods = 'GET',
-  data: FormPostData = {},
-  options: ApiRequestOptions = {}
+  data: IFormParams = {},
+  options: IApiRequestOptions = {}
 ): Promise<JSONObject>
 {
   return await createRequest(options).call(path, method, data)
@@ -129,14 +129,14 @@ function setMultilang(multilang: boolean) {
 /**
  * Creating the Vue-Plugin. 
  */
-export async function createApi(options: ApiOptions) {
+export async function createApi(options: IApiOptions) {
   const name: string = has(options, 'name') ? options.name! : 'api'
   defineConfig(options)
   subscribe('on-changed-langcode', setLang)
   subscribe('on-changed-multilang', setMultilang)
 
   // load Plugin-Plugins
-  let plugins: ApiPlugin[] = []
+  let plugins: IApiPlugin[] = []
   if (has(options, 'plugins')) {
     plugins = await loadPlugins(options.plugins!)
   }
@@ -158,7 +158,7 @@ export async function createApi(options: ApiOptions) {
       app.provide(name,  app.config.globalProperties[`$${name}`])
 
       // add plugins, usage: $api.site or inject('api.site')
-      each(plugins, (def: ApiPlugin) => {
+      each(plugins, (def: IApiPlugin) => {
         app.config.globalProperties[`$${name}`][def.name] = def.export
         app.provide(`${name}.${def.name}`, def.export)
         each(def?.components, (component: any, name: string) => {

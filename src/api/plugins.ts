@@ -1,6 +1,5 @@
 import { isStr, isFunc, has, inArr, isObj } from '../fn'
-import { createImages } from '../images'
-import type { Object, ApiPlugin } from '../types'
+import type { Object, IApiPlugin } from '../types'
 
 /**
  * Registered plugins as given with createApi(options)
@@ -21,7 +20,7 @@ const registeredMethods: { [ key: string ]: Object } = {}
 /**
  * This Plugins-Plugin
  */
-function createThisPlugin(): ApiPlugin {
+function createThisPlugin(): IApiPlugin {
   return {
     id: 'tric-vue-plugins-plugin',
     name: 'plugins',
@@ -94,17 +93,15 @@ export async function publish(event: string, payload: any = null): Promise<void>
 /**
  * Load Plugins
  */
-export async function loadPlugins(plugins: ApiPlugin[]): Promise<ApiPlugin[]> {
-  const registered: ApiPlugin[] = [
+export async function loadPlugins(plugins: IApiPlugin[]): Promise<IApiPlugin[]> {
+  const registered: IApiPlugin[] = [
     createThisPlugin(),
-    createImages(),
   ]
 
   // register plugins
   for (let i = 0; i < plugins.length; i++) {
     if (
       !isObj(plugins[i]) ||
-      !has(plugins[i], 'id') ||
       !has(plugins[i], 'name') ||
       !has(plugins[i], 'export')
     ) {

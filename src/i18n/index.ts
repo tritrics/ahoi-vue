@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { each, toKey, has, toBool, isStr, isUndef, isObj } from '../fn'
 import { getInfo, getLanguage as getLanguageRequest } from '../api'
 import { publish, inject } from '../api/plugins'
-import type { ApiPlugin, JSONObject, Object } from '../types'
+import type { IApiPlugin, JSONObject, Object } from '../types'
 
 /**
  * Details of current language like returned from getLanguage()
@@ -107,7 +107,7 @@ export async function setLang(code: string|null): Promise<string|null> {
       }
       langcode.value = normCode
       locale.value = normalizeLocale(json.body.meta.locale)
-      data.value = parseResponse(json.body)
+      data.value = convertResponse(json.body)
       publish('on-changed-langcode', langcode.value)
       publish('on-changed-locale', locale.value)
       publish('on-changed-language', data.value)
@@ -126,7 +126,7 @@ async function requestLanguages(): Promise<void> {
     each(json.body.languages, (lang: Object) => {
       map.value[lang.meta.code] =  toBool(lang.meta.default)
     })
-    const body = parseResponse(json)
+    const body = convertResponse(json)
     all.value = body.languages
   } else {
     map.value = {}
@@ -153,19 +153,18 @@ function normalizeLocale(val: string): string {
 }
 
 /**
- * Parse response, if parser plugin is installed.
+ * Parse response, if core plugin is installed.
  */
-function parseResponse(json: JSONObject): JSONObject {
-    const fn = inject('parser', 'parseResponse', (json: JSONObject): JSONObject => json)
+function convertResponse(json: JSONObject): JSONObject {
+    const fn = inject('core', 'convertResponse', (json: JSONObject): JSONObject => json)
     return fn(json)
 }
 
 /**
  * Plugin
  */
-export function createI18n(): ApiPlugin {
+export function createI18n(): IApiPlugin {
   return {
-    id: 'tric-vue-i18n-plugin',
     name: 'i18n',
     setup: async (): Promise<void> => {
       await requestLanguages()

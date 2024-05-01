@@ -1,8 +1,4 @@
-/**
- * API-plugin-plugin interface
- */
-export interface ApiPlugin {
-  id: string
+export interface IApiPlugin {
   name: string
   export: Object
   components?: Object
@@ -10,31 +6,15 @@ export interface ApiPlugin {
   init?: Function
 }
 
-/**
- * API methods
- */
-export type ApiMethods = 'GET' | 'POST' | 'PUT' | 'DELETE'
-
-/**
- * Order for RequestParams
- */
-export type ApiOrder = 'asc' | 'desc'
-
-/**
- * API-Plugin parameter
- */
-export interface ApiOptions {
+export interface IApiOptions {
   name?: string,
   host?: string,
   lang?: string,
-  plugins?: ApiPlugin[],
-  request?: ApiRequestOptions
+  plugins?: IApiPlugin[],
+  request?: IApiRequestOptions
 }
 
-/**
- * Request parameter
- */
-export interface ApiRequestOptionsAll {
+export interface IApiRequestOptionsAll {
   host: string|null
   lang: string|null
   fields: string[]
@@ -45,10 +25,7 @@ export interface ApiRequestOptionsAll {
   multilang: boolean
 }
 
-/**
- * Request parameter given by user
- */
-export interface ApiRequestOptions {
+export interface IApiRequestOptions {
   host?: string|null
   lang?: string|null
   fields?: string[]
@@ -57,3 +34,13 @@ export interface ApiRequestOptions {
   order?: ApiOrder
   raw?: boolean
 }
+
+export type ApiMethods =
+  'GET' |
+  'POST' |
+  'PUT' |
+  'DELETE'
+
+export type ApiOrder =
+  'asc' |
+  'desc'

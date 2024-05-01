@@ -1,12 +1,12 @@
 import { has, isTrue, isInt, isStr, toInt, toStr, isEmpty, extend } from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * String field (single line, no breaks)
  * Kirby: Color, Slug, Text
  */
-export default function createString(def: Object, parent = {}): FormModel {
+export default function createString(def: Object, parent = {}): IFormModel {
   const inject: Object = {
     type: 'string',
     value: has(def, 'value') ? toStr(def.value) : '',
@@ -29,5 +29,5 @@ export default function createString(def: Object, parent = {}): FormModel {
       return this.setValid()
     }
   }
-  return extend(createBase(), inject, parent) as FormModel
+  return extend(createBase(), inject, parent) as IFormModel
 }

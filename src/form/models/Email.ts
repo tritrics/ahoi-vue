@@ -1,12 +1,12 @@
 import { extend, has, isEmpty, isEmail, toStr, isTrue } from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel} from '../../types'
+import type { Object, IFormModel} from '../../types'
 
 /**
  * Email field
  * Kirby: Email
  */
-export default function createEmail(def: Object): FormModel {
+export default function createEmail(def: Object): IFormModel {
   const inject: Object = {
     type: 'email',
     value: has(def, 'value') ? toStr(def.value) : '',
@@ -22,5 +22,5 @@ export default function createEmail(def: Object): FormModel {
       return this.setValid()
     },
   }
-  return extend(createBase(), inject) as FormModel
+  return extend(createBase(), inject) as IFormModel
 }

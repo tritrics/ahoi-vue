@@ -1,10 +1,10 @@
 import Form from './Form'
-import type { ApiPlugin, Object, FormOptions } from '../types'
+import type { IApiPlugin, Object, IFormOptions } from '../types'
 
 /**
  * Factory to create a new form, returns the interface.
  */
-function createUserForm(options: FormOptions = {}, fields: Object|null = null): Object {
+function createUserForm(options: IFormOptions = {}, fields: Object|null = null): Object {
   const form: Form = new Form(options, fields)
   return {
     fields: form.fields,
@@ -20,9 +20,8 @@ function createUserForm(options: FormOptions = {}, fields: Object|null = null): 
 /**
  * Plugin
  */
-export function createForm(): ApiPlugin {
+export function createForm(): IApiPlugin {
   return {
-    id: 'tric-vue-form-plugin',
     name: 'form',
     export: {
       createUserForm,

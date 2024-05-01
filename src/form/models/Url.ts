@@ -1,12 +1,12 @@
 import { extend, has, isEmpty, isUrl, toStr, isTrue } from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * Url field
  * Kirby: Url
  */
-export default function createUrl(def: Object): FormModel {
+export default function createUrl(def: Object): IFormModel {
   const inject: Object = {
     type: 'url',
     value: has(def, 'value') ? toStr(def.value) : '',
@@ -22,5 +22,5 @@ export default function createUrl(def: Object): FormModel {
       return this.setValid()
     },
   }
-  return extend(createBase(), inject) as FormModel
+  return extend(createBase(), inject) as IFormModel
 }

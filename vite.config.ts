@@ -20,11 +20,10 @@ export default defineConfig({
     lib: {
       entry: [
         'src/api/index.ts',
+        'src/core/index.ts',
         'src/fn/index.ts',
         'src/form/index.ts',
         'src/i18n/index.ts',
-        'src/images/index.ts',
-        'src/parser/index.ts',
         'src/site/index.ts',
       ],
       formats: ['es', 'cjs'],
@@ -37,21 +36,19 @@ export default defineConfig({
       external: ['vue'], // external deps, don't bundle in library
       input: {
         'api': './src/api/index.ts',
+        'core': './src/core/index.ts',
         'fn': './src/fn/index.ts',
         'form': './src/form/index.ts',
         'i18n': './src/i18n/index.ts',
-        'images': './src/images/index.ts',
-        'parser': './src/parser/index.ts',
         'site': './src/site/index.ts',
       },
       output: {
         manualChunks(id: any) {
 		      if(id.includes('/api')) { return 'api'; }
+		      if(id.includes('/core')) { return 'core'; }
 		      if(id.includes('/fn')) { return 'fn'; }
 		      if(id.includes('/form')) { return 'form'; }
 		      if(id.includes('/i18n')) { return 'i18n'; }
-		      if(id.includes('/images')) { return 'images'; }
-		      if(id.includes('/parser')) { return 'parser'; }
 		      if(id.includes('/site')) { return 'site'; }
 	      },
         globals: {

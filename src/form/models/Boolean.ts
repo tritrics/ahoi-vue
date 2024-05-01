@@ -1,12 +1,12 @@
 import { extend, has, isTrue, isBool } from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * Boolean field
  * Kirby: Toggle
  */
-export default function createBoolean(def: Object): FormModel {
+export default function createBoolean(def: Object): IFormModel {
   const inject: Object = {
     type: 'boolean',
     value: has(def, 'value') && isTrue(def.value, false) ? true : false,
@@ -23,5 +23,5 @@ export default function createBoolean(def: Object): FormModel {
       return isTrue(this.value, false) ? 1 : 0
     },
   }
-  return extend(createBase(), inject) as FormModel
+  return extend(createBase(), inject) as IFormModel
 }

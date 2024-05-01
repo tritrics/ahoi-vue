@@ -1,4 +1,4 @@
-import { isObj, isStr, each } from '../'
+import { isObj, isStr, isUndef, each, has } from '../'
 import type { Object } from '../../types'
 
 /**
@@ -8,34 +8,47 @@ class Options {
 
   /**
    * The options like { key: value }
-   * {object}
    */
   options: Object = {}
 
   /**
+   * Init options.
+   * Only given options can be set.
    */
   constructor(options: Object = {}) {
     this.set(options)
   }
 
   /**
-   * Getter
+   * Getter with optional given value to overwrite.
    */
-  get(key: keyof Object): any {
-    return this.options[key]
+  get(key: keyof Object, overwrite?: any): any {
+    if (!isUndef(overwrite)) {
+      return overwrite
+    }
+    if (has(this.options, key)) {
+      return this.options[key]
+    }
+    return undefined
   }
 
   /**
-   * Setter
-   * Either a key/value-pair or an object
+   * Setter, either a key/value-pair or an object.
+   * Sets only existing keys.
    */
   set(mixed: Object|string, val?: any): void {
     if (isObj(mixed)) {
       each(mixed, (val: any, key: string) => {
-        this.options[key] = val
+        this.#setValue(key, val)
       })
-    } else if (isStr(mixed)) {
-      this.options[mixed] = val
+    } else if (isStr(mixed) && has(this.options, mixed)) {
+      this.#setValue(mixed, val)
+    }
+  }
+
+  #setValue(key: string, val: any) {
+    if(has(this.options, key)) {
+      this.options[key] = val
     }
   }
 }

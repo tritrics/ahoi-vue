@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { createAction } from '../api'
 import { each, has, toKey, isBool, isTrue, isObj, isStr, toBool } from '../fn'
 import * as models  from './models'
-import type { Object, FormOptions, FormModel, FormPostData, JSONObject } from '../types'
+import type { Object, IFormOptions, IFormModel, IFormParams, JSONObject } from '../types'
 
 class Form {
 
@@ -15,12 +15,12 @@ class Form {
   /**
    * List of field with all properties
    */
-  fields = ref<{[index: string]: FormModel}>({})
+  fields = ref<{[index: string]: IFormModel}>({})
 
   /**
    * Plugin-options
    */
-  options = ref<FormOptions>({
+  options = ref<IFormOptions>({
     // action
     // lang
     immediate: false,
@@ -36,7 +36,7 @@ class Form {
    */
   valid = computed<boolean>(() => {
     let res: boolean = true
-    each(this.fields.value, (field: FormModel) => {
+    each(this.fields.value, (field: IFormModel) => {
       if (!field.valid) {
         res = false
       }
@@ -51,7 +51,7 @@ class Form {
 
   /**
    */
-  constructor(options: FormOptions = {}, fields: Object|null = null) {
+  constructor(options: IFormOptions = {}, fields: Object|null = null) {
     this.setOptions(options)
     if(isObj(fields)) {
       this.defs = fields
@@ -66,7 +66,7 @@ class Form {
   /**
    * Setting options
    */
-  setOptions(options: FormOptions): void {
+  setOptions(options: IFormOptions): void {
     if (isObj(options)) {
       if (has(options, 'action') && isStr(options.action, 1)) {
         this.options.value.action = toKey(options.action)
@@ -129,7 +129,7 @@ class Form {
       }
     })
     if (this.onInput.value) {
-      each(this.fields.value, (field: FormModel) => {
+      each(this.fields.value, (field: IFormModel) => {
         field.watch(true)
       })
     }
@@ -142,7 +142,7 @@ class Form {
     if (isBool(onInput)) {
       this.onInput.value = toBool(onInput)
     }
-    each(this.fields.value, (field: FormModel) => {
+    each(this.fields.value, (field: IFormModel) => {
       field.validate()
       field.watch(this.onInput.value)
     })
@@ -151,9 +151,9 @@ class Form {
   /**
    * Get values from fields in their native type (number, string, array)
    */
-  data(): FormPostData {
-    const res: FormPostData = {}
-    each(this.fields.value, (field: FormModel, key: string) => {
+  data(): IFormParams {
+    const res: IFormParams = {}
+    each(this.fields.value, (field: IFormModel, key: string) => {
       res[key] = field.data()
     })
     return res
@@ -180,7 +180,7 @@ class Form {
    * Reset the field values
    */
   reset(): void {
-    each(this.fields.value, (field: FormModel) => {
+    each(this.fields.value, (field: IFormModel) => {
       field.watch(false)
     })
     this.initForm()

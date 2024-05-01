@@ -1,7 +1,7 @@
-import { isObj, toPath, isUrl, upper, objToParam, count } from '../fn'
+import { isObj, toPath, isUrl, upper, objToParam } from '../fn'
 import Options from './Options'
 import { inject } from './plugins'
-import type { ApiOrder, Object, FormParams, ApiMethods, JSONObject } from '../types'
+import type { ApiOrder, Object, IFormParams, ApiMethods, JSONObject } from '../types'
 
 /**
  * Class to handle a single request
@@ -94,7 +94,7 @@ class Request {
       'info'
     )
     const res: JSONObject = await this.apiRequest(url)
-    return this.parseResponse(res)
+    return this.convertResponse(res)
   }
 
   /**
@@ -108,7 +108,7 @@ class Request {
       this.Options.getLang(lang)
     )
     const res: JSONObject = await this.apiRequest(url)
-    return this.parseResponse(res)
+    return this.convertResponse(res)
   }
 
   /**
@@ -122,12 +122,12 @@ class Request {
       this.Options.getLang(),
       path
     )
-    const data: FormParams = {}
+    const data: IFormParams = {}
     if (this.Options.hasFields()) {
       data.fields = this.Options.getFields()
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
-    return this.parseResponse(res)
+    return this.convertResponse(res)
   }
 
   /**
@@ -155,7 +155,7 @@ class Request {
       this.Options.getLang(),
       path
     )
-    const data: FormParams = {
+    const data: IFormParams = {
       set: this.Options.getSet(),
       limit: this.Options.getLimit(),
       order: this.Options.getOrder(),
@@ -164,13 +164,13 @@ class Request {
       data.fields = this.Options.getFields()
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
-    return this.parseResponse(res)
+    return this.convertResponse(res)
   }
 
   /**
    * Post data to a specified action /action/(:any).
    */
-  async postCreate(action: string, data: FormParams): Promise<JSONObject> {
+  async postCreate(action: string, data: IFormParams): Promise<JSONObject> {
 
     // get token
     const urlToken: string = this.getUrl(
@@ -204,7 +204,7 @@ class Request {
   async call(
     path: string,
     method: ApiMethods = 'GET',
-    data: FormParams|null = null
+    data: IFormParams|null = null
   ): Promise<Object>
   {
     const url: string = this.getUrl(
@@ -227,13 +227,13 @@ class Request {
   }
 
   /**
-   * Parse response, if parser plugin is installed.
+   * Parse response, if core plugin is installed.
    */
-  parseResponse(json: JSONObject): JSONObject {
+  convertResponse(json: JSONObject): JSONObject {
     if (this.Options.getRaw()) {
       return json
     }
-    const fn = inject('parser', 'parseResponse', (json: JSONObject): JSONObject => json)
+    const fn = inject('core', 'convertResponse', (json: JSONObject): JSONObject => json)
     return fn(json)
   }
 
@@ -243,7 +243,7 @@ class Request {
    * @param {string} url 
    * @param {string} method GET, POST, PUT, DELETE
    * @param {object} data optional data, converts to post data or get-params
-   * @returns {object} json, parsed if parser-plugin is installed
+   * @returns {object} json, parsed if core-plugin is installed
    * @throws Error
    */
   async apiRequest(

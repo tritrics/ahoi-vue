@@ -1,12 +1,12 @@
 import { extend, has, isTrue, isInt, toInt, isArr, toStr, isEmpty, inArr } from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * Select/Multiselect field
  * Kirby: Checkboxes, Multiselect, Radio, Select, Toggles
  */
-export default function createSelect(def: Object): FormModel {
+export default function createSelect(def: Object): IFormModel {
 
   // Base select object
   const injectBase: Object = {
@@ -56,5 +56,5 @@ export default function createSelect(def: Object): FormModel {
       value: has(def, 'value') ? toStr(def.value) : '',
     }
   }
-  return extend(createBase(), injectBase, inject) as FormModel
+  return extend(createBase(), injectBase, inject) as IFormModel
 }

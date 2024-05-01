@@ -1,12 +1,12 @@
 import { watchEffect } from 'vue'
 import { toStr, isEmpty, uuid } from '../../fn'
-import type { FormModel, FormPostValue } from '../../types'
+import type { IFormModel, FormPostValue } from '../../types'
 
 /**
  * Base object for all fields
  */
-export default function createBase(): FormModel {
-  const base: FormModel = {
+export default function createBase(): IFormModel {
+  const base: IFormModel = {
     type: 'string',
     id: uuid(),
     value: '',

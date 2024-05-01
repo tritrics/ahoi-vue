@@ -1,12 +1,12 @@
 import { extend, has, toStr, isTrue, isStr, dateRegExp, isEmpty, isDate, toDate, dateToStr } from '../../fn'
 import { createBase } from './index'
-import type { Object, FormModel } from '../../types'
+import type { Object, IFormModel } from '../../types'
 
 /**
  * Date field, optional with time
  * Kirby: Date
  */
-export default function createDate(def: Object): FormModel {
+export default function createDate(def: Object): IFormModel {
   const format: string = has(def, 'format') && isStr(def.format, 1) ? def.format :'yyyy-mm-dd'
   const formatReg: RegExp = dateRegExp(format)
   const inject: Object = {
@@ -36,5 +36,5 @@ export default function createDate(def: Object): FormModel {
       return date ? dateToStr(date, 'yyyy-mm-dd hh:ii') : ''
     },
   }
-  return extend(createBase(), inject) as FormModel
+  return extend(createBase(), inject) as IFormModel
 }
