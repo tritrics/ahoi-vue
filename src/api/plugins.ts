@@ -22,7 +22,6 @@ const registeredMethods: { [ key: string ]: Object } = {}
  */
 function createThisPlugin(): IApiPlugin {
   return {
-    id: 'tric-vue-plugins-plugin',
     name: 'plugins',
     export: {
       hasPlugin,

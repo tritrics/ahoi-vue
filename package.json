@@ -61,9 +61,9 @@
       "import": "./dist/api.js",
       "require": "./dist/api.cjs"
     },
-    "./core": {
-      "import": "./dist/core.js",
-      "require": "./dist/core.cjs"
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
     },
     "./fn": {
       "import": "./dist/fn.js",

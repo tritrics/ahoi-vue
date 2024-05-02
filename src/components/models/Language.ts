@@ -1,0 +1,41 @@
+import { has, isTrue } from '../../fn'
+import BaseModel from './Base'
+import { parseModelsRec } from '../index'
+import type { ILanguageModel, ILanguageMeta } from './types'
+import type { JSONObject } from '../../types'
+
+export default class LanguageModel extends BaseModel implements ILanguageModel {
+  type: 'language' = 'language'
+  
+  meta: ILanguageMeta
+
+  fields?: Object
+  
+  constructor(obj: JSONObject) {
+    super(obj.meta.title)
+    this.meta = obj.meta
+    if (has(obj, 'fields')) {
+      this.fields = parseModelsRec(obj.fields)
+    }
+  }
+
+  get code(): string {
+    return this.meta.code
+  }
+
+  get locale(): string {
+    return this.meta.locale
+  }
+
+  get direction(): string {
+    return this.meta.direction
+  }
+
+  isDefault(): boolean {
+    return isTrue(this.meta.default)
+  }
+
+  has(field: string): boolean {
+    return this.fields !== undefined && has(this.fields, field)
+  }
+}

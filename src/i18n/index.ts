@@ -156,7 +156,7 @@ function normalizeLocale(val: string): string {
  * Parse response, if core plugin is installed.
  */
 function convertResponse(json: JSONObject): JSONObject {
-    const fn = inject('core', 'convertResponse', (json: JSONObject): JSONObject => json)
+    const fn = inject('components', 'convertResponse', (json: JSONObject): JSONObject => json)
     return fn(json)
 }
 

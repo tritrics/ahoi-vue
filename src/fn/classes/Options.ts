@@ -3,20 +3,21 @@ import type { Object } from '../../types'
 
 /**
  * Simple option object
+ * @TODO: add allowed value types to def
  */
 class Options {
 
   /**
    * The options like { key: value }
    */
-  options: Object = {}
+  #options: Object = {}
 
   /**
    * Init options.
    * Only given options can be set.
    */
-  constructor(options: Object = {}) {
-    this.set(options)
+  constructor(def: Object = {}) {
+    this.#options = isObj(def) ? def : {}
   }
 
   /**
@@ -26,10 +27,17 @@ class Options {
     if (!isUndef(overwrite)) {
       return overwrite
     }
-    if (has(this.options, key)) {
-      return this.options[key]
+    if (has(this.#options, key)) {
+      return this.#options[key]
     }
     return undefined
+  }
+
+  /**
+   * Get all options as object
+   */
+  obj(): Object {
+    return this.#options
   }
 
   /**
@@ -41,14 +49,14 @@ class Options {
       each(mixed, (val: any, key: string) => {
         this.#setValue(key, val)
       })
-    } else if (isStr(mixed) && has(this.options, mixed)) {
+    } else if (isStr(mixed) && has(this.#options, mixed)) {
       this.#setValue(mixed, val)
     }
   }
 
   #setValue(key: string, val: any) {
-    if(has(this.options, key)) {
-      this.options[key] = val
+    if(has(this.#options, key)) {
+      this.#options[key] = val
     }
   }
 }
