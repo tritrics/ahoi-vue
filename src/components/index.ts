@@ -3,9 +3,9 @@ import { subscribe } from '../api/plugins'
 import BaseModel from './models/Base'
 import * as models from './models/models'
 import { createThumb } from './Thumb'
-import TricNodes from './components/TricNodes.vue'
-import TricLink from './components/TricLink.vue'
-import TricThumb from './components/TricThumb.vue'
+import AhoiHtml from './components/AhoiHtml.vue'
+import AhoiLink from './components/AhoiLink.vue'
+import AhoiThumb from './components/AhoiThumb.vue'
 import type { IComponentOptions, IApiPlugin, Object, JSONObject } from '../types'
 
 /**
@@ -82,9 +82,9 @@ export function createComponents(options: IComponentOptions = {}): IApiPlugin {
   return {
     name: 'components',
     components: {
-      'TricHtml': TricNodes,
-      'TricLink': TricLink,
-      'TricThumb': TricThumb,
+      'AhoiHtml': AhoiHtml,
+      'AhoiLink': AhoiLink,
+      'AhoiThumb': AhoiThumb,
     },
     init: () => {
       subscribe('on-changed-locale', setLocale)

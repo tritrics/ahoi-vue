@@ -67,24 +67,39 @@ export async function getLanguage(lang: string, options: IApiRequestOptions = {}
  * Call API interface /page/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getFields( path: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).getFields(path)
+export async function getFields(
+  path: string,
+  options: IApiRequestOptions = {},
+  getFields: boolean = false
+): Promise<JSONObject> {
+  const res = await createRequest(options).getFields(path)
+  return getFields ? res.fields ?? {} : res
 }
 
 /**
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getPages(path: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).getPages(path)
+export async function getPages(
+  path: string,
+  options: IApiRequestOptions = {},
+  getEntries: boolean = false
+): Promise<JSONObject> {
+  const res = await createRequest(options).getPages(path)
+  return getEntries ? res.entries ?? {} : res
 }
 
 /**
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getFiles(path: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).getFiles(path)
+export async function getFiles(
+  path: string,
+  options: IApiRequestOptions = {},
+  getEntries: boolean = false
+): Promise<JSONObject> {
+  const res = await createRequest(options).getFiles(path)
+  return getEntries ? res.entries ?? {} : res
 }
 
 /**

@@ -59,6 +59,14 @@ class Options {
       this.#options[key] = val
     }
   }
+
+  toStr() {
+    return JSON.stringify(this.#options, null, 2)
+  }
+
+  toJSON() {
+    return this.#options
+  }
 }
 
 export default Options

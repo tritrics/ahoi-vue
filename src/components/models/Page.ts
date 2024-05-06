@@ -40,11 +40,8 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
 
   // ... more functions?
   
-  attr(asString: boolean = false): string|Object {
-    if (this.link !== undefined) {
-      return this.link.attr(asString)
-    }
-    return asString ? '' : {}
+  get attr(): Object {
+    return this.link !== undefined ? this.link.attr : {}
   }
 
   toJSON() {

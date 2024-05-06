@@ -11,4 +11,12 @@ export default class UserModel extends BaseFieldsModel implements IUserModel {
     super(obj)
     this.meta = obj.meta
   }
+
+  toJSON() {
+    return {
+      type: this.type,
+      meta: this.meta,
+      fields: this.fields,
+    }
+  }
 }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from 'vue'
-import { isStr, has} from '../../fn'
+import { isStr, has } from '../../fn'
 import type { Ref } from 'vue'
-import type { Object, ParserModel } from '../../types'
-import type { Props, ElemType, Attributes, LinkString, LinkParser, LinkRouter, LinkNone, LinkType } from './TricLink'
+import type { Object } from '../../types'
+import type { ILinkModel } from '../models/types'
+import type { Props, ElemType, Attributes, LinkString, LinkApi, LinkRouter, LinkNone, LinkType } from './AhoiLink'
 
 const props = withDefaults(defineProps<Props>(), {
   to: '',
@@ -14,7 +15,7 @@ const emit = defineEmits<{
   click: [ e: Event, to: string | Object ],
 }>()
 
-let link: Ref<LinkString | LinkRouter | LinkParser | LinkNone>  = ref({
+let link: Ref<LinkString | LinkRouter | LinkApi | LinkNone>  = ref({
   source: 'none',
   type: 'custom'
 })
@@ -29,8 +30,8 @@ const elem = computed<ElemType>(() => {
 const attr = computed<Attributes>(() => {
   let res: Attributes = {}
   switch(link.value.source) {
-    case 'parser':
-      res = link.value.data.$attr(false)
+    case 'api':
+      res.href = link.value.data.attr.href
       break
     case 'string':
       if (link.value.type !== 'page') {
@@ -57,7 +58,7 @@ const to = computed<Object|string|null>(() => {
 })
 
 const value = computed((): string => {
-  if (link.value.source === 'parser') {
+  if (link.value.source === 'api') {
     return link.value.data.value
   }
   return ''
@@ -85,11 +86,11 @@ watchEffect(() => {
       type: type,
       data: props.to
     }
-  } else if (props.to?.$link?.$type === 'link' || props.to?.$type === 'link') {
+  } else if (props.to?.link?.type === 'link' || props.to?.type === 'link') {
     link.value = {
-      source: 'parser',
-      type: props.to.$link?.$attributes.type ?? props.to.$attributes.type,
-      data: props.to.$link ?? props.to as ParserModel
+      source: 'api',
+      type: props.to.link?.attr.type ?? props.to.attr.type,
+      data: props.to.link ?? props.to as ILinkModel
     }
   } else if (has(props.to, 'name') || has(props.to, 'path')) {
     link.value = {

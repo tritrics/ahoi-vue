@@ -23,14 +23,6 @@ export default class LanguageModel extends BaseModel implements ILanguageModel {
     return this.meta.code
   }
 
-  get locale(): string {
-    return this.meta.locale
-  }
-
-  get direction(): string {
-    return this.meta.direction
-  }
-
   isDefault(): boolean {
     return isTrue(this.meta.default)
   }

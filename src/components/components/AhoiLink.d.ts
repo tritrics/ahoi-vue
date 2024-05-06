@@ -1,5 +1,6 @@
 import type { RouteParams } from 'vue-router'
-import type { Object, ParserModel } from '../../types'
+import type { Object } from '../../types'
+import type { ILinkModel } from '../models/types'
 
 export interface Props {
   to: string | RouteParams | ParserModel
@@ -16,10 +17,10 @@ export interface LinkString {
   data: string
 }
 
-export interface LinkParser {
-  source: 'parser'
+export interface LinkApi {
+  source: 'api'
   type: LinkType
-  data: ParserModel
+  data: ILinkModel
 }
 
 export interface LinkRouter {

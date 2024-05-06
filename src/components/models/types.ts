@@ -80,8 +80,8 @@ export interface IFileModel extends IBaseFieldsModel {
   value: undefined
   meta: IFileMeta
   link: ILinkModel
+  attr: Object 
   isImage(): boolean
-  attr(asString: boolean): string|Object 
 }
 
 export interface IFilesModel extends IBaseEntriesModel {
@@ -107,8 +107,6 @@ export interface ILanguageModel extends IBaseModel {
   meta: ILanguageMeta
   fields?: Object
   code: string
-  locale: string
-  direction: string
   isDefault(): boolean
   has(field: string): boolean
 }
@@ -116,8 +114,10 @@ export interface ILanguageModel extends IBaseModel {
 export interface ILinkModel extends IBaseModel {
   type: 'link'
   value: string
-  attributes: Object
-  attr(asString: boolean): string|Object
+  attr: {
+    type: string
+    href: string
+  }
 }
 
 export interface IMarkdownModel extends IBaseModel {
@@ -137,15 +137,8 @@ export interface INumberModel extends IBaseModel {
 
 export interface INodeModel extends IBaseModel {
   type: NodeModelTypes
-  element?: string
-  attributes?: Object
-}
-
-export interface IObjectModel extends IBaseFieldsModel {
-  type: 'object'
-  meta?: Object
-  link?: ILinkModel
-  attr(asString: boolean): string|Object
+  elem: string
+  attr: Object
 }
 
 export interface IOptionModel extends IBaseModel {
@@ -165,9 +158,9 @@ export interface IPageModel extends IBaseFieldsModel {
   link: ILinkModel
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
+  attr: Object 
   blueprint(): string
   isHome(): boolean
-  attr(asString: boolean): string|Object 
 }
 
 export interface IPagesModel extends IBaseEntriesModel {

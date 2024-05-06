@@ -1,4 +1,4 @@
-import { has, toInt } from '../../fn'
+import { toInt } from '../../fn'
 import BaseFieldsModel from './BaseFields'
 import { createLinkByValues } from './Link'
 import type { IFileModel, ILinkModel, IFileMeta, IImageMeta } from './types'
@@ -19,19 +19,25 @@ export default class FileModel extends BaseFieldsModel implements IFileModel {
     }
     obj.meta.modified = new Date(obj.meta.modified)
     this.meta = obj.meta
-    this.link = createLinkByValues('page', obj.meta.title, obj.meta.href)
+    this.link = createLinkByValues('file', obj.meta.title, obj.meta.href)
   }
 
   isImage(): boolean {
     return this.meta.filetype === 'image'
   }
   
-  attr(asString: boolean = false): string|Object {
-    if (this.link !== undefined) {
-      return this.link.attr(asString)
-    }
-    return asString ? '' : {}
+  get attr(): Object {
+    return this.link !== undefined ? this.link.attr : {}
   }
 
   // ... more functions?
+
+  toJSON() {
+    return {
+      type: this.type,
+      meta: this.meta,
+      link: this.link,
+      fields: this.fields,
+    }
+  }
 }

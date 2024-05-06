@@ -1,6 +1,8 @@
-import BaseEntriesModel from './BaseEntries'
-import type { IStructureModel } from './types'
+import { parseModelsRec } from '../index'
+import type { JSONObject } from '../../types'
 
-export default class StructureModel extends BaseEntriesModel implements IStructureModel {
-  type: 'structure' = 'structure'
+export default class StructureModel {
+  constructor(obj: JSONObject) {
+    return parseModelsRec(obj.entries)
+  }
 }

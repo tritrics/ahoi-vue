@@ -1,4 +1,4 @@
-import { has, toStr, toKey, isTrue, objToAttr, isArr, isUndef } from '../../fn'
+import { has, toStr, toKey, isArr, count } from '../../fn'
 import BaseModel from './Base'
 import type { NodeModelTypes, INodeModel } from './types'
 import type { Object, JSONObject } from '../../types'
@@ -6,33 +6,15 @@ import type { Object, JSONObject } from '../../types'
 export default class NodeModel extends BaseModel implements INodeModel {
   type: NodeModelTypes = 'node'
 
-  element?: string
+  elem: string
 
-  attributes?: Object
+  attr: Object
 
   constructor(obj: JSONObject, type: NodeModelTypes = 'node') {
     super(obj.value ?? undefined)
     this.type = type
-    if (has(obj, 'elem')) {
-      this.element = toKey(obj.elem)
-    }
-    if (has(obj, 'attr')) {
-      this.attributes = obj.attr
-    }
-  }
-
-  elem(): string {
-    if (isUndef(this.element)) {
-      return ''
-    }
-    return this.element
-  }
-
-  attr(asString: boolean = false): string|Object {
-    if (isUndef(this.attributes) || isUndef(this.element)) {
-      return isTrue(asString) ? {} : ''
-    }
-    return isTrue(asString) ? objToAttr(this.attributes) : this.attributes
+    this.elem = has(obj, 'elem') ? toKey(obj.elem) : ''
+    this.attr = has(obj, 'attr') ? obj.attr : {}
   }
 
   hasChildren() {
@@ -41,8 +23,22 @@ export default class NodeModel extends BaseModel implements INodeModel {
 
   str(): string {
     if (this.hasChildren()) {
-      return `html-node ${this.element}`
+      return `html-node ${this.elem}`
     }
     return toStr(this.value)
+  }
+
+  toJSON(): JSONObject {
+    const res: Object = {
+      type: this.type,
+      value: this.value
+    }
+    if (this.elem !== '') {
+      res.elem = this.elem
+    }
+    if (count(this.attr) > 0) {
+      res.attr = this.attr
+    }
+    return res
   }
 }
