@@ -1,8 +1,15 @@
 import { ref, computed } from 'vue'
 import { createAction } from '../api'
 import { each, has, toKey, isBool, isTrue, isObj, isStr, toBool } from '../fn'
-import * as models  from './models'
-import type { Object, IFormOptions, IFormModel, IFormParams, JSONObject } from '../types'
+import BaseModel from './models/Base'
+import * as models from './models/models'
+import type { IBaseModel } from './models/types'
+import type { Object, IFormOptions, IFormParams, JSONObject } from '../types'
+
+/**
+ * workaround to add types to models
+ */
+const modelsMap: Object = models
 
 class Form {
 
@@ -15,7 +22,7 @@ class Form {
   /**
    * List of field with all properties
    */
-  fields = ref<{[index: string]: IFormModel}>({})
+  fields = ref<{[index: string]: IBaseModel}>({})
 
   /**
    * Plugin-options
@@ -36,7 +43,7 @@ class Form {
    */
   valid = computed<boolean>(() => {
     let res: boolean = true
-    each(this.fields.value, (field: IFormModel) => {
+    each(this.fields.value, (field: IBaseModel) => {
       if (!field.valid) {
         res = false
       }
@@ -96,40 +103,15 @@ class Form {
     this.onInput.value = isTrue(this.options.value.immediate)
     this.processing.value = false
     each(this.defs, (def: Object, key: string) => {
-      switch(toKey(def.type)) {
-        case 'boolean':
-          this.fields.value[key] = models.createBoolean(def)
-          break
-        case 'date':
-          this.fields.value[key] = models.createDate(def)
-          break
-        case 'email':
-          this.fields.value[key] = models.createEmail(def)
-          break
-        case 'list':
-          this.fields.value[key] = models.createList(def)
-          break
-        case 'number':
-          this.fields.value[key] = models.createNumber(def)
-          break
-        case 'select':
-          this.fields.value[key] = models.createSelect(def)
-          break
-        case 'text':
-          this.fields.value[key] = models.createText(def)
-          break
-        case 'time':
-          this.fields.value[key] = models.createTime(def)
-          break
-        case 'url':
-          this.fields.value[key] = models.createUrl(def)
-          break
-        default:
-          this.fields.value[key] = models.createString(def)
+      const type = toKey(def.type) ?? 'base'
+      if (modelsMap[type] !== undefined) {
+        this.fields.value[key] = new modelsMap[type](def)
+      } else {
+        this.fields.value[key] = new BaseModel(def)
       }
     })
     if (this.onInput.value) {
-      each(this.fields.value, (field: IFormModel) => {
+      each(this.fields.value, (field: IBaseModel) => {
         field.watch(true)
       })
     }
@@ -142,7 +124,7 @@ class Form {
     if (isBool(onInput)) {
       this.onInput.value = toBool(onInput)
     }
-    each(this.fields.value, (field: IFormModel) => {
+    each(this.fields.value, (field: IBaseModel) => {
       field.validate()
       field.watch(this.onInput.value)
     })
@@ -153,7 +135,7 @@ class Form {
    */
   data(): IFormParams {
     const res: IFormParams = {}
-    each(this.fields.value, (field: IFormModel, key: string) => {
+    each(this.fields.value, (field: IBaseModel, key: string) => {
       res[key] = field.data()
     })
     return res
@@ -180,7 +162,7 @@ class Form {
    * Reset the field values
    */
   reset(): void {
-    each(this.fields.value, (field: IFormModel) => {
+    each(this.fields.value, (field: IBaseModel) => {
       field.watch(false)
     })
     this.initForm()

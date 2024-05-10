@@ -1,4 +1,4 @@
-import { isObj, isStr, isUndef, each, has } from '../'
+import { isObj, isStr, isUndef, isTrue, isFalse, each, has } from '../'
 import type { Object } from '../../types'
 
 /**
@@ -24,13 +24,26 @@ class Options {
    * Getter with optional given value to overwrite.
    */
   get(key: keyof Object, overwrite?: any): any {
-    if (!isUndef(overwrite)) {
-      return overwrite
-    }
     if (has(this.#options, key)) {
-      return this.#options[key]
+      return isUndef(overwrite) ? this.#options[key] : overwrite
     }
     return undefined
+  }
+
+  /**
+   * Shortcut getter for booleans.
+   * Loose mode, 1 or 'true' also detected as true.
+   */
+  isTrue(key: keyof Object, overwrite?: any): any {
+    return isTrue(this.get(key, overwrite), false)
+  }
+
+  /**
+   * Shortcut getter for booleans.
+   * Loose mode, 0 or 'false' also detected as false.
+   */
+  isFalse(key: keyof Object, overwrite?: any): any {
+    return isFalse(this.get(key, overwrite), false)
   }
 
   /**

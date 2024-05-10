@@ -11,15 +11,13 @@ import type { IComponentOptions, IApiPlugin, Object, JSONObject } from '../types
 /**
  * workaround to add types to models
  */
-const modelsMap: {
-  [ key: string ]: typeof BaseModel
-} = models
+const modelsMap: Object = models
 
 /**
  * Options for models.
  */
 export const componentOptions = new Options({
-  router: false,
+  router: true, // AhoiLink checks if router is installed
   locale: 'en-US',
   nl2br: false,
   date: { year: 'numeric', month: 'numeric', day: 'numeric' },
@@ -77,10 +75,10 @@ function setLocale(locale: string): void {
 /**
  * Plugin
  */
-export function createComponents(options: IComponentOptions = {}): IApiPlugin {
+export function createAddon(options: IComponentOptions = {}): IApiPlugin {
   componentOptions.set(options)
   return {
-    name: 'components',
+    name: 'addon',
     components: {
       'AhoiHtml': AhoiHtml,
       'AhoiLink': AhoiLink,

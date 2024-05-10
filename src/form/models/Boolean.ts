@@ -1,27 +1,26 @@
-import { extend, has, isTrue, isBool } from '../../fn'
-import { createBase } from './index'
-import type { Object, IFormModel } from '../../types'
+import { has, isTrue, isBool } from '../../fn'
+import BaseModel from './Base'
+import type { IBooleanModel } from './types'
+import type { Object } from '../../types'
 
-/**
- * Boolean field
- * Kirby: Toggle
- */
-export default function createBoolean(def: Object): IFormModel {
-  const inject: Object = {
-    type: 'boolean',
-    value: has(def, 'value') && isTrue(def.value, false) ? true : false,
-    required: has(def, 'required') && isTrue(def.required, false) ? true : false,
-    validate() {
-      if (this.required && !isTrue(this.value, false)) {
-        return this.setValid('required')
-      } else if (!isBool(this.value, false)) {
-        return this.setValid('type')
-      }
-      return this.setValid()
-    },
-    data() {
-      return isTrue(this.value, false) ? 1 : 0
-    },
+export default class BooleanModel extends BaseModel implements IBooleanModel {
+  type: 'boolean' = 'boolean'
+
+  constructor(def: Object) {
+    super(def)
+    this.value = has(def, 'value') && isTrue(def.value, false) ? true : false
   }
-  return extend(createBase(), inject) as IFormModel
+  
+  validate() {
+    if (this.required && !isTrue(this.value, false)) {
+      return this.setValid('required')
+    } else if (!isBool(this.value, false)) {
+      return this.setValid('type')
+    }
+    return this.setValid()
+  }
+
+  data() {
+    return isTrue(this.value, false) ? 1 : 0
+  }
 }

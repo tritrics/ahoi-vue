@@ -29,11 +29,6 @@ export interface LinkRouter {
   data: RouteParams
 }
 
-export interface LinkNone {
-  source: 'none'
-  type: LinkType
-}
-
 export interface Attributes {
   to?: Object | string
   href?: string

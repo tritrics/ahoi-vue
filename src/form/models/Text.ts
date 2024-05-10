@@ -1,15 +1,13 @@
-import { extend } from '../../fn'
-import { createString } from './index'
-import type { Object, IFormModel } from '../../types'
+import BaseStringModel from './BaseString'
+import type { ITextModel } from './types'
+import type { Object } from '../../types'
 
-/**
- * Text field (multisingle line)
- * Kirby: Textarea, Writer
- */
-export default function createText(def: Object): IFormModel {
-  const inject: Object = {
-    type: 'text',
-    linebreaks: true,
+export default class TextModel extends BaseStringModel implements ITextModel {
+  type: 'text' = 'text'
+
+  linebreaks: true = true
+
+  constructor(def: Object) {
+    super(def)
   }
-  return extend(createString(def), inject) as IFormModel
 }

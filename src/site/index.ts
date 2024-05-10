@@ -24,7 +24,7 @@ async function requestSite(): Promise<void> {
  * Parse response, if core plugin is installed.
  */
 function convertResponse(json: JSONObject): JSONObject {
-  const fn = inject('components', 'convertResponse', (json: JSONObject): JSONObject => json)
+  const fn = inject('addon', 'convertResponse', (json: JSONObject): JSONObject => json)
   return fn(json)
 }
 

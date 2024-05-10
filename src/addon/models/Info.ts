@@ -30,7 +30,7 @@ export default class InfoModel extends BaseModel implements IInfoModel {
     if (isArr(this.languages)) {
       for (let i = 0; i < this.languages.length; i++) {
         if (isTrue(this.languages[i].isDefault())) {
-          return this.languages![i].code()
+          return this.languages![i].code
         }
       }
     }

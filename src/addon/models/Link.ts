@@ -1,12 +1,15 @@
 import { toStr } from '../../fn'
 import BaseModel from './Base'
 import type { LinkTypes, ILinkModel } from './types'
-import type { Object, JSONObject } from '../../types'
+import type { JSONObject } from '../../types'
 
 export default class LinkModel extends BaseModel implements ILinkModel {
   type: 'link' = 'link'
 
-  attr: Object = {}
+  attr: {
+    type: string
+    href: string
+  }
 
   constructor(obj: JSONObject) {
     super(toStr(obj.meta?.title ?? obj.value))
