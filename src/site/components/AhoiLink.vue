@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
-import { isStr, isObj, toStr, has } from '../../fn'
-import { componentOptions } from '../index'
+import { isStr, isObj, has } from '../../fn'
+import { siteOptions } from '../index'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
 import type { ILinkModel } from '../models/types'
 import type { Props, ElemType, Attributes, LinkString, LinkApi, LinkRouter, LinkType } from './AhoiLink'
 
 /**
- * to can be a string (=url), a route-defintion object or an api.addon object.
+ * to can be a string (=url), a route-defintion object or an api.site object.
  */
 const props = withDefaults(defineProps<Props>(), {
   to: '',
@@ -38,7 +38,7 @@ let link: Ref<LinkString | LinkRouter | LinkApi >  = ref({
 const isRouterLink = computed<boolean>(() => {
   return (
     link.value.type === 'page' &&
-    componentOptions.isTrue('router') &&
+    siteOptions.isTrue('router') &&
     !!getCurrentInstance()?.appContext.config.globalProperties.$router
   )
 })
@@ -47,9 +47,7 @@ const isRouterLink = computed<boolean>(() => {
  * HTML element
  */
 const elem = computed<ElemType>(() => {
-  const res = isRouterLink.value ? 'router-link' : 'a'
-  console.log(res)
-  return res
+  return isRouterLink.value ? 'router-link' : 'a'
 })
 
 /**
@@ -57,10 +55,7 @@ const elem = computed<ElemType>(() => {
  * null will not be visible in normal <a>
  */
 const to = computed<Object|string|null>(() => {
-  if (isRouterLink.value) {
-    return link.value.data
-  }
-  return null
+  return isRouterLink.value ? link.value.data : null
 })
 
 /**
@@ -105,7 +100,7 @@ const value = computed((): string => {
 watchEffect(() => {
   if (isObj(props.to)) {
 
-    // Is props.to a link object from api.addon?
+    // Is props.to a link object from api.site?
     if (props.to?.link?.type === 'link' || props.to?.type === 'link') {
       link.value = {
         source: 'api',

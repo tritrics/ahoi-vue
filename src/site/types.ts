@@ -3,7 +3,7 @@ import type { Object, DateTimeFormat } from "../types"
 /**
  * Plugin
  */
-export interface IComponentOptions {
+export interface IsiteOptions {
   router?: boolean
   locale?: string
   nl2br?: boolean

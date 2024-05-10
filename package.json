@@ -57,10 +57,6 @@
   "main": "./dist/api.cjs",
   "module": "./dist/api.js",
   "exports": {
-    "./addon": {
-      "import": "./dist/addon.js",
-      "require": "./dist/addon.cjs"
-    },
     "./api": {
       "import": "./dist/api.js",
       "require": "./dist/api.cjs"

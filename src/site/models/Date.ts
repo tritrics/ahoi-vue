@@ -1,8 +1,8 @@
 import { today } from '../../fn'
 import DateBaseModel from './BaseDate'
-import { componentOptions } from '../index'
+import { siteOptions } from '../index'
 import type { IDateModel } from './types'
-import type { IComponentOptions } from '../types'
+import type { IsiteOptions } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class DateModel extends DateBaseModel implements IDateModel {
@@ -12,10 +12,10 @@ export default class DateModel extends DateBaseModel implements IDateModel {
     super(obj)
   }
 
-  str(options: IComponentOptions = {}): string {
+  str(options: IsiteOptions = {}): string {
     return this.value.toLocaleDateString(
-      componentOptions.get('locale', options?.locale),
-      componentOptions.get('date', options?.time)
+      siteOptions.get('locale', options?.locale),
+      siteOptions.get('date', options?.time)
     )
   }
 

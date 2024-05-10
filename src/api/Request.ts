@@ -233,7 +233,7 @@ class Request {
     if (this.Options.getRaw()) {
       return json
     }
-    const fn = inject('addon', 'convertResponse', (json: JSONObject): JSONObject => json)
+    const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json)
     return fn(json)
   }
 

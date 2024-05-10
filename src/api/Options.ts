@@ -26,7 +26,7 @@ class Options {
    */
   constructor(options: IApiRequestOptions = {}) {
     if (!has(options, 'raw') || !isBool(options.raw)) {
-      options.raw = hasPlugin('addon')
+      options.raw = hasPlugin('site')
     }
     this.set(options)
   }
@@ -219,7 +219,7 @@ class Options {
    * Can only be set to true, if core plugin exists.
    */
   setRaw(raw: boolean = true): void {
-    this.options.raw = isTrue(raw) && hasPlugin('addon')
+    this.options.raw = isTrue(raw) && hasPlugin('site')
   }
 
   /**

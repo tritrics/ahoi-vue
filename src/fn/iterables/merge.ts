@@ -1,10 +1,10 @@
-import { isIterable, isArr, isObj, clone, unique, each, Options } from '../'
+import { isIterable, isArr, isObj, clone, unique, each } from '../'
 import type { Object, Iterable } from '../../types'
 
 /**
  * Helper to merge arrays. (First element must be of type array.)
  */
-function mergeArrays(elems: any[], mergeOptions: Options): Array<any>{
+function mergeArrays(elems: any[], mergeOptions: Object): Array<any>{
   let res: Array<any> = []
   elems = elems.map((elem) => {
     return isArr(elem) ? elem : [ elem ]
@@ -12,7 +12,7 @@ function mergeArrays(elems: any[], mergeOptions: Options): Array<any>{
   each(elems, (elem: any[]) => {
     res = [ ...res, ...elem ]
   })
-  if (mergeOptions.get('unique')) {
+  if (mergeOptions.unique) {
     res = unique(res)
   }
   return res
@@ -21,7 +21,7 @@ function mergeArrays(elems: any[], mergeOptions: Options): Array<any>{
 /**
  * Helper to merge objects. (First element must be of type object.)
  */
-function mergeObjects(elems: any[], mergeOptions: Options): Object {
+function mergeObjects(elems: any[], mergeOptions: Object): Object {
   const res: Object = {}
   elems = elems.filter((obj: any) => {
     return isObj(obj) ? obj : false
@@ -32,7 +32,7 @@ function mergeObjects(elems: any[], mergeOptions: Options): Object {
         res[key] = mergeObjects([res[key], obj[key]], mergeOptions)
         continue
       }
-      if (isArr(res[key]) && isArr(obj[key]) && mergeOptions.get('arrays')) {
+      if (isArr(res[key]) && isArr(obj[key]) && mergeOptions.arrays) {
         res[key] = mergeArrays([res[key], obj[key]], mergeOptions)
         continue
       }
@@ -46,31 +46,17 @@ function mergeObjects(elems: any[], mergeOptions: Options): Object {
  * Method to deep merge multiple objects or arrays where arrays as values are
  * also handled. Result is returned as a new object/array. Use like
  * 
- * const result = merge(obj1, obj2[, obj3, ...[, Options]])
- * 
- * Options are optional and must be instance of Options.
- * Possible settings:
- * {
- *  arrays: [true|false], // merge arrays (relevant only when objects are merged)
- *  unique: [true|false], // set arrays to unique entries after merge
- * }
+ * const result = merge(obj1, obj2[, obj3])
  */
 export default function merge(...args: any[]): Iterable|null {
   if (!args.length) {
     return null
   }
-
-  // get Options from last param
-  const mergeOptions =
-    (args.length > 2 && args[args.length - 1] instanceof Options) ?
-    args.pop() :
-    new Options( { arrays: true, unique: true } )
-
   // first element determines if array of objects are merged  
   if (isArr(args[0])) {
-    return mergeArrays(args, mergeOptions)
+    return mergeArrays(args, { arrays: true, unique: true })
   } else if (isObj(args[0])) {
-    return mergeObjects(args, mergeOptions)
+    return mergeObjects(args, { arrays: true, unique: true })
   }
   return null
 }

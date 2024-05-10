@@ -1,8 +1,8 @@
 import { toNum, isInt, isNum } from '../../fn'
 import BaseModel from './Base'
-import { componentOptions } from '../index'
+import { siteOptions } from '../index'
 import type { INumberModel } from './types'
-import type { IComponentOptions } from '../types'
+import type { IsiteOptions } from '../types'
 import type { Object } from '../../types'
 
 export default class NumberModel extends BaseModel implements INumberModel {
@@ -12,15 +12,15 @@ export default class NumberModel extends BaseModel implements INumberModel {
     super(toNum(mixed.value ?? mixed))
   }
 
-  str(options: IComponentOptions = {}) {
-    const fixed: number|undefined = componentOptions.get('fixed', options?.fixed)
+  str(options: IsiteOptions = {}) {
+    const fixed: number|undefined = siteOptions.get('fixed', options?.fixed)
     const stringOptions: Object = {}
     if (isInt(fixed, 1)) {
       stringOptions.minimumFractionDigits = fixed
       stringOptions.maximumFractionDigits = fixed
     }
     return this.value.toLocaleString(
-      componentOptions.get('locale', options?.locale),
+      siteOptions.get('locale', options?.locale),
       stringOptions
     )
   }

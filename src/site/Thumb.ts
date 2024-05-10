@@ -1,4 +1,5 @@
-import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone, Options } from '../fn'
+import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../fn'
+import Options from './Options'
 import FileModel from './models/File'
 import type { IFileModel } from './models/types'
 import type { IThumbModel, IThumbOptions, IThumbImage, IThumbDimensions, ThumbCropOptions } from './types'

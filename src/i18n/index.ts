@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { each, toKey, has, toBool, isStr, isUndef, isObj } from '../fn'
+import { each, toKey, has, toBool, isStr, isUndef, isObj, toLocale } from '../fn'
 import { getInfo, getLanguage as getLanguageRequest } from '../api'
 import { publish, inject } from '../api/plugins'
 import type { IApiPlugin, JSONObject, Object } from '../types'
@@ -106,7 +106,7 @@ export async function setLang(code: string|null): Promise<string|null> {
         return langcode.value
       }
       langcode.value = normCode
-      locale.value = normalizeLocale(json.body.meta.locale)
+      locale.value = toLocale(json.body.meta.locale, '-')
       data.value = convertResponse(json.body)
       publish('on-changed-langcode', langcode.value)
       publish('on-changed-locale', locale.value)
@@ -138,25 +138,10 @@ async function requestLanguages(): Promise<void> {
 }
 
 /**
- * Check and convert to javascript locale format.
- */
-function normalizeLocale(val: string): string {
-  if (isStr(val)) {
-    if(/^[a-z]{2,}[_]{1,}[A-Z]{2,}$/.test(val)) {
-      val = val.replace('_', '-')
-    }
-    if(/^[a-z]{2,}[-]{1,}[A-Z]{2,}$/.test(val)) {
-      return val
-    }
-  }
-  return 'en-US'
-}
-
-/**
  * Parse response, if core plugin is installed.
  */
 function convertResponse(json: JSONObject): JSONObject {
-    const fn = inject('addon', 'convertResponse', (json: JSONObject): JSONObject => json)
+    const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json)
     return fn(json)
 }
 

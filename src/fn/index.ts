@@ -19,9 +19,6 @@ export { default as isTrue } from './checks/isTrue'
 export { default as isUndef } from './checks/isUndef'
 export { default as isUrl } from './checks/isUrl'
 
-// classes
-export { default as Options } from './classes/Options'
-
 // client
 export { default as docHeight } from './client/docHeight'
 export { default as docWidth } from './client/docWidth'
@@ -85,6 +82,7 @@ export { default as toBool } from './sanitize/toBool'
 export { default as toDate } from './sanitize/toDate'
 export { default as toFloat } from './sanitize/toFloat'
 export { default as toInt } from './sanitize/toInt'
+export { default as toLocale } from './sanitize/toLocale'
 export { default as toKey } from './sanitize/toKey'
 export { default as toNum } from './sanitize/toNum'
 export { default as toPath } from './sanitize/toPath'

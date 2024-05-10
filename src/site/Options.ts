@@ -1,9 +1,8 @@
-import { isObj, isStr, isUndef, isTrue, isFalse, each, has } from '../'
-import type { Object } from '../../types'
+import { isObj, isStr, isUndef, isTrue, isFalse, each, has } from '../fn'
+import type { Object } from '../types'
 
 /**
  * Simple option object
- * @TODO: add allowed value types to def
  */
 class Options {
 
@@ -34,7 +33,7 @@ class Options {
    * Shortcut getter for booleans.
    * Loose mode, 1 or 'true' also detected as true.
    */
-  isTrue(key: keyof Object, overwrite?: any): any {
+  isTrue(key: keyof Object, overwrite?: any): boolean {
     return isTrue(this.get(key, overwrite), false)
   }
 
@@ -42,7 +41,7 @@ class Options {
    * Shortcut getter for booleans.
    * Loose mode, 0 or 'false' also detected as false.
    */
-  isFalse(key: keyof Object, overwrite?: any): any {
+  isFalse(key: keyof Object, overwrite?: any): boolean {
     return isFalse(this.get(key, overwrite), false)
   }
 
