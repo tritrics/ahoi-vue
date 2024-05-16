@@ -1,5 +1,4 @@
 import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../fn'
-import Options from './Options'
 import FileModel from './models/File'
 import type { IFileModel } from './models/types'
 import type { IThumbModel, IThumbOptions, IThumbImage, IThumbDimensions, ThumbCropOptions } from './types'
@@ -26,7 +25,7 @@ export function createThumb (
   }
 
   else if (isObj(mixed)) {
-    const image = new Options({
+    const prefs = {
       host: '',
       dir: '',
       name: '',
@@ -34,9 +33,9 @@ export function createThumb (
       width: null,
       height: null,
       title: ''
-    })
-    image.set(mixed)
-    new Thumb(image.obj() as IThumbImage, width, height, options)
+    }
+    const image: IThumbImage = { ...prefs, ...mixed }
+    new Thumb(image, width, height, options)
   }
 }
 

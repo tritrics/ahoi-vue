@@ -1,33 +1,19 @@
 import { ref } from 'vue'
 import { each, toKey, has, toBool, isStr, isUndef, isObj, toLocale } from '../fn'
 import { getInfo, getLanguage as getLanguageRequest } from '../api'
-import { publish, inject } from '../api/plugins'
-import type { IApiPlugin, JSONObject, Object } from '../types'
+import { store } from '../api/store'
+import { inject } from '../api/addons'
+import type { IApiAddon, JSONObject, Object } from '../types'
 
 /**
  * Details of current language like returned from getLanguage()
  */
-const data = ref<JSONObject>({})
+const terms = ref<JSONObject>({})
 
 /**
  * List of languages like returned from getInfo()
  */
 const all = ref<JSONObject>({})
-
-/**
- * Language code of current language
- */
-const langcode = ref<string>('')
-
-/**
- * Locale of current language
- */
-const locale = ref<string>('')
-
-/**
- * Flag if page is a multilanguage page
- */
-const multilang = ref<boolean>(false)
 
 /**
  * Lookup for valid languages
@@ -39,14 +25,21 @@ const map = ref<Object>({})
  * Is it a multilanguage site or not.
  */
 export function isMultilang(): boolean {
-  return multilang.value === true
+  return store.multilang === true
+}
+
+/**
+ * Get current language.
+ */
+export function getCurrent(): string {
+  return store.lang
 }
 
 /**
  * Check, if the given language is the current language.
  */
 export function isCurrent(code: string): boolean {
-  return langcode.value === code
+  return store.lang === code
 }
 
 /**
@@ -63,7 +56,7 @@ export function isValid(code: string|null): boolean {
  * Get a term given by key.
  */
 export function getTerm(key: string): string|number|null {
-  return data.value[key] ?? null
+  return terms.value[key] ?? null
 }
 
 /**
@@ -100,20 +93,20 @@ export function detect(getUser: boolean = true, getDefault: boolean = true): str
 export async function setLang(code: string|null): Promise<string|null> {
   if (isMultilang() && isStr(code, 1)) {
     const normCode = toKey(code)
-    if (isValid(normCode) && (normCode !== langcode.value)) {
+    if (isValid(normCode) && (normCode !== store.lang)) {
       const json: JSONObject = await getLanguageRequest(normCode, { raw: true })
       if (!isObj(json) || !json.ok) {
-        return langcode.value
+        return store.lang
       }
-      langcode.value = normCode
-      locale.value = toLocale(json.body.meta.locale, '-')
-      data.value = convertResponse(json.body)
-      publish('on-changed-langcode', langcode.value)
-      publish('on-changed-locale', locale.value)
-      publish('on-changed-language', data.value)
+      terms.value = convertResponse(json.body)
+      console.log('i18n')
+      store.lang = normCode
+      store.locale = toLocale(json.body.meta.locale, '-')
+      store.langname = json.body.meta.title
+      store.direction = json.body.meta.direction
     }
   }
-  return langcode.value
+  return store.lang
 }
 
 /**
@@ -121,7 +114,7 @@ export async function setLang(code: string|null): Promise<string|null> {
  */
 async function requestLanguages(): Promise<void> {
   const json = await getInfo({ raw: true })
-  multilang.value = toBool(json.body.meta.multilang)
+  store.multilang = toBool(json.body.meta.multilang)
   if (isMultilang()) {
     each(json.body.languages, (lang: Object) => {
       map.value[lang.meta.code] =  toBool(lang.meta.default)
@@ -130,10 +123,6 @@ async function requestLanguages(): Promise<void> {
     all.value = body.languages
   } else {
     map.value = {}
-  }
-  publish('on-changed-multilang', multilang.value)
-  if (isMultilang()) {
-    publish('on-changed-languages', () => all)
   }
 }
 
@@ -148,7 +137,7 @@ function convertResponse(json: JSONObject): JSONObject {
 /**
  * Plugin
  */
-export function createI18n(): IApiPlugin {
+export function createI18n(): IApiAddon {
   return {
     name: 'i18n',
     setup: async (): Promise<void> => {
@@ -156,13 +145,12 @@ export function createI18n(): IApiPlugin {
       await setLang(detect())
     },
     export: {
-      data,
+      terms,
       all,
-      langcode,
-      locale,
       isMultilang,
       isCurrent,
       isValid,
+      getCurrent,
       detect,
       getTerm,
       setLang,

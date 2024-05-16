@@ -1,87 +1,118 @@
-import { isObj, toPath, isUrl, upper, objToParam } from '../fn'
-import Options from './Options'
-import { inject } from './plugins'
-import type { ApiOrder, Object, IFormParams, ApiMethods, JSONObject } from '../types'
+import { upper, each, lower, count, unique, objToParam, isStr, isObj, isUrl, isArr, isInt, isBool, toPath, toKey, toInt, toBool } from '../fn'
+import { APIVERSION } from './index'
+import { store } from './store'
+import { inject, hasAddon } from './addons'
+import type { Object, IFormParams, ApiMethods, JSONObject, ApiOrder } from '../types'
 
 /**
  * Class to handle a single request
  */
 class Request {
-
-  /**
-   * Instance of Options
-   */
-  Options: Options
+  
+  options: Object = {}
 
   /**
    */
-  constructor(Options: Options) {
-    this.Options = Options
+  constructor(options: Object) {
+    this.options = options
   }
 
   /**
-   * Chaining function to set `host`
+   * Get option `host`.
+   * Parameter is the fully qualified hostname followed by the api-slug
+   * like set in Kirby's config.
    */
-  host(host: string): this {
-    this.Options.setHost(host)
-    return this
+  get host(): string|null {
+    let res: string|null = null
+    if (isUrl(this.options.host)) {
+      res = this.options.host
+    } else if (isUrl(store.host)) {
+      res = store.host
+    }
+    if (isStr(res) && res.endsWith('/')) {
+      res = res.substring(0, res.length - 1)
+    }
+    return res
+  }
+  
+  /**
+   * Get option `lang`.
+   * Parameter must be a valid 2-char language code.
+   */
+  get lang(): string|null {
+    if (store.multilang) {
+      if (isStr(this.options.lang, 1)) {
+        return toKey(this.options.lang)
+      } else if (isStr(store.lang, 1)) {
+        return toKey(store.lang)
+      }
+    }
+    return null
   }
 
   /**
-   * Chaining function to set `language`
+   * Get option `fields`.
+   * Fields can be array with single fieldnames or subarray:
+   * this.options.fields = [ field1, field2, [field3, field4]]
    */
-  lang(code: string): this {
-    this.Options.setLang(code)
-    return this
+  get fields(): string[] {
+    const fields: string[] = []
+    if (isArr(this.options.fields)) {
+      each (this.options.fields, (arg: any) => {
+        each(isArr(arg) ? arg : [ arg ], (field: any) => {
+          if (isStr(field, 1)) {
+            fields.push(lower(field))
+          }
+        })
+      })
+    }
+    return unique(fields)
   }
 
   /**
-   * Chaining function to set `fields`
+   * Get option `limit`.
+   * Used in API request pages() to limit the number of returned pages.
    */
-  fields(...args: string[]): this {
-    this.Options.setFields(...args)
-    return this
+  get limit(): number {
+    if (isInt(this.options.limit, 1)) {
+      return toInt(this.options.limit)
+    }
+    return 10
   }
 
   /**
-   * Chaining function to set `fields` to `all`
-   * Shortcut for fields(true)
+   * Get option `set`.
+   * Used in API request pages() to get a specified result set in combination with limit.
    */
-  all(): this {
-    this.Options.setFields([])
-    return this
+  get set(): number {
+    if (isInt(this.options.set, 1)) {
+      return toInt(this.options.set)
+    }
+    return 1
   }
 
   /**
-   * Chaining function to set `limit`
+   * Get option `order`.
+   * Used in API request pages() sort the returned pages ascending or descending.
    */
-  limit(limit: number): this {
-    this.Options.setLimit(limit)
-    return this
+  get order(): ApiOrder {
+    let res: string = ''
+    if (isStr(this.options.order)) {
+      res = toKey(this.options.order)
+    }
+    return res === 'desc' ? 'desc' : 'asc'
   }
 
   /**
-   * Chaining function to set `page`
+   * Get option `raw`.
+   * Override core-plugin if existing for this request.
+   * Can only be set to true, if site plugin exists.
    */
-  set(no: number): this {
-    this.Options.setSet(no)
-    return this
-  }
-
-  /**
-   * Chaining function to set `order`
-   */
-  order(order: ApiOrder): this {
-    this.Options.setOrder(order)
-    return this
-  }
-
-  /**
-   * Chaining function to set `raw` to true
-   */
-  raw(): this {
-    this.Options.setRaw(true)
-    return this
+  get raw(): boolean {
+    if (hasAddon('site') && isBool(this.options.raw)) {
+      return toBool(this.options.raw)
+    }
+    return true
   }
 
   /**
@@ -89,8 +120,8 @@ class Request {
    */
   async getInfo(): Promise<JSONObject> {
     const url: string = this.getUrl(
-      this.Options.getHost(), 
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       'info'
     )
     const res: JSONObject = await this.apiRequest(url)
@@ -102,10 +133,10 @@ class Request {
    */
   async getLanguage(lang: string): Promise<JSONObject> {
     const url: string = this.getUrl(
-      this.Options.getHost(),
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       'language',
-      this.Options.getLang(lang)
+      isStr(lang, 1) ? toKey(lang) : this.lang
     )
     const res: JSONObject = await this.apiRequest(url)
     return this.convertResponse(res)
@@ -116,15 +147,15 @@ class Request {
    */
   async getFields(path: string): Promise<JSONObject> {
     const url: string = this.getUrl(
-      this.Options.getHost(),
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       'fields',
-      this.Options.getLang(),
+      this.lang,
       path
     )
     const data: IFormParams = {}
-    if (this.Options.hasFields()) {
-      data.fields = this.Options.getFields()
+    if (count(this.fields) > 0) {
+      data.fields = this.fields
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
     return this.convertResponse(res)
@@ -149,19 +180,19 @@ class Request {
    */
   async getCollection(node: 'pages'|'files', path: string): Promise<JSONObject> {
     const url: string = this.getUrl(
-      this.Options.getHost(), 
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       node,
-      this.Options.getLang(),
+      this.lang,
       path
     )
     const data: IFormParams = {
-      set: this.Options.getSet(),
-      limit: this.Options.getLimit(),
-      order: this.Options.getOrder(),
+      set: this.set,
+      limit: this.limit,
+      order: this.order,
     }
-    if (this.Options.hasFields()) {
-      data.fields = this.Options.getFields()
+    if (count(this.fields) > 0) {
+      data.fields = this.fields
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
     return this.convertResponse(res)
@@ -174,20 +205,20 @@ class Request {
 
     // get token
     const urlToken: string = this.getUrl(
-      this.Options.getHost(), 
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       'token',
-      this.Options.getLang(),
+      this.lang,
       action
     )
     const resToken: JSONObject = await this.apiRequest(urlToken)
 
     // submit
     const url: string = this.getUrl(
-      this.Options.getHost(), 
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       'action',
-      this.Options.getLang(),
+      this.lang,
       action,
       resToken.body.token as string
     )
@@ -208,8 +239,8 @@ class Request {
   ): Promise<Object>
   {
     const url: string = this.getUrl(
-      this.Options.getHost(),
-      this.Options.getVersion(),
+      this.host,
+      APIVERSION,
       path
     )
     return await this.apiRequest(url, method, data)
@@ -230,7 +261,7 @@ class Request {
    * Parse response, if core plugin is installed.
    */
   convertResponse(json: JSONObject): JSONObject {
-    if (this.Options.getRaw()) {
+    if (this.raw) {
       return json
     }
     const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json)

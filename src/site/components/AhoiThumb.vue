@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import { createThumb } from '../Thumb'
+import { createThumb } from '../thumb'
 import type { Props } from './AhoiThumb'
 
 const props = defineProps<Props>()

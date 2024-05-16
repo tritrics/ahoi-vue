@@ -31,8 +31,8 @@ export interface IThumbImage {
   dir: string
   name: string
   ext: string
-  width: number
-  height: number
+  width: number|null
+  height: number|null
   title?: string
 }
 

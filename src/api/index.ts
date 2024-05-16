@@ -1,9 +1,9 @@
 import { has, each } from '../fn'
 import Request from './Request'
-import RequestOptions from './Options'
-import { loadPlugins, subscribe } from './plugins'
+import { store } from './store'
+import { loadAddons } from './addons'
 import { version } from '../../package.json'
-import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiPlugin, JSONObject } from '../types'
+import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiAddon, JSONObject } from '../types'
 
 /**
  * The API interface version.
@@ -17,34 +17,10 @@ export const APIVERSION: string = 'v1'
 export const VERSION: string = version
 
 /**
- * Options
- * 
- * Default options are defined on initialisation by createApi() or separately 
- * by defineConfig(). Default Options are used for every request.
- * 
- * Default options can be optionally overwritten for a single request in three ways:
- * 1. getFields(node, {Object} options)
- * 2. createRequest({Object} options)[...]
- * 3. createRequest().limit(5).fields(...)[...]
- */
-let Options: RequestOptions = new RequestOptions()
-
-/**
- * Create (default) options for all requests.
- */
-export function defineConfig(
-  options: IApiRequestOptions,
-  reset: boolean = false
-): void
-{
-  Options = Options.clone(options, reset)
-}
-
-/**
  * Create a request object for use with chainging-functions.
  */
-export function createRequest(options: IApiRequestOptions = {}): Request {
-  return new Request(Options.clone(options))
+function createRequest(options: IApiRequestOptions = {}): Request {
+  return new Request(options)
 }
 
 /**
@@ -105,7 +81,7 @@ export async function getFiles(
 /**
  * Submit data to a specified action /action/(:any).
  */
-export async function createAction(
+export async function postCreate(
   action: string,
   data: IFormParams = {},
   options: IApiRequestOptions = {}
@@ -117,7 +93,7 @@ export async function createAction(
 /**
  * Generic API-request
  */
-export async function apiCall(
+export async function call(
   path: string,
   method: ApiMethods = 'GET',
   data: IFormParams = {},
@@ -127,33 +103,17 @@ export async function apiCall(
   return await createRequest(options).call(path, method, data)
 }
 
-/**
- * Internally used function to set the language in Options.
- */
-function setLang(lang: string) {
-  Options.setLang(lang)
-}
-
-/**
- * Internally used function to "inform" Options that this is a multilang installation.
- */
-function setMultilang(multilang: boolean) {
-  Options.setMultilang(multilang)
-}
-
-/**
+/** 
  * Creating the Vue-Plugin. 
- */
+ */    
 export async function createApi(options: IApiOptions) {
   const name: string = has(options, 'name') ? options.name! : 'api'
-  defineConfig(options)
-  subscribe('on-changed-langcode', setLang)
-  subscribe('on-changed-multilang', setMultilang)
+  store.setOptions(options)
 
-  // load Plugin-Plugins
-  let plugins: IApiPlugin[] = []
-  if (has(options, 'plugins')) {
-    plugins = await loadPlugins(options.plugins!)
+  // load Addons
+  let addons: IApiAddon[] = []
+  if (has(options, 'addons')) {
+    addons = await loadAddons(options.addons!)
   }
   
   // register plugin
@@ -162,18 +122,18 @@ export async function createApi(options: IApiOptions) {
       app.config.globalProperties[`$${name}`] = {
         APIVERSION,
         VERSION,
-        defineConfig,
-        createRequest,
         getInfo,
+        getLanguage,
         getFields,
         getPages,
-        createAction,
-        apiCall,
+        call,
+        postCreate,
+        store
       }
       app.provide(name,  app.config.globalProperties[`$${name}`])
 
       // add plugins, usage: $api.site or inject('api.site')
-      each(plugins, (def: IApiPlugin) => {
+      each(addons, (def: IApiAddon) => {
         app.config.globalProperties[`$${name}`][def.name] = def.export
         app.provide(`${name}.${def.name}`, def.export)
         each(def?.components, (component: any, name: string) => {

@@ -1,4 +1,4 @@
-export interface IApiPlugin {
+export interface IApiAddon {
   name: string
   export: Object
   components?: Object
@@ -10,7 +10,7 @@ export interface IApiOptions {
   name?: string,
   host?: string,
   lang?: string,
-  plugins?: IApiPlugin[],
+  addons?: IApiAddon[],
   request?: IApiRequestOptions
 }
 

@@ -1,17 +1,14 @@
 import { ref } from 'vue'
 import { each, has, isArr, isObj } from '../fn'
 import { getFields } from '../api'
-import { publish, subscribe } from '../api/plugins'
-import Options from './Options'
-import { setMeta } from './meta'
+import { store } from '../api/store'
 import BaseModel from './models/Base'
 import * as models from './models/models'
-import { createThumb } from './Thumb'
+import { createThumb } from './thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
-import type { IsiteOptions } from './types'
-import type { IApiPlugin, Object, JSONObject } from '../types'
+import type { IApiAddon, Object, JSONObject } from '../types'
 
 /**
  * workaround to add types to models
@@ -30,26 +27,11 @@ async function requestSite(): Promise<void> {
   const json = await getFields('/', { raw: true })
   if (isObj(json) && json.ok) {
     if (has(json.body.meta, 'title')) {
-      setMeta({ brand: json.body.meta.title })
+      store.brand = json.body.meta.title
     }
     site.value = convertResponse(json)
-    publish('on-changed-site', json.body)
   }
 }
-
-/**
- * Options for models.
- */
-export const siteOptions = new Options({
-  router: true, // AhoiLink checks if router is installed
-  title: 'Home',
-  brand: '',
-  title_separator: ' - ',
-  locale: 'en-US',
-  nl2br: false,
-  date: { year: 'numeric', month: 'numeric', day: 'numeric' },
-  time: { hour: '2-digit', minute: '2-digit' },
-})
 
 /**
  * Main function to convert json from response to models.
@@ -93,18 +75,9 @@ export function parseModelsRec(nodes: JSONObject): Object|JSONObject {
 }
 
 /**
- * Change locale in Options.
- */
-function setLocale(locale: string): void {
-  siteOptions.set('locale', locale)
-  setMeta({ locale: locale })
-}
-
-/**
  * Plugin
  */
-export function createSite(options: IsiteOptions = {}): IApiPlugin {
-  siteOptions.set(options)
+export function createSite(): IApiAddon {
   return {
     name: 'site',
     components: {
@@ -114,14 +87,11 @@ export function createSite(options: IsiteOptions = {}): IApiPlugin {
     },
     init: async (): Promise<void> => {
       await requestSite()
-      subscribe('on-changed-langcode', requestSite)
-      subscribe('on-changed-locale', setLocale)
+      store.watch('lang', requestSite)
     },
     export: {
       convertResponse,
       createThumb,
-      siteOptions,
-      setMeta,
       site
     }
   }

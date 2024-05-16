@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { createAction } from '../api'
+import { postCreate } from '../api'
 import { each, has, toKey, isBool, isTrue, isObj, isStr, toBool } from '../fn'
 import BaseModel from './models/Base'
 import * as models from './models/models'
@@ -153,7 +153,7 @@ class Form {
       options.lang = this.options.value.lang
     }
     this.processing.value = true
-    const res = await createAction(this.options.value.action, this.data(), options)
+    const res = await postCreate(this.options.value.action, this.data(), options)
     this.processing.value = false
     return res
   }

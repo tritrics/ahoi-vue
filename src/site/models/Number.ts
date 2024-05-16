@@ -1,6 +1,6 @@
-import { toNum, isInt, isNum } from '../../fn'
+import { toNum, isInt, isNum, toInt } from '../../fn'
 import BaseModel from './Base'
-import { siteOptions } from '../index'
+import { store } from '../../api/store'
 import type { INumberModel } from './types'
 import type { IsiteOptions } from '../types'
 import type { Object } from '../../types'
@@ -13,14 +13,14 @@ export default class NumberModel extends BaseModel implements INumberModel {
   }
 
   str(options: IsiteOptions = {}) {
-    const fixed: number|undefined = siteOptions.get('fixed', options?.fixed)
+    const fixed: number|undefined = isInt(options.fixed, 1) ? toInt(options.fixed) : undefined
     const stringOptions: Object = {}
     if (isInt(fixed, 1)) {
       stringOptions.minimumFractionDigits = fixed
       stringOptions.maximumFractionDigits = fixed
     }
     return this.value.toLocaleString(
-      siteOptions.get('locale', options?.locale),
+      options?.locale ?? store.locale,
       stringOptions
     )
   }

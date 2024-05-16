@@ -1,5 +1,5 @@
 import Form from './Form'
-import type { IApiPlugin, Object, IFormOptions } from '../types'
+import type { IApiAddon, Object, IFormOptions } from '../types'
 
 /**
  * Factory to create a new form, returns the interface.
@@ -20,7 +20,7 @@ function createUserForm(options: IFormOptions = {}, fields: Object|null = null):
 /**
  * Plugin
  */
-export function createForm(): IApiPlugin {
+export function createForm(): IApiAddon {
   return {
     name: 'form',
     export: {
