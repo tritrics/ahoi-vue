@@ -1,73 +1,54 @@
-import { escape, toKey, toStr, isStr, isEmpty } from '../fn'
+import { escape, each, toKey, toStr, isStr, isEmpty } from '../fn'
 import { store } from '../api/store'
-import type { IApiAddon } from '../types'
+import type { IApiAddon, Object } from '../types'
 
 /**
- * Watch-method to set lang in html-node.
+ * Setting a single or a bunch of meta values.
+ * use: setMeta({ key: val }) or setMeta(key, val)
  */
-function setLang(): void {
-  setMeta('lang', store.lang)
+export function setMeta(mixed: Object|string, val: string = ''): void {
+  const meta = isStr(mixed) ? { mixed: val } : mixed
+  each(meta, (val: string, key: string) => {
+    const name: string = toKey(key)
+    switch(name) {
+      case 'description':
+        write('description', val)
+        write('og:description', val)
+        write('twitter:card', val)
+        break
+      case 'locale':
+        write('og:locale', val)
+        break
+      case 'image':
+        write('og:image', val)
+        break
+      case 'title': {
+        const parts: string[] = []
+        if (isStr(val, 1)) {
+          parts.push(val)
+        }
+        if (isStr(store.get('brand'), 1)) {
+          parts.push(store.get('brand'))
+          write('og:site_name', store.get('brand'))
+        }
+        const title = parts.join(store.get('separator'))
+        write('title', title)
+        write('og:title', title)
+        break
+      }
+      case 'url':
+        write('og:url', val)
+        break
+      default:
+        write(name, val)
+    }
+  })
 }
 
 /**
- * Watch-method to set meta locale.
+ * Manipulate HTML
  */
-function setLocale(): void {
-  setMeta('og:locale', store.locale)
-}
-
-/**
- * Watch-method to set page title.
- */
-function setTitle(): void {
-  const parts: string[] = []
-  if (isStr(store.title, 1)) {
-    parts.push(store.title)
-  }
-  if (isStr(store.brand, 1)) {
-    parts.push(store.brand)
-    setMeta('og:site_name', store.brand)
-  }
-  const title = parts.join(store.separator)
-  setMeta('title', title)
-  setMeta('og:title', title)
-}
-
-/**
- * Watch-method to set meta keywords.
- */
-function setKeywords(): void {
-  setMeta('keywords', store.keywords)
-}
-
-/**
- * Watch-method to set meta description.
- */
-function setDescription(): void {
-  setMeta('description', store.description)
-  setMeta('og:description', store.description)
-  setMeta('twitter:card', store.description)
-}
-
-/**
- * Watch-method to set meta image.
- */
-function setImage(): void {
-  setMeta('og:image', store.image)
-}
-
-/**
- * Watch-method to set meta url.
- */
-function setUrl(): void {
-  setMeta('og:url', store.url)
-}
-
-/**
- * Change or add meta element.
- */
-export function setMeta(key: string, value: string) {
-  const name: string = toKey(key)
+function write(name: string, value: string): void {
   const content: string = escape(toStr(value))
   switch(name) {
     case 'title':
@@ -108,13 +89,8 @@ export function createMeta(): IApiAddon {
   return {
     name: 'meta',
     init: (): void => {
-      store.watch('lang', setLang, { immediate: true })
-      store.watch('locale', setLocale, { immediate: true })
-      store.watch(['brand', 'title'], setTitle, { immediate: true })
-      store.watch('keywords', setKeywords, { immediate: true })
-      store.watch('description', setDescription, { immediate: true })
-      store.watch('image', setImage, { immediate: true })
-      store.watch('url', setUrl, { immediate: true })
+      store.watch('lang', (val: string) => setMeta({ lang: val }), { immediate: true })
+      store.watch('locale', (val: string) => setMeta({ locale: val }), { immediate: true })
     },
     export: {
       setMeta

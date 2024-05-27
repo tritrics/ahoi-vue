@@ -27,7 +27,7 @@ async function requestSite(): Promise<void> {
   const json = await getFields('/', { raw: true })
   if (isObj(json) && json.ok) {
     if (has(json.body.meta, 'title')) {
-      store.brand = json.body.meta.title
+      store.set('brand', json.body.meta.title)
     }
     site.value = convertResponse(json)
   }

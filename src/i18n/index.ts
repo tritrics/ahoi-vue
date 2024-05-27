@@ -25,21 +25,21 @@ const map = ref<Object>({})
  * Is it a multilanguage site or not.
  */
 export function isMultilang(): boolean {
-  return store.multilang === true
+  return store.get('multilang') === true
 }
 
 /**
  * Get current language.
  */
 export function getCurrent(): string {
-  return store.lang
+  return store.get('lang')
 }
 
 /**
  * Check, if the given language is the current language.
  */
 export function isCurrent(code: string): boolean {
-  return store.lang === code
+  return store.get('lang') === code
 }
 
 /**
@@ -93,20 +93,19 @@ export function detect(getUser: boolean = true, getDefault: boolean = true): str
 export async function setLang(code: string|null): Promise<string|null> {
   if (isMultilang() && isStr(code, 1)) {
     const normCode = toKey(code)
-    if (isValid(normCode) && (normCode !== store.lang)) {
+    if (isValid(normCode) && (normCode !== store.get('lang'))) {
       const json: JSONObject = await getLanguageRequest(normCode, { raw: true })
       if (!isObj(json) || !json.ok) {
-        return store.lang
+        return store.get('lang')
       }
       terms.value = convertResponse(json.body)
       console.log('i18n')
-      store.lang = normCode
-      store.locale = toLocale(json.body.meta.locale, '-')
-      store.langname = json.body.meta.title
-      store.direction = json.body.meta.direction
+      store.set('lang', normCode)
+      store.set('locale', toLocale(json.body.meta.locale, '-'))
+      store.set('direction', json.body.meta.direction)
     }
   }
-  return store.lang
+  return store.get('lang')
 }
 
 /**
@@ -114,7 +113,7 @@ export async function setLang(code: string|null): Promise<string|null> {
  */
 async function requestLanguages(): Promise<void> {
   const json = await getInfo({ raw: true })
-  store.multilang = toBool(json.body.meta.multilang)
+  store.set('multilang', toBool(json.body.meta.multilang))
   if (isMultilang()) {
     each(json.body.languages, (lang: Object) => {
       map.value[lang.meta.code] =  toBool(lang.meta.default)
