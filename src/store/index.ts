@@ -1,15 +1,8 @@
 import { ref, watch, toRef } from 'vue'
 import { each, has, isUrl, isArr, isStr, isBool, isLocale, toBool, toLocale, toKey } from '../fn'
+import type { IStore } from './types'
+import type { Object, DateTimeFormat, IApiAddon } from '../types'
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
-import type { Object, DateTimeFormat } from '../types'
-
-interface IStore {
-  get(key: string): any
-  ref(key: string): Ref
-  set(key: string, val: any): void
-  setOptions(obj: Object): void
-  watch<T>(source: string|string[], callback: WatchCallback<T>, options?: WatchOptions): Function
-}
 
 /**
  * Simple store with app prefs and user added values.
@@ -99,10 +92,10 @@ class Store implements IStore {
    * Getting an option as ref
    */
   ref(key: string): Ref {
-    if (has(this._data, key)) {
-      return toRef(this._data[key])
+    if (!has(this._data, key)) {
+      this.set(key, null)
     }
-    return ref(null)
+    return toRef(this._data[key])
   }
 
   /**
@@ -190,15 +183,22 @@ class Store implements IStore {
   /**
    * Watch a pref or an array of prefs
    */
-  watch<T>(source: string|string[], callback: WatchCallback<T>, options: WatchOptions = {}): WatchStopHandle {
-    if (isArr(source)) {
-      const sources: Ref[] = []
-      each(source, (prop: string) => {
-        sources.push(this._data[prop])
+  watch<T>(keys: string|string[], callback: WatchCallback<T>, options: WatchOptions = {}): WatchStopHandle {
+    let sources: Ref<string>[] = []
+    if (isArr(keys)) {
+      each(keys, (key: string) => {
+        if (!has(this._data, key)) {
+          this.set(key, null)
+        }
+        sources.push(this._data[key])
       })
-      return watch(sources, callback as WatchCallback, options)
+    } else if(isStr(keys, 1)) {
+      if (!has(this._data, keys)) {
+        this.set(keys, null)
+      }
+      sources = this._data[keys]
     }
-    return watch(this._data[source], callback as WatchCallback, options)
+    return watch(sources, callback as WatchCallback, options)
   }
 }
 
@@ -207,3 +207,13 @@ class Store implements IStore {
  */
 const instance: IStore = new Store()
 export { instance as store }
+
+/**
+ * Addon
+ */
+export function createStore(): IApiAddon {
+  return {
+    name: 'store',
+    export: instance
+  }
+}

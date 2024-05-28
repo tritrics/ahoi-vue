@@ -1,5 +1,5 @@
 import { escape, each, toKey, toStr, isStr, isEmpty } from '../fn'
-import { store } from '../api/store'
+import { store } from '../store'
 import type { IApiAddon, Object } from '../types'
 
 /**
@@ -83,7 +83,7 @@ function write(name: string, value: string): void {
 }
 
 /**
- * Plugin
+ * Addon
  */
 export function createMeta(): IApiAddon {
   return {
@@ -91,6 +91,7 @@ export function createMeta(): IApiAddon {
     init: (): void => {
       store.watch('lang', (val: string) => setMeta({ lang: val }), { immediate: true })
       store.watch('locale', (val: string) => setMeta({ locale: val }), { immediate: true })
+      store.watch('brand', () => setMeta({ title: '' }), { immediate: true })
     },
     export: {
       setMeta

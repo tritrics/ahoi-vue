@@ -1,6 +1,6 @@
 import { toNum, isInt, isNum, toInt } from '../../fn'
 import BaseModel from './Base'
-import { store } from '../../api/store'
+import { store } from '../../store'
 import type { INumberModel } from './types'
 import type { IsiteOptions } from '../types'
 import type { Object } from '../../types'
@@ -20,7 +20,7 @@ export default class NumberModel extends BaseModel implements INumberModel {
       stringOptions.maximumFractionDigits = fixed
     }
     return this.value.toLocaleString(
-      options?.locale ?? store.locale,
+      options?.locale ?? store.get('locale'),
       stringOptions
     )
   }

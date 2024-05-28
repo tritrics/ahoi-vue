@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
 import { isStr, isObj, has } from '../../fn'
-import { store } from '../../api/store'
+import { store } from '../../store'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
 import type { ILinkModel } from '../models/types'

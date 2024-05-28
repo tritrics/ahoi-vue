@@ -14,10 +14,10 @@ export default function isDate(
     val = toDate(val, format)
   }
   if (val instanceof Date) {
-      return (
-        val >= (min instanceof Date ? min : val) &&
-        val <= (max instanceof Date ? max : val)
-      )
-    }
-    return false
+    return (
+      val >= (min instanceof Date ? min : val) &&
+      val <= (max instanceof Date ? max : val)
+    )
+  }
+  return false
 }

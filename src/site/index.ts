@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { each, has, isArr, isObj } from '../fn'
 import { getFields } from '../api'
-import { store } from '../api/store'
+import { store } from '../store'
 import BaseModel from './models/Base'
 import * as models from './models/models'
 import { createThumb } from './thumb'
@@ -75,7 +75,7 @@ export function parseModelsRec(nodes: JSONObject): Object|JSONObject {
 }
 
 /**
- * Plugin
+ * Addon
  */
 export function createSite(): IApiAddon {
   return {

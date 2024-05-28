@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import { each, toKey, has, toBool, isStr, isUndef, isObj, toLocale } from '../fn'
 import { getInfo, getLanguage as getLanguageRequest } from '../api'
-import { store } from '../api/store'
-import { inject } from '../api/addons'
+import { store } from '../store'
+import { inject } from '../addons'
 import type { IApiAddon, JSONObject, Object } from '../types'
 
 /**
@@ -53,13 +53,6 @@ export function isValid(code: string|null): boolean {
 }
 
 /**
- * Get a term given by key.
- */
-export function getTerm(key: string): string|number|null {
-  return terms.value[key] ?? null
-}
-
-/**
  * Detect the best valid language from browser or settings.
  * 
  * @param {boolean} getUser try to get the language from browser
@@ -94,15 +87,15 @@ export async function setLang(code: string|null): Promise<string|null> {
   if (isMultilang() && isStr(code, 1)) {
     const normCode = toKey(code)
     if (isValid(normCode) && (normCode !== store.get('lang'))) {
-      const json: JSONObject = await getLanguageRequest(normCode, { raw: true })
+      const json: JSONObject = await getLanguageRequest({ lang: normCode, raw: true })
       if (!isObj(json) || !json.ok) {
         return store.get('lang')
       }
-      terms.value = convertResponse(json.body)
-      console.log('i18n')
       store.set('lang', normCode)
       store.set('locale', toLocale(json.body.meta.locale, '-'))
       store.set('direction', json.body.meta.direction)
+      const parsed = convertResponse(json)
+      terms.value = parsed.fields
     }
   }
   return store.get('lang')
@@ -134,7 +127,7 @@ function convertResponse(json: JSONObject): JSONObject {
 }
 
 /**
- * Plugin
+ * Addon
  */
 export function createI18n(): IApiAddon {
   return {
@@ -151,7 +144,6 @@ export function createI18n(): IApiAddon {
       isValid,
       getCurrent,
       detect,
-      getTerm,
       setLang,
     }
   }

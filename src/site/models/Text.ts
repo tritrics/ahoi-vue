@@ -1,6 +1,6 @@
 import { isTrue } from '../../fn'
 import BaseModel from './Base'
-import { store } from '../../api/store'
+import { store } from '../../store'
 import type { ITextModel } from './types'
 import type { IsiteOptions } from '../types'
 import type { JSONObject } from '../../types'

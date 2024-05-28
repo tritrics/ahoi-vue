@@ -1,7 +1,7 @@
 import { has, each } from '../fn'
 import Request from './Request'
-import { store } from './store'
-import { loadAddons } from './addons'
+import { store } from '../store'
+import { loadAddons } from '../addons'
 import { version } from '../../package.json'
 import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiAddon, JSONObject } from '../types'
 
@@ -35,8 +35,8 @@ export async function getInfo(options: IApiRequestOptions = {}): Promise<JSONObj
  * Call API interface /language/(:any).
  * Returns information from a single language.
  */
-export async function getLanguage(lang: string, options: IApiRequestOptions = {} ): Promise<JSONObject> {
-  return await createRequest(options).getLanguage(lang)
+export async function getLanguage(options: IApiRequestOptions = {} ): Promise<JSONObject> {
+  return await createRequest(options).getLanguage()
 }
 
 /**

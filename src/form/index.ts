@@ -18,7 +18,7 @@ function createUserForm(options: IFormOptions = {}, fields: Object|null = null):
 }
 
 /**
- * Plugin
+ * Addon
  */
 export function createForm(): IApiAddon {
   return {

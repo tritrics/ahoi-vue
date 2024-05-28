@@ -23,20 +23,33 @@ export default function toDate(val: string|Date, format: RegExp|string = 'yyyy-m
     return null
   }
   const date = new Date()
-  if (res.groups.y) date.setFullYear(toInt(res.groups.y))
-  if (res.groups.m) date.setMonth(toInt(res.groups.m) - 1)
-  if (res.groups.d) date.setDate(toInt(res.groups.d))
-  if (res.groups.h) date.setHours(toInt(res.groups.h))
-  if (res.groups.i) date.setMinutes(toInt(res.groups.i))
-  if (res.groups.s) date.setSeconds(toInt(res.groups.s))
+  if (res.groups.y) {
+    date.setUTCFullYear(toInt(res.groups.y))
+  }
+  if (res.groups.m) {
+    date.setUTCMonth(toInt(res.groups.m) - 1)
+  }
+  if (res.groups.d) {
+    date.setUTCDate(toInt(res.groups.d))
+  }
+  if (res.groups.h) {
+    date.setUTCHours(toInt(res.groups.h))
+  }
+  if (res.groups.i) {
+    date.setUTCMinutes(toInt(res.groups.i))
+  }
+  if (res.groups.s) {
+    date.setUTCSeconds(toInt(res.groups.s))
+  }
+  date.setUTCMilliseconds(0)
   if (
     date.toString() !== 'Invalid Date' &&
-    (!res.groups.y || date.getFullYear() === toInt(res.groups.y)) &&
-    (!res.groups.m || date.getMonth() === toInt(res.groups.m) - 1) &&
-    (!res.groups.d || date.getDate() === toInt(res.groups.d)) &&
-    (!res.groups.h || date.getHours() === toInt(res.groups.h)) &&
-    (!res.groups.i || date.getMinutes() === toInt(res.groups.i)) &&
-    (!res.groups.s || date.getSeconds() === toInt(res.groups.s))
+    (!res.groups.y || date.getUTCFullYear() === toInt(res.groups.y)) &&
+    (!res.groups.m || date.getUTCMonth() === toInt(res.groups.m) - 1) &&
+    (!res.groups.d || date.getUTCDate() === toInt(res.groups.d)) &&
+    (!res.groups.h || date.getUTCHours() === toInt(res.groups.h)) &&
+    (!res.groups.i || date.getUTCMinutes() === toInt(res.groups.i)) &&
+    (!res.groups.s || date.getUTCSeconds() === toInt(res.groups.s))
   ) {
     return date
   }

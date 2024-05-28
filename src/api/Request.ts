@@ -1,7 +1,7 @@
 import { upper, each, lower, count, unique, objToParam, isStr, isObj, isUrl, isArr, isInt, isBool, toPath, toKey, toInt, toBool } from '../fn'
 import { APIVERSION } from './index'
-import { store } from './store'
-import { inject, hasAddon } from './addons'
+import { store } from '../store'
+import { inject, hasAddon } from '../addons'
 import type { Object, IFormParams, ApiMethods, JSONObject, ApiOrder } from '../types'
 
 /**
@@ -26,8 +26,8 @@ class Request {
     let res: string|null = null
     if (isUrl(this.options.host)) {
       res = this.options.host
-    } else if (isUrl(store.host)) {
-      res = store.host
+    } else if (isUrl(store.get('host'))) {
+      res = store.get('host')
     }
     if (isStr(res) && res.endsWith('/')) {
       res = res.substring(0, res.length - 1)
@@ -40,11 +40,11 @@ class Request {
    * Parameter must be a valid 2-char language code.
    */
   get lang(): string|null {
-    if (store.multilang) {
+    if (store.get('multilang')) {
       if (isStr(this.options.lang, 1)) {
         return toKey(this.options.lang)
-      } else if (isStr(store.lang, 1)) {
-        return toKey(store.lang)
+      } else if (isStr(store.get('lang'), 1)) {
+        return toKey(store.get('lang'))
       }
     }
     return null
@@ -109,8 +109,8 @@ class Request {
    * Can only be set to true, if site plugin exists.
    */
   get raw(): boolean {
-    if (hasAddon('site') && isBool(this.options.raw)) {
-      return toBool(this.options.raw)
+    if (hasAddon('site')) {
+      return isBool(this.options.raw) ? toBool(this.options.raw) : false
     }
     return true
   }
@@ -131,12 +131,12 @@ class Request {
   /**
    * Call API interface /language/(:any).
    */
-  async getLanguage(lang: string): Promise<JSONObject> {
+  async getLanguage(): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,
       'language',
-      isStr(lang, 1) ? toKey(lang) : this.lang
+      this.lang
     )
     const res: JSONObject = await this.apiRequest(url)
     return this.convertResponse(res)
