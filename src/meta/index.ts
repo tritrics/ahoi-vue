@@ -1,5 +1,5 @@
 import { escape, each, toKey, toStr, isStr, isEmpty } from '../fn'
-import { store } from '../store'
+import { stores } from '../stores'
 import type { IApiAddon, Object } from '../types'
 
 /**
@@ -27,11 +27,11 @@ export function setMeta(mixed: Object|string, val: string = ''): void {
         if (isStr(val, 1)) {
           parts.push(val)
         }
-        if (isStr(store.get('brand'), 1)) {
-          parts.push(store.get('brand'))
-          write('og:site_name', store.get('brand'))
+        if (isStr(stores.options.get('brand'), 1)) {
+          parts.push(stores.options.get('brand'))
+          write('og:site_name', stores.options.get('brand'))
         }
-        const title = parts.join(store.get('separator'))
+        const title = parts.join(stores.options.get('separator'))
         write('title', title)
         write('og:title', title)
         break
@@ -89,9 +89,9 @@ export function createMeta(): IApiAddon {
   return {
     name: 'meta',
     init: (): void => {
-      store.watch('lang', (val: string) => setMeta({ lang: val }), { immediate: true })
-      store.watch('locale', (val: string) => setMeta({ locale: val }), { immediate: true })
-      store.watch('brand', () => setMeta({ title: '' }), { immediate: true })
+      stores.options.watch('lang', (val: string) => setMeta({ lang: val }), { immediate: true })
+      stores.options.watch('locale', (val: string) => setMeta({ locale: val }), { immediate: true })
+      stores.options.watch('brand', () => setMeta({ title: '' }), { immediate: true })
     },
     export: {
       setMeta

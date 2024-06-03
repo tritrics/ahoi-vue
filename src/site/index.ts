@@ -1,7 +1,6 @@
-import { ref } from 'vue'
 import { each, has, isArr, isObj } from '../fn'
 import { getFields } from '../api'
-import { store } from '../store'
+import { stores, store } from '../stores'
 import BaseModel from './models/Base'
 import * as models from './models/models'
 import { createThumb } from './thumb'
@@ -16,20 +15,47 @@ import type { IApiAddon, Object, JSONObject } from '../types'
 const modelsMap: Object = models
 
 /**
- * original response data, parsed or not
+ * Request site, implicit done on init().
  */
-const site = ref<JSONObject>({})
+export async function requestSite(): Promise<void> {
+  const json = await getFields('/', { raw: true })
+  let res: Object = {}
+  if (isObj(json) && json.ok) {
+    if (has(json.body.fields, 'title')) {
+      stores.options.set('brand', json.body.fields.title.value)
+    }
+    res = convertResponse(json)
+  }
+  stores.site.set('meta', res.meta ?? {})
+  stores.site.set('link', res.link ?? {})
+  stores.site.set('fields', res.fields ?? {})
+}
 
 /**
- * Init = request site.
+ * Request a page
  */
-async function requestSite(): Promise<void> {
-  const json = await getFields('/', { raw: true })
+export async function requestPage(path: string): Promise<void> {
+  const json = await getFields(path, { raw: true })
+  let res: Object = {}
   if (isObj(json) && json.ok) {
-    if (has(json.body.meta, 'title')) {
-      store.set('brand', json.body.meta.title)
+    if (has(json.body.fields, 'title')) {
+      stores.options.set('title', json.body.fields.title.value)
     }
-    site.value = convertResponse(json)
+    res = convertResponse(json)
+  }
+  stores.page.set('meta', res.meta ?? {})
+  stores.page.set('link', res.link ?? {})
+  stores.page.set('fields', res.fields ?? {})
+}
+
+/**
+ * @TODO
+ */
+async function onChangeLang(newLang: string) {
+  await requestSite()
+  const meta = stores.page.get('meta')
+  if (has(meta, 'translations') && has(meta.translations, newLang)) {
+    await requestPage(meta.translations[newLang])
   }
 }
 
@@ -85,14 +111,27 @@ export function createSite(): IApiAddon {
       'AhoiLink': AhoiLink,
       'AhoiThumb': AhoiThumb,
     },
+    setup: (): void => {
+      store('site', {
+        'meta': {},
+        'link': {},
+        'fields': {}
+      })
+      store('page', {
+        'meta': {},
+        'link': {},
+        'fields': {}
+      })
+    },
     init: async (): Promise<void> => {
       await requestSite()
-      store.watch('lang', requestSite)
+      stores.options.watch('lang', onChangeLang)
     },
     export: {
       convertResponse,
       createThumb,
-      site
+      requestSite,
+      requestPage,
     }
   }
 }

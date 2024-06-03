@@ -1,9 +1,9 @@
 import { has, each } from '../fn'
 import Request from './Request'
-import { store } from '../store'
+import { stores } from '../stores'
 import { loadAddons } from '../addons'
 import { version } from '../../package.json'
-import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiAddon, JSONObject } from '../types'
+import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiAddon, JSONObject, IStore } from '../types'
 
 /**
  * The API interface version.
@@ -45,11 +45,9 @@ export async function getLanguage(options: IApiRequestOptions = {} ): Promise<JS
  */
 export async function getFields(
   path: string,
-  options: IApiRequestOptions = {},
-  getFields: boolean = false
+  options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
-  const res = await createRequest(options).getFields(path)
-  return getFields ? res.fields ?? {} : res
+  return await createRequest(options).getFields(path)
 }
 
 /**
@@ -58,11 +56,9 @@ export async function getFields(
  */
 export async function getPages(
   path: string,
-  options: IApiRequestOptions = {},
-  getEntries: boolean = false
+  options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
-  const res = await createRequest(options).getPages(path)
-  return getEntries ? res.entries ?? {} : res
+  return await createRequest(options).getPages(path)
 }
 
 /**
@@ -71,11 +67,9 @@ export async function getPages(
  */
 export async function getFiles(
   path: string,
-  options: IApiRequestOptions = {},
-  getEntries: boolean = false
+  options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
-  const res = await createRequest(options).getFiles(path)
-  return getEntries ? res.entries ?? {} : res
+  return await createRequest(options).getFiles(path)
 }
 
 /**
@@ -107,18 +101,19 @@ export async function call(
  * Creating the Vue-Plugin. 
  */    
 export async function createApi(options: IApiOptions) {
-  const name: string = has(options, 'name') ? options.name! : 'api'
-  store.setOptions(options)
+  const name: string = 'api'
+  stores.options.set(options)
 
-  // load Addons
+  // add Addons, usage: $api.site or inject('api.site')
   let addons: IApiAddon[] = []
   if (has(options, 'addons')) {
     addons = await loadAddons(options.addons!)
   }
+      console.log('plugins')
   
   // register plugin
   return {
-    install(app: any): void { // any => VueConstructor would be correct, but impossible to import
+    install: async (app: any) => {
       app.config.globalProperties[`$${name}`] = {
         APIVERSION,
         VERSION,
@@ -126,17 +121,16 @@ export async function createApi(options: IApiOptions) {
         getLanguage,
         getFields,
         getPages,
+        getFiles,
         call,
-        postCreate,
-        store
+        postCreate
       }
       app.provide(name,  app.config.globalProperties[`$${name}`])
-
-      // add plugins, usage: $api.site or inject('api.site')
-      each(addons, (def: IApiAddon) => {
-        app.config.globalProperties[`$${name}`][def.name] = def.export
-        app.provide(`${name}.${def.name}`, def.export)
-        each(def?.components, (component: any, name: string) => {
+      app.provide(`${name}.app`, app)
+      each(addons, (addon: IApiAddon) => {
+        app.config.globalProperties[`$${name}`][addon.name] = addon.export
+        app.provide(`${name}.${addon.name}`, addon.export)
+        each(addon?.components, (component: any, name: string) => {
           app.component(name, component)
         })
       })

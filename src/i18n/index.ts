@@ -1,56 +1,9 @@
-import { ref } from 'vue'
-import { each, toKey, has, toBool, isStr, isUndef, isObj, toLocale } from '../fn'
-import { getInfo, getLanguage as getLanguageRequest } from '../api'
-import { store } from '../store'
+import { each, toKey, toBool, isStr, isUndef, isObj, toLocale } from '../fn'
+import { getInfo, getLanguage } from '../api'
+import { store, stores } from '../stores'
 import { inject } from '../addons'
+import AhoiLangSwitch from './components/AhoiLangSwitch.vue'
 import type { IApiAddon, JSONObject, Object } from '../types'
-
-/**
- * Details of current language like returned from getLanguage()
- */
-const terms = ref<JSONObject>({})
-
-/**
- * List of languages like returned from getInfo()
- */
-const all = ref<JSONObject>({})
-
-/**
- * Lookup for valid languages
- * { [code]: is default }
- */
-const map = ref<Object>({})
-
-/**
- * Is it a multilanguage site or not.
- */
-export function isMultilang(): boolean {
-  return store.get('multilang') === true
-}
-
-/**
- * Get current language.
- */
-export function getCurrent(): string {
-  return store.get('lang')
-}
-
-/**
- * Check, if the given language is the current language.
- */
-export function isCurrent(code: string): boolean {
-  return store.get('lang') === code
-}
-
-/**
- * Check, if the given language is valid.
- */
-export function isValid(code: string|null): boolean {
-  if (isStr(code, 1)) {
-    return has(map.value, code)
-  }
-  return false
-}
 
 /**
  * Detect the best valid language from browser or settings.
@@ -58,24 +11,23 @@ export function isValid(code: string|null): boolean {
  * @param {boolean} getUser try to get the language from browser
  * @param {boolean} getDefault get default language like defined in Kirby if detection fails
  */
-export function detect(getUser: boolean = true, getDefault: boolean = true): string|null {
+export function detectLanguage(getUser: boolean = true, getDefault: boolean = true): string|null {
   let res: string|null = null
   if (getUser) {
     for (let i = 0; i < navigator.languages.length; i++) {
       const code: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
-      if (!isUndef(code) && isValid(code)) {
+      if (!isUndef(code) && stores.options.isValidLang(code)) {
         res = code
         break
       }
     }
   }
-  if (getDefault && !isValid(res)) {
-    for (const code in map.value) {
-      if (map.value[code].default) {
+  if (getDefault && !stores.options.isValidLang(res)) {
+    each(stores.options.languages, (language: Object, code: string) => {
+      if (language.default) {
         res = code
-        break
       }
-    }
+    })
   }
   return res
 }
@@ -83,22 +35,22 @@ export function detect(getUser: boolean = true, getDefault: boolean = true): str
 /**
  * Setting a language with implicit requesting all language data from Kirby.
  */
-export async function setLang(code: string|null): Promise<string|null> {
-  if (isMultilang() && isStr(code, 1)) {
+export async function setLanguage(code: string|null): Promise<string|null> {
+  if (stores.options.get('multilang') && isStr(code, 1)) {
     const normCode = toKey(code)
-    if (isValid(normCode) && (normCode !== store.get('lang'))) {
-      const json: JSONObject = await getLanguageRequest({ lang: normCode, raw: true })
+    if (stores.options.isValidLang(normCode) && (normCode !== stores.options.get('lang'))) {
+      const json: JSONObject = await getLanguage({ lang: normCode, raw: true })
       if (!isObj(json) || !json.ok) {
-        return store.get('lang')
+        return stores.options.get('lang')
       }
-      store.set('lang', normCode)
-      store.set('locale', toLocale(json.body.meta.locale, '-'))
-      store.set('direction', json.body.meta.direction)
+      stores.options.set('lang', normCode)
+      stores.options.set('locale', toLocale(json.body.meta.locale, '-'))
+      stores.options.set('direction', json.body.meta.direction)
       const parsed = convertResponse(json)
-      terms.value = parsed.fields
+      stores.i18n.set('terms', parsed.fields)
     }
   }
-  return store.get('lang')
+  return stores.options.get('lang')
 }
 
 /**
@@ -106,15 +58,12 @@ export async function setLang(code: string|null): Promise<string|null> {
  */
 async function requestLanguages(): Promise<void> {
   const json = await getInfo({ raw: true })
-  store.set('multilang', toBool(json.body.meta.multilang))
-  if (isMultilang()) {
-    each(json.body.languages, (lang: Object) => {
-      map.value[lang.meta.code] =  toBool(lang.meta.default)
-    })
+  stores.options.set('multilang', toBool(json.body.meta.multilang))
+  if (stores.options.get('multilang')) {
     const body = convertResponse(json)
-    all.value = body.languages
+    stores.options.set('languages', body.languages)
   } else {
-    map.value = {}
+    stores.options.set('languages', {})
   }
 }
 
@@ -132,19 +81,19 @@ function convertResponse(json: JSONObject): JSONObject {
 export function createI18n(): IApiAddon {
   return {
     name: 'i18n',
+    components: {
+      'AhoiLangSwitch': AhoiLangSwitch,
+    },
     setup: async (): Promise<void> => {
+      store('i18n', {
+        'terms': {}
+      })
       await requestLanguages()
-      await setLang(detect())
+      await setLanguage(detectLanguage())
     },
     export: {
-      terms,
-      all,
-      isMultilang,
-      isCurrent,
-      isValid,
-      getCurrent,
-      detect,
-      setLang,
+      detectLanguage,
+      setLanguage,
     }
   }
 }

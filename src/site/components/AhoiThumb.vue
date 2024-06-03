@@ -17,5 +17,5 @@ watchEffect(() => {
 </script>
 
 <template>
-  <img v-bind="thumb.attr()" />
+  <img v-bind="thumb.attr()" class="ahoi-thumb" />
 </template>

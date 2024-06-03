@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
 import { isStr, isObj, has } from '../../fn'
-import { store } from '../../store'
+import { stores } from '../../stores'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
 import type { ILinkModel } from '../models/types'
@@ -38,7 +38,7 @@ let link: Ref<LinkString | LinkRouter | LinkApi >  = ref({
 const isRouterLink = computed<boolean>(() => {
   return (
     link.value.type === 'page' &&
-    store.router === true &&
+    stores.options.get('router') === true &&
     !!getCurrentInstance()?.appContext.config.globalProperties.$router
   )
 })
@@ -55,7 +55,7 @@ const elem = computed<ElemType>(() => {
  * null will not be visible in normal <a>
  */
 const to = computed<Object|string|null>(() => {
-  return isRouterLink.value ? link.value.data : null
+  return isRouterLink.value ? { path: '/de' + link.value.data} : null
 })
 
 /**
@@ -156,7 +156,13 @@ function onClick(e: Event) {
 </script>
 
 <template>
-  <component :is="elem" :to="to" v-bind="attr" @click="onClick($event)">
+  <component
+    :is="elem"
+    :to="to"
+    v-bind="attr"
+    @click="onClick($event)"
+    class="ahoi-link"
+  >
     <slot>{{ value }}</slot>
   </component>
 </template>

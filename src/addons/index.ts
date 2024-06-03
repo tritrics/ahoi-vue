@@ -1,5 +1,5 @@
 import { isFunc, has, inArr, isObj } from '../fn'
-import { createStore } from '../store'
+import { createStores } from '../stores'
 import type { Object, IApiAddon } from '../types'
 
 /**
@@ -49,7 +49,7 @@ export async function loadAddons(plugins: IApiAddon[]): Promise<IApiAddon[]> {
   // build-in addons
   const registered: IApiAddon[] = [
     createAddons(),
-    createStore()
+    createStores()
   ]
 
   // register addons

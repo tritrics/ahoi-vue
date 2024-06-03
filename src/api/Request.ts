@@ -1,6 +1,6 @@
 import { upper, each, lower, count, unique, objToParam, isStr, isObj, isUrl, isArr, isInt, isBool, toPath, toKey, toInt, toBool } from '../fn'
 import { APIVERSION } from './index'
-import { store } from '../store'
+import { stores } from '../stores'
 import { inject, hasAddon } from '../addons'
 import type { Object, IFormParams, ApiMethods, JSONObject, ApiOrder } from '../types'
 
@@ -26,8 +26,8 @@ class Request {
     let res: string|null = null
     if (isUrl(this.options.host)) {
       res = this.options.host
-    } else if (isUrl(store.get('host'))) {
-      res = store.get('host')
+    } else if (isUrl(stores.options.get('host'))) {
+      res = stores.options.get('host')
     }
     if (isStr(res) && res.endsWith('/')) {
       res = res.substring(0, res.length - 1)
@@ -40,11 +40,11 @@ class Request {
    * Parameter must be a valid 2-char language code.
    */
   get lang(): string|null {
-    if (store.get('multilang')) {
+    if (stores.options.get('multilang')) {
       if (isStr(this.options.lang, 1)) {
         return toKey(this.options.lang)
-      } else if (isStr(store.get('lang'), 1)) {
-        return toKey(store.get('lang'))
+      } else if (isStr(stores.options.get('lang'), 1)) {
+        return toKey(stores.options.get('lang'))
       }
     }
     return null

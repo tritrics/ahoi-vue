@@ -1,4 +1,4 @@
-import { isStr, toStr, upper, lower } from '../'
+import { isStr, toStr, upper, lower } from '../index'
 
 /**
  * Normalizes a locale string.

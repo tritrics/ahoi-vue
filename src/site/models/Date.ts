@@ -1,6 +1,6 @@
 import { today } from '../../fn'
 import DateBaseModel from './BaseDate'
-import { store } from '../../store'
+import { stores } from '../../stores'
 import type { IDateModel } from './types'
 import type { IsiteOptions } from '../types'
 import type { JSONObject } from '../../types'
@@ -14,8 +14,8 @@ export default class DateModel extends DateBaseModel implements IDateModel {
 
   str(options: IsiteOptions = {}): string {
     return this.value.toLocaleDateString(
-      options?.locale ?? store.get('locale'),
-      options?.time ?? store.get('time')
+      options?.locale ?? stores.options.get('locale'),
+      options?.time ?? stores.options.get('time')
     )
   }
 

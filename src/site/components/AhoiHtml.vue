@@ -18,7 +18,6 @@ function getClass(elem: string): any {
     return res
   }
 }
-
 </script>
 
 <template>
