@@ -1,4 +1,4 @@
-import { each, toStr, isNum, isStr, trim, isUrl } from '../'
+import { each, toStr, isNum, isStr, isArr, trim, isUrl } from '../'
 
 /**
  * Creates a slash-separated path or url from any kind of parameters.
@@ -11,6 +11,8 @@ export default function toPath(...args: any[]): string {
       arg = toStr(arg)
     } else if (isStr(arg)) {
       arg = trim(arg, true, true, '/')
+    } else if (isArr(arg)) {
+      arg = toPath(...arg)
     }
     if (isStr(arg, 1)) {
       res.push(encodeURI(arg))

@@ -20,7 +20,7 @@ export default class NumberModel extends BaseModel implements INumberModel {
       stringOptions.maximumFractionDigits = fixed
     }
     return this.value.toLocaleString(
-      options?.locale ?? stores.options.get('locale'),
+      options?.locale ?? stores.global.get('locale'),
       stringOptions
     )
   }

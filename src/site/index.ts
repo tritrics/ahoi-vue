@@ -1,5 +1,5 @@
 import { each, has, isArr, isObj } from '../fn'
-import { getFields } from '../api'
+import { getPage, getSite } from '../api'
 import { stores, store } from '../stores'
 import BaseModel from './models/Base'
 import * as models from './models/models'
@@ -18,11 +18,11 @@ const modelsMap: Object = models
  * Request site, implicit done on init().
  */
 export async function requestSite(): Promise<void> {
-  const json = await getFields('/', { raw: true })
+  const json = await getSite(stores.global.get('lang'), { raw: true })
   let res: Object = {}
   if (isObj(json) && json.ok) {
     if (has(json.body.fields, 'title')) {
-      stores.options.set('brand', json.body.fields.title.value)
+      stores.global.set('brand', json.body.fields.title.value)
     }
     res = convertResponse(json)
   }
@@ -35,17 +35,25 @@ export async function requestSite(): Promise<void> {
  * Request a page
  */
 export async function requestPage(path: string): Promise<void> {
-  const json = await getFields(path, { raw: true })
+  const json = await getPage(path, { raw: true })
   let res: Object = {}
   if (isObj(json) && json.ok) {
     if (has(json.body.fields, 'title')) {
-      stores.options.set('title', json.body.fields.title.value)
+      stores.global.set('title', json.body.fields.title.value)
     }
     res = convertResponse(json)
   }
   stores.page.set('meta', res.meta ?? {})
   stores.page.set('link', res.link ?? {})
   stores.page.set('fields', res.fields ?? {})
+}
+
+/**
+ * Request a page from a router path.
+ */
+export async function requestPageFromRoute(route: Object): Promise<void> {
+  requestPage('/de/apitest')
+  stores.page.set('route', route)
 }
 
 /**
@@ -125,7 +133,7 @@ export function createSite(): IApiAddon {
     },
     init: async (): Promise<void> => {
       await requestSite()
-      stores.options.watch('lang', onChangeLang)
+      stores.global.watch('lang', onChangeLang)
     },
     export: {
       convertResponse,

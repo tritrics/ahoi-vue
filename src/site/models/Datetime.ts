@@ -14,8 +14,8 @@ export default class DatetimeModel extends DateBaseModel implements IDatetimeMod
 
   str(options: IsiteOptions = {}): string {
     return this.value.toLocaleString(
-      options?.locale ?? stores.options.get('locale'),
-      { ...(options?.date ?? stores.options.get('date')), ...(options?.time ?? stores.options.get('time')) }
+      options?.locale ?? stores.global.get('locale'),
+      { ...(options?.date ?? stores.global.get('date')), ...(options?.time ?? stores.global.get('time')) }
     )
   }
 

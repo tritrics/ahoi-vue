@@ -1,9 +1,9 @@
-import { has, each } from '../fn'
+import { has, each, toPath } from '../fn'
 import Request from './Request'
 import { stores } from '../stores'
 import { loadAddons } from '../addons'
 import { version } from '../../package.json'
-import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiAddon, JSONObject, IStore } from '../types'
+import type { IFormParams, IApiOptions, IApiRequestOptions, ApiMethods, IApiAddon, JSONObject } from '../types'
 
 /**
  * The API interface version.
@@ -24,41 +24,14 @@ function createRequest(options: IApiRequestOptions = {}): Request {
 }
 
 /**
- * Call API interface /info.
- * Returns global information about the site.
- */
-export async function getInfo(options: IApiRequestOptions = {}): Promise<JSONObject> {
-  return await createRequest(options).getInfo()
-}
-
-/**
- * Call API interface /language/(:any).
- * Returns information from a single language.
- */
-export async function getLanguage(options: IApiRequestOptions = {} ): Promise<JSONObject> {
-  return await createRequest(options).getLanguage()
-}
-
-/**
- * Call API interface /page/(:all?).
+ * Call API interface /file/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getFields(
-  path: string,
+export async function getFile(
+  path: string|string[],
   options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
-  return await createRequest(options).getFields(path)
-}
-
-/**
- * Call API interface /pages/(:all?).
- * Returns information of sub-pages of a single page or site (if node is empty).
- */
-export async function getPages(
-  path: string,
-  options: IApiRequestOptions = {}
-): Promise<JSONObject> {
-  return await createRequest(options).getPages(path)
+  return await createRequest(options).getNode('file', path)
 }
 
 /**
@@ -66,10 +39,64 @@ export async function getPages(
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
 export async function getFiles(
-  path: string,
+  path: string|string[],
   options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
-  return await createRequest(options).getFiles(path)
+  return await createRequest(options).getCollection('files', path)
+}
+
+/**
+ * Call API interface /info.
+ * Returns global information about the site.
+ */
+export async function getInfo(
+  options: IApiRequestOptions = {}
+): Promise<JSONObject> {
+  return await createRequest(options).getInfo()
+}
+
+/**
+ * Call API interface /language/(:any).
+ * Returns information from a single language.
+ */
+export async function getLanguage(
+  lang: string,
+  options: IApiRequestOptions = {}
+): Promise<JSONObject> {
+  return await createRequest(options).getLanguage(lang)
+}
+
+/**
+ * Call API interface /page/(:all?).
+ * Returns information of a single page or site (if node is empty).
+ */
+export async function getPage(
+  path: string|string[],
+  options: IApiRequestOptions = {}
+): Promise<JSONObject> {
+  return await createRequest(options).getNode('page', path)
+}
+
+/**
+ * Call API interface /pages/(:all?).
+ * Returns information of sub-pages of a single page or site (if node is empty).
+ */
+export async function getPages(
+  path: string|string[],
+  options: IApiRequestOptions = {}
+): Promise<JSONObject> {
+  return await createRequest(options).getCollection('pages', path)
+}
+
+/**
+ * Call API interface /site/(:any?).
+ * Returns information of a single page or site (if node is empty).
+ */
+export async function getSite(
+  lang: string|null,
+  options: IApiRequestOptions = {}
+): Promise<JSONObject> {
+  return await createRequest(options).getNode('site', lang)
 }
 
 /**
@@ -102,14 +129,13 @@ export async function call(
  */    
 export async function createApi(options: IApiOptions) {
   const name: string = 'api'
-  stores.options.set(options)
+  stores.global.set(options)
 
   // add Addons, usage: $api.site or inject('api.site')
   let addons: IApiAddon[] = []
   if (has(options, 'addons')) {
     addons = await loadAddons(options.addons!)
   }
-      console.log('plugins')
   
   // register plugin
   return {
@@ -117,12 +143,14 @@ export async function createApi(options: IApiOptions) {
       app.config.globalProperties[`$${name}`] = {
         APIVERSION,
         VERSION,
+        call,
+        getFile,
+        getFiles,
         getInfo,
         getLanguage,
-        getFields,
+        getPage,
         getPages,
-        getFiles,
-        call,
+        getSite,
         postCreate
       }
       app.provide(name,  app.config.globalProperties[`$${name}`])

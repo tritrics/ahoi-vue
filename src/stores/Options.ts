@@ -1,6 +1,6 @@
 
 import { ref } from 'vue'
-import { each, inArr, isUrl, isArr, isStr, isBool, isObj, isLocale, toBool, toLocale, toKey } from '../fn'
+import { each, has, isUrl, isArr, isStr, isBool, isObj, isLocale, toBool, toLocale, toKey } from '../fn'
 import Store from './Store'
 import type { IStore } from './types'
 import type { Object, DateTimeFormat } from '../types'
@@ -44,7 +44,7 @@ class Options extends Store implements IStore {
      * List with available/valid lang codes.
      * Can not be set, computed from languages.
      */
-    langcodes: ref<string[]>([]),
+    langcodes: ref<Object>({}),
 
     /**
      * List with all available languages.
@@ -128,7 +128,7 @@ class Options extends Store implements IStore {
           }
           break
         case 'lang':
-          if (isStr(val)) {
+          if (this._data.multilang.value && isStr(val)) {
             this._data.lang.value = val
           }
           break
@@ -137,7 +137,7 @@ class Options extends Store implements IStore {
             this._data.languages.value = val
             this._data.langcodes.value = []
             each(this._data.languages.value, (language: Object) => {
-              this._data.langcodes.value.push(language.meta.code)
+              this._data.langcodes.value[language.meta.code] = language.meta.slug
             })
           }
           break
@@ -149,6 +149,9 @@ class Options extends Store implements IStore {
         case 'multilang':
           if (isBool(val, false)) {
             this._data.multilang.value = toBool(val)
+            if (!this._data.multilang.value) {
+              this._data.lang.value = null
+            }
           }
           break
         case 'nl2br':
@@ -179,7 +182,7 @@ class Options extends Store implements IStore {
    * Check, if the given language is valid.
    */
   isValidLang(code: string): boolean {
-    return isStr(code, 1) && inArr(code, this._data.langcodes)
+    return isStr(code, 1) && has(this._data.langcodes.value, code)
   }
 
   /**

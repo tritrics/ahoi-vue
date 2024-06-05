@@ -8,7 +8,7 @@ import type { Object, IApiAddon } from '../types'
  * Object with all stores.
  */
 export const stores: Object = {
-  options: new Options()
+  global: new Options()
 }
 
 /**

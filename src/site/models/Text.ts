@@ -14,7 +14,7 @@ export default class TextModel extends BaseModel implements ITextModel {
   
   str(options: IsiteOptions = {}): string {
     let str: string = this.value
-    if(isTrue(options?.nl2br ?? stores.options.nl2br)) {
+    if(isTrue(options?.nl2br ?? stores.global.nl2br)) {
       str = str.replace(/\n/mg, '<br />')
     }
     return str

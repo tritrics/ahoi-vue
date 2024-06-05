@@ -16,14 +16,14 @@ export function detectLanguage(getUser: boolean = true, getDefault: boolean = tr
   if (getUser) {
     for (let i = 0; i < navigator.languages.length; i++) {
       const code: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
-      if (!isUndef(code) && stores.options.isValidLang(code)) {
+      if (!isUndef(code) && stores.global.isValidLang(code)) {
         res = code
         break
       }
     }
   }
-  if (getDefault && !stores.options.isValidLang(res)) {
-    each(stores.options.languages, (language: Object, code: string) => {
+  if (getDefault && !stores.global.isValidLang(res)) {
+    each(stores.global.languages, (language: Object, code: string) => {
       if (language.default) {
         res = code
       }
@@ -36,21 +36,21 @@ export function detectLanguage(getUser: boolean = true, getDefault: boolean = tr
  * Setting a language with implicit requesting all language data from Kirby.
  */
 export async function setLanguage(code: string|null): Promise<string|null> {
-  if (stores.options.get('multilang') && isStr(code, 1)) {
+  if (stores.global.get('multilang') && isStr(code, 1)) {
     const normCode = toKey(code)
-    if (stores.options.isValidLang(normCode) && (normCode !== stores.options.get('lang'))) {
-      const json: JSONObject = await getLanguage({ lang: normCode, raw: true })
+    if (stores.global.isValidLang(normCode) && (normCode !== stores.global.get('lang'))) {
+      const json: JSONObject = await getLanguage(normCode, { raw: true })
       if (!isObj(json) || !json.ok) {
-        return stores.options.get('lang')
+        return stores.global.get('lang')
       }
-      stores.options.set('lang', normCode)
-      stores.options.set('locale', toLocale(json.body.meta.locale, '-'))
-      stores.options.set('direction', json.body.meta.direction)
+      stores.global.set('lang', normCode)
+      stores.global.set('locale', toLocale(json.body.meta.locale, '-'))
+      stores.global.set('direction', json.body.meta.direction)
       const parsed = convertResponse(json)
       stores.i18n.set('terms', parsed.fields)
     }
   }
-  return stores.options.get('lang')
+  return stores.global.get('lang')
 }
 
 /**
@@ -58,12 +58,12 @@ export async function setLanguage(code: string|null): Promise<string|null> {
  */
 async function requestLanguages(): Promise<void> {
   const json = await getInfo({ raw: true })
-  stores.options.set('multilang', toBool(json.body.meta.multilang))
-  if (stores.options.get('multilang')) {
+  stores.global.set('multilang', toBool(json.body.meta.multilang))
+  if (stores.global.get('multilang')) {
     const body = convertResponse(json)
-    stores.options.set('languages', body.languages)
+    stores.global.set('languages', body.languages)
   } else {
-    stores.options.set('languages', {})
+    stores.global.set('languages', {})
   }
 }
 

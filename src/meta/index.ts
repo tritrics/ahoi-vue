@@ -27,11 +27,11 @@ export function setMeta(mixed: Object|string, val: string = ''): void {
         if (isStr(val, 1)) {
           parts.push(val)
         }
-        if (isStr(stores.options.get('brand'), 1)) {
-          parts.push(stores.options.get('brand'))
-          write('og:site_name', stores.options.get('brand'))
+        if (isStr(stores.global.get('brand'), 1)) {
+          parts.push(stores.global.get('brand'))
+          write('og:site_name', stores.global.get('brand'))
         }
-        const title = parts.join(stores.options.get('separator'))
+        const title = parts.join(stores.global.get('separator'))
         write('title', title)
         write('og:title', title)
         break
@@ -89,9 +89,9 @@ export function createMeta(): IApiAddon {
   return {
     name: 'meta',
     init: (): void => {
-      stores.options.watch('lang', (val: string) => setMeta({ lang: val }), { immediate: true })
-      stores.options.watch('locale', (val: string) => setMeta({ locale: val }), { immediate: true })
-      stores.options.watch('brand', () => setMeta({ title: '' }), { immediate: true })
+      stores.global.watch('lang', (val: string) => setMeta({ lang: val }), { immediate: true })
+      stores.global.watch('locale', (val: string) => setMeta({ locale: val }), { immediate: true })
+      stores.global.watch('brand', () => setMeta({ title: '' }), { immediate: true })
     },
     export: {
       setMeta

@@ -38,7 +38,7 @@ let link: Ref<LinkString | LinkRouter | LinkApi >  = ref({
 const isRouterLink = computed<boolean>(() => {
   return (
     link.value.type === 'page' &&
-    stores.options.get('router') === true &&
+    stores.global.get('router') === true &&
     !!getCurrentInstance()?.appContext.config.globalProperties.$router
   )
 })

@@ -99,6 +99,8 @@ export interface IInfoModel extends IBaseModel {
   value: undefined
   meta: IInfoMeta
   languages?: ILanguageModel[]
+  sites?: ISiteModel[]
+  site?: ISiteModel
 }
 
 export interface ILanguageModel extends IBaseModel {
@@ -114,10 +116,11 @@ export interface ILanguageModel extends IBaseModel {
 export interface ILinkModel extends IBaseModel {
   type: 'link'
   value: string
-  attr: {
+  attr?: {
     type: string
     href: string
   }
+  meta?: Object
 }
 
 export interface IMarkdownModel extends IBaseModel {
@@ -165,6 +168,14 @@ export interface IPageModel extends IBaseFieldsModel {
 
 export interface IPagesModel extends IBaseEntriesModel {
   type: 'pages'
+}
+
+export interface ISiteModel extends IBaseFieldsModel {
+  type: 'site'
+  value: undefined
+  meta: IPageMeta
+  home?: IPageModel
+  blueprint(): string
 }
 
 export interface IStringModel extends IBaseModel {
@@ -286,6 +297,7 @@ export type ModelTypes =
   | 'options'
   | 'page'
   | 'pages'
+  | 'site'
   | 'string'
   | 'structure'
   | 'text'

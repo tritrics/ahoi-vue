@@ -26,28 +26,13 @@ class Request {
     let res: string|null = null
     if (isUrl(this.options.host)) {
       res = this.options.host
-    } else if (isUrl(stores.options.get('host'))) {
-      res = stores.options.get('host')
+    } else if (isUrl(stores.global.get('host'))) {
+      res = stores.global.get('host')
     }
     if (isStr(res) && res.endsWith('/')) {
       res = res.substring(0, res.length - 1)
     }
     return res
-  }
-  
-  /**
-   * Get option `lang`.
-   * Parameter must be a valid 2-char language code.
-   */
-  get lang(): string|null {
-    if (stores.options.get('multilang')) {
-      if (isStr(this.options.lang, 1)) {
-        return toKey(this.options.lang)
-      } else if (isStr(stores.options.get('lang'), 1)) {
-        return toKey(stores.options.get('lang'))
-      }
-    }
-    return null
   }
 
   /**
@@ -131,26 +116,25 @@ class Request {
   /**
    * Call API interface /language/(:any).
    */
-  async getLanguage(): Promise<JSONObject> {
+  async getLanguage(lang: string|null): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,
       'language',
-      this.lang
+      lang
     )
     const res: JSONObject = await this.apiRequest(url)
     return this.convertResponse(res)
   }
 
   /**
-   * Call API interface /page/(:all?).
+   * getSite, getPage and getFile are identical
    */
-  async getFields(path: string): Promise<JSONObject> {
+  async getNode(node: 'site'|'page'|'file', path: string|string[]): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,
-      'fields',
-      this.lang,
+      node,
       path
     )
     const data: IFormParams = {}
@@ -162,28 +146,13 @@ class Request {
   }
 
   /**
-   * Call API interface /pages/(:all?).
-   */
-  async getPages(path: string): Promise<JSONObject> {
-    return this.getCollection('pages', path)
-  }
-
-  /**
-   * Call API interface /files/(:all?).
-   */
-  async getFiles(path: string): Promise<JSONObject> {
-    return this.getCollection('files', path)
-  }
-
-  /**
    * getPages and getFiles are identical
    */
-  async getCollection(node: 'pages'|'files', path: string): Promise<JSONObject> {
+  async getCollection(node: 'pages'|'files', path: string|string[]): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,
       node,
-      this.lang,
       path
     )
     const data: IFormParams = {
@@ -208,7 +177,6 @@ class Request {
       this.host,
       APIVERSION,
       'token',
-      this.lang,
       action
     )
     const resToken: JSONObject = await this.apiRequest(urlToken)
@@ -218,7 +186,6 @@ class Request {
       this.host,
       APIVERSION,
       'action',
-      this.lang,
       action,
       resToken.body.token as string
     )
@@ -249,7 +216,7 @@ class Request {
   /**
    * Helper to build an URL from multiple parts.
    */
-  getUrl(...args: (string|null)[]): string {
+  getUrl(...args: (string|string[]|null)[]): string {
     const res = toPath(...args)
     if (!isUrl(res)) {
       throw new Error('No host defined for Api request')
