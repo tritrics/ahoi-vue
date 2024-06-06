@@ -130,7 +130,7 @@ class Request {
   /**
    * getSite, getPage and getFile are identical
    */
-  async getNode(node: 'site'|'page'|'file', path: string|string[]): Promise<JSONObject> {
+  async getNode(node: 'site'|'page'|'file', path: string|string[]|null): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,
@@ -148,7 +148,7 @@ class Request {
   /**
    * getPages and getFiles are identical
    */
-  async getCollection(node: 'pages'|'files', path: string|string[]): Promise<JSONObject> {
+  async getCollection(node: 'pages'|'files', path: string|string[]|null): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,

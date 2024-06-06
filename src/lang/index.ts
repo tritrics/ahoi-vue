@@ -6,6 +6,14 @@ import AhoiLangSwitch from './components/AhoiLangSwitch.vue'
 import type { IApiAddon, JSONObject, Object } from '../types'
 
 /**
+ * Parse response, if core plugin is installed.
+ */
+function convertResponse(json: JSONObject): JSONObject {
+    const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json)
+    return fn(json)
+}
+
+/**
  * Detect the best valid language from browser or settings.
  * 
  * @param {boolean} getUser try to get the language from browser
@@ -33,27 +41,6 @@ export function detectLanguage(getUser: boolean = true, getDefault: boolean = tr
 }
 
 /**
- * Setting a language with implicit requesting all language data from Kirby.
- */
-export async function setLanguage(code: string|null): Promise<string|null> {
-  if (stores.global.get('multilang') && isStr(code, 1)) {
-    const normCode = toKey(code)
-    if (stores.global.isValidLang(normCode) && (normCode !== stores.global.get('lang'))) {
-      const json: JSONObject = await getLanguage(normCode, { raw: true })
-      if (!isObj(json) || !json.ok) {
-        return stores.global.get('lang')
-      }
-      stores.global.set('lang', normCode)
-      stores.global.set('locale', toLocale(json.body.meta.locale, '-'))
-      stores.global.set('direction', json.body.meta.direction)
-      const parsed = convertResponse(json)
-      stores.i18n.set('terms', parsed.fields)
-    }
-  }
-  return stores.global.get('lang')
-}
-
-/**
  * Request all available languages.
  */
 async function requestLanguages(): Promise<void> {
@@ -68,24 +55,37 @@ async function requestLanguages(): Promise<void> {
 }
 
 /**
- * Parse response, if core plugin is installed.
+ * Setting a language with implicit requesting all language data from Kirby.
  */
-function convertResponse(json: JSONObject): JSONObject {
-    const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json)
-    return fn(json)
+export async function setLanguage(code: string|null): Promise<string|null> {
+  if (stores.global.get('multilang') && isStr(code, 1)) {
+    const normCode = toKey(code)
+    if (stores.global.isValidLang(normCode) && (normCode !== stores.global.get('lang'))) {
+      const json: JSONObject = await getLanguage(normCode, { raw: true })
+      if (!isObj(json) || !json.ok) {
+        return stores.global.get('lang')
+      }
+      stores.global.set('lang', normCode)
+      stores.global.set('locale', toLocale(json.body.meta.locale, '-'))
+      stores.global.set('direction', json.body.meta.direction)
+      const parsed = convertResponse(json)
+      stores.lang.set('terms', parsed.fields)
+    }
+  }
+  return stores.global.get('lang')
 }
 
 /**
  * Addon
  */
-export function createI18n(): IApiAddon {
+export function createLang(): IApiAddon {
   return {
-    name: 'i18n',
+    name: 'lang',
     components: {
       'AhoiLangSwitch': AhoiLangSwitch,
     },
     setup: async (): Promise<void> => {
-      store('i18n', {
+      store('lang', {
         'terms': {}
       })
       await requestLanguages()

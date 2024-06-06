@@ -27,7 +27,7 @@ export default defineConfig({
         'src/api/index.ts',
         'src/fn/index.ts',
         'src/form/index.ts',
-        'src/i18n/index.ts',
+        'src/lang/index.ts',
         'src/site/index.ts',
       ],
       formats: ['es', 'cjs'],
@@ -42,7 +42,7 @@ export default defineConfig({
         'api': './src/api/index.ts',
         'fn': './src/fn/index.ts',
         'form': './src/form/index.ts',
-        'i18n': './src/i18n/index.ts',
+        'lang': './src/lang/index.ts',
         'site': './src/site/index.ts',
       },
       output: {
@@ -50,7 +50,7 @@ export default defineConfig({
 		      if(id.includes('/api')) { return 'api'; }
 		      if(id.includes('/fn')) { return 'fn'; }
 		      if(id.includes('/form')) { return 'form'; }
-		      if(id.includes('/i18n')) { return 'i18n'; }
+		      if(id.includes('/lang')) { return 'lang'; }
 		      if(id.includes('/site')) { return 'site'; }
 	      },
         globals: {

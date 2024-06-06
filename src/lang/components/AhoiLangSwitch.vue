@@ -2,7 +2,7 @@
 import { inject } from 'vue'
 import { has } from '../../fn'
 
-const { setLanguage } = inject('api.i18n')
+const { setLanguage } = inject('api.lang')
 const store = inject('api.stores')
 
 const global = store('global')

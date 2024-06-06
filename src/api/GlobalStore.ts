@@ -2,13 +2,12 @@
 import { ref } from 'vue'
 import { each, has, isUrl, isArr, isStr, isBool, isObj, isLocale, toBool, toLocale, toKey } from '../fn'
 import Store from './Store'
-import type { IStore } from './types'
-import type { Object, DateTimeFormat } from '../types'
+import type { Object, DateTimeFormat, IStore } from '../types'
 
 /**
  * Store with plugin and addons options.
  */
-class Options extends Store implements IStore {
+class GlobalStore extends Store implements IStore {
 
   /**
    * Object with store values.
@@ -19,13 +18,6 @@ class Options extends Store implements IStore {
      * Options for printing out date values.
      */
     date: ref<DateTimeFormat>({ year: 'numeric', month: 'numeric', day: 'numeric' }),
-
-    /**
-     * Reading direction of language
-     * ltr = left to right
-     * rtl = right to left
-     */
-    direction: ref<string>('ltr'),
 
     /**
      * The host url of the API, including path like
@@ -41,17 +33,6 @@ class Options extends Store implements IStore {
     lang: ref<string>('en'),
 
     /**
-     * List with available/valid lang codes.
-     * Can not be set, computed from languages.
-     */
-    langcodes: ref<Object>({}),
-
-    /**
-     * List with all available languages.
-     */
-    languages: ref<Object[]>([]),
-
-    /**
      * Locale in the format with -, used in <meta> and for printing
      * out date, time and numbers.
      */
@@ -62,11 +43,6 @@ class Options extends Store implements IStore {
      * langcode must be added to API requests.
      */
     multilang: ref<boolean>(false),
-
-    /**
-     * Brand of the page (= site title)
-     */
-    brand: ref<string>(''),
 
     /**
      * Print textfields with linebreaks or <br />.
@@ -81,11 +57,6 @@ class Options extends Store implements IStore {
 
 
     routeschema: ref<string>('/:lang/:path*'),
-
-    /**
-     * Separator to combine brand and title in <title>.
-     */
-    separator: ref<string>(' - '),
 
     /**
      * Options for printing out time values.
@@ -105,23 +76,11 @@ class Options extends Store implements IStore {
     }
     each(options, (val: any, key: string) => {
       switch(key) {
-        case 'brand':
-          if (isStr(val)) {
-            this._data.brand.value = val
-          }
-          break
         case 'date':
           if (isArr(val)) { // @TODO: check array entries
             this._data.date.value = val
           }
           break
-        case 'direction': {
-          const direction = toKey(val)
-          if (direction === 'ltr' || direction === 'rtl') {
-            this._data.direction.value = val
-          }
-          break
-        }
         case 'host':
           if (isUrl(val)) {
             this._data.host.value = val
@@ -130,15 +89,6 @@ class Options extends Store implements IStore {
         case 'lang':
           if (this._data.multilang.value && isStr(val)) {
             this._data.lang.value = val
-          }
-          break
-        case 'languages':
-          if (isArr(val)) {
-            this._data.languages.value = val
-            this._data.langcodes.value = []
-            each(this._data.languages.value, (language: Object) => {
-              this._data.langcodes.value[language.meta.code] = language.meta.slug
-            })
           }
           break
         case 'locale':
@@ -162,11 +112,6 @@ class Options extends Store implements IStore {
         case 'router':
           if (isBool(val, false)) {
             this._data.router.value = toBool(val)
-          }
-          break
-        case 'separator':
-          if (isStr(val)) {
-            this._data.separator.value = val
           }
           break
         case 'time':
@@ -193,4 +138,4 @@ class Options extends Store implements IStore {
   }
 }
 
-export default Options
+export default GlobalStore

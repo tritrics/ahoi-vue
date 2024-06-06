@@ -1,6 +1,7 @@
 import { each, has, isArr, isObj } from '../fn'
-import { getPage, getSite } from '../api'
-import { stores, store } from '../stores'
+import SiteStore from './SiteStore'
+import PageStore from './PageStore'
+import { stores, registerStore } from '../api'
 import BaseModel from './models/Base'
 import * as models from './models/models'
 import { createThumb } from './thumb'
@@ -8,64 +9,13 @@ import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
 import type { IApiAddon, Object, JSONObject } from '../types'
+import FileModel from './models/File'
+import type { IFileModel } from './models/types'
 
 /**
  * workaround to add types to models
  */
 const modelsMap: Object = models
-
-/**
- * Request site, implicit done on init().
- */
-export async function requestSite(): Promise<void> {
-  const json = await getSite(stores.global.get('lang'), { raw: true })
-  let res: Object = {}
-  if (isObj(json) && json.ok) {
-    if (has(json.body.fields, 'title')) {
-      stores.global.set('brand', json.body.fields.title.value)
-    }
-    res = convertResponse(json)
-  }
-  stores.site.set('meta', res.meta ?? {})
-  stores.site.set('link', res.link ?? {})
-  stores.site.set('fields', res.fields ?? {})
-}
-
-/**
- * Request a page
- */
-export async function requestPage(path: string): Promise<void> {
-  const json = await getPage(path, { raw: true })
-  let res: Object = {}
-  if (isObj(json) && json.ok) {
-    if (has(json.body.fields, 'title')) {
-      stores.global.set('title', json.body.fields.title.value)
-    }
-    res = convertResponse(json)
-  }
-  stores.page.set('meta', res.meta ?? {})
-  stores.page.set('link', res.link ?? {})
-  stores.page.set('fields', res.fields ?? {})
-}
-
-/**
- * Request a page from a router path.
- */
-export async function requestPageFromRoute(route: Object): Promise<void> {
-  requestPage('/de/apitest')
-  stores.page.set('route', route)
-}
-
-/**
- * @TODO
- */
-async function onChangeLang(newLang: string) {
-  await requestSite()
-  const meta = stores.page.get('meta')
-  if (has(meta, 'translations') && has(meta.translations, newLang)) {
-    await requestPage(meta.translations[newLang])
-  }
-}
 
 /**
  * Main function to convert json from response to models.
@@ -120,26 +70,15 @@ export function createSite(): IApiAddon {
       'AhoiThumb': AhoiThumb,
     },
     setup: (): void => {
-      store('site', {
-        'meta': {},
-        'link': {},
-        'fields': {}
-      })
-      store('page', {
-        'meta': {},
-        'link': {},
-        'fields': {}
-      })
+      registerStore('site', new SiteStore())
+      registerStore('page', new PageStore())
     },
     init: async (): Promise<void> => {
-      await requestSite()
-      stores.global.watch('lang', onChangeLang)
+      await stores.site.init()
+      // TODO: home-page abfragen?
     },
     export: {
-      convertResponse,
       createThumb,
-      requestSite,
-      requestPage,
     }
   }
 }
