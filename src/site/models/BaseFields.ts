@@ -1,16 +1,16 @@
 import { has } from '../../fn'
-import { parseModelsRec } from '../index'
 import BaseModel from './Base'
-import type { IBaseFieldsModel } from './types'
+import { parse } from '../index'
+import type { IBaseFieldsModel, IModelList } from './types'
 import type { JSONObject } from '../../types'
 
 export default class BaseFieldsModel extends BaseModel implements IBaseFieldsModel {
-  fields?: Object
+  fields?: IModelList
 
   constructor(obj: JSONObject) {
     super(undefined)
     if (has(obj, 'fields')) {
-      this.fields = parseModelsRec(obj.fields)
+      this.fields = parse(obj.fields)
     }
   }
 

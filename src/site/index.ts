@@ -1,84 +1,111 @@
-import { each, has, isArr, isObj } from '../fn'
-import SiteStore from './SiteStore'
-import PageStore from './PageStore'
-import { stores, registerStore } from '../api'
-import BaseModel from './models/Base'
-import * as models from './models/models'
-import { createThumb } from './thumb'
+import { each, isObj, isTrue, isUndef } from '../fn'
+import { getInfo, globalStore } from '../plugin'
+import SiteStore from './classes/SiteStore'
+import PageStore from './classes/PageStore'
+import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
-import type { IApiAddon, Object, JSONObject } from '../types'
-import FileModel from './models/File'
-import type { IFileModel } from './models/types'
+import AhoiLangSwitch from './components/AhoiLangSwitch.vue'
+import { createThumb } from './modules/thumb'
+import { convertResponse, parse } from './modules/parser'
+import type { IApiAddon, Object, ISiteStore, IPageStore } from '../types'
 
 /**
- * workaround to add types to models
+ * Site store
  */
-const modelsMap: Object = models
+const siteStore: ISiteStore = new SiteStore()
 
 /**
- * Main function to convert json from response to models.
+ * Page store
  */
-export function convertResponse(json: JSONObject): Object {
-  return has(json, 'body') ? createModel(json.body) : json
-}
+const pageStore: IPageStore = new PageStore()
 
 /**
- * Create a model.
+ * Setup
  */
-function createModel(node: JSONObject) {
-  const type = node.type ?? 'base'
-  if (modelsMap[type] !== undefined) {
-    return new modelsMap[type](node)
+async function init(): Promise<void> {
+
+  // requesting info
+  const json = await getInfo({ raw: true })
+  if (!isObj(json) || !json.ok) {
+    return
   }
-  return new BaseModel(node)
+
+  // setting languages
+  if(json.body.meta.multilang) {
+    globalStore.set('languages', json.body.languages ?? [])
+  }
+
+  // ... setting other infos
+
+  // if multilang: detect and select language
+  if (globalStore.isTrue('multilang')) {
+    globalStore.set('lang', detectLanguage())
+  }
 }
 
 /**
- * Recoursively parse node for models.
+ * Detect the best valid language from browser or settings.
  */
-export function parseModelsRec(nodes: JSONObject): Object|JSONObject {
-  if (isObj(nodes)) {
-    if (has(nodes, 'type')) {
-      return createModel(nodes)
+function detectLanguage(): string|null {
+
+  // 1. lang given by options
+  const userLang = globalStore.getOption('lang')
+  if (globalStore.isValidLang(userLang)) {
+    return userLang
+  }
+
+  // 2. lang from browser
+  for (let i = 0; i < navigator.languages.length; i++) {
+    const code: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
+    if (!isUndef(code) && globalStore.isValidLang(code)) {
+      return code
     }
-    const res: Object = {}
-    each(nodes, (node: JSONObject, key: string) => {
-      res[key] = parseModelsRec(node)
-    })
-    return res as Object
-  } else if (isArr(nodes)) {
-    const res: Object[] = []
-    each(nodes, (node: JSONObject) => {
-      res.push(parseModelsRec(node))
-    })
-    return res
   }
-  return nodes
+
+  // 3. default lang
+  const languages = globalStore.get('languages')
+  let res: string|null = languages[0].meta.code
+  each(globalStore.get('languages'), (language: Object) => {
+    if (isTrue(language.meta.default)) {
+      res = language.meta.code
+    }
+  })
+  return res
 }
 
 /**
- * Addon
+ * Addon factory, returns site and page
  */
-export function createSite(): IApiAddon {
-  return {
+export function createSite(): IApiAddon[] {
+  return [{
     name: 'site',
+    store: siteStore,
     components: {
       'AhoiHtml': AhoiHtml,
       'AhoiLink': AhoiLink,
       'AhoiThumb': AhoiThumb,
-    },
-    setup: (): void => {
-      registerStore('site', new SiteStore())
-      registerStore('page', new PageStore())
-    },
-    init: async (): Promise<void> => {
-      await stores.site.init()
-      // TODO: home-page abfragen?
+      'AhoiLangSwitch': AhoiLangSwitch,
     },
     export: {
+      store: siteStore,
       createThumb,
-    }
-  }
+      convertResponse
+    },
+    init: async (): Promise<void> => {
+      await init()
+    },
+  }, {
+    name: 'page',
+    store: pageStore,
+    export: {
+      store: pageStore,
+    },
+  }]
 }
+
+/**
+ * Export module
+ */
+export { siteStore, pageStore, parse, createThumb, convertResponse, Thumb }

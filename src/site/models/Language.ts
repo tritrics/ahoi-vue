@@ -1,6 +1,6 @@
 import { has, isTrue } from '../../fn'
 import BaseModel from './Base'
-import { parseModelsRec } from '../index'
+import { parse } from '../index'
 import type { ILanguageModel, ILanguageMeta } from './types'
 import type { JSONObject } from '../../types'
 
@@ -15,7 +15,7 @@ export default class LanguageModel extends BaseModel implements ILanguageModel {
     super(obj.meta.title)
     this.meta = obj.meta
     if (has(obj, 'fields')) {
-      this.fields = parseModelsRec(obj.fields)
+      this.fields = parse(obj.fields)
     }
   }
 

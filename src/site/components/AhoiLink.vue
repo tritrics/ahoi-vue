@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
 import { isStr, isObj, has } from '../../fn'
-import { stores } from '../../stores'
+import { globalStore } from '../../plugin'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
 import type { ILinkModel } from '../models/types'
@@ -38,7 +38,7 @@ let link: Ref<LinkString | LinkRouter | LinkApi >  = ref({
 const isRouterLink = computed<boolean>(() => {
   return (
     link.value.type === 'page' &&
-    stores.global.get('router') === true &&
+    globalStore.get('router') === true &&
     !!getCurrentInstance()?.appContext.config.globalProperties.$router
   )
 })

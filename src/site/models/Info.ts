@@ -1,6 +1,6 @@
 import { has, isTrue, isArr } from '../../fn'
 import BaseModel from './Base'
-import { parseModelsRec } from '../index'
+import { parse } from '../index'
 import type { IInfoModel, ILanguageModel, IInfoMeta, ISiteModel } from './types'
 import type { JSONObject } from '../../types'
 
@@ -22,13 +22,13 @@ export default class InfoModel extends BaseModel implements IInfoModel {
     this.meta = obj.meta
     this.interface = obj.interface
     if (has(obj, 'languages')) {
-      this.languages = parseModelsRec(obj.languages) as ILanguageModel[]
+      this.languages = parse(obj.languages) as ILanguageModel[]
     }
     if (has(obj, 'sites')) {
-      this.sites = parseModelsRec(obj.sites) as ISiteModel[]
+      this.sites = parse(obj.sites) as ISiteModel[]
     }
     if (has(obj, 'site')) {
-      this.site = parseModelsRec(obj.site) as ISiteModel
+      this.site = parse(obj.site) as ISiteModel
     }
   }
 

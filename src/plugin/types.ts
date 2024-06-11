@@ -1,11 +1,28 @@
-import type { Object } from '../types'
 import type { Ref, WatchCallback, WatchOptions } from 'vue'
+import type { Object } from '../types'
+
+export interface IBaseStore {
+  init(options?: Object): void
+  get(key: string): any
+  isFalse(key: string): boolean
+  isTrue(key: string): boolean
+  isEmpty(key: string): boolean
+  ref(key: string): Ref
+  set(key: string|Object, val?: any): void
+  watch<T>(source: string|string[], callback: WatchCallback<T>, options?: WatchOptions): Function
+}
+
+export interface IGlobalStore extends IBaseStore {
+  getOption(key: string, defaultVal?: any): any
+  isValidLang(code: string): boolean
+  isCurrentLang(code: string): boolean
+}
 
 export interface IApiAddon {
   name: string
-  export: Object
+  store?: IBaseStore
+  export?: Object
   components?: Object
-  setup?: Function // before init
   init?: Function
 }
 
@@ -36,13 +53,6 @@ export interface IApiRequestOptions {
   set?: number
   order?: ApiOrder
   raw?: boolean
-}
-
-export interface IStore {
-  get(key: string): any
-  ref(key: string): Ref
-  set(key: string|Object, val?: any): void
-  watch<T>(source: string|string[], callback: WatchCallback<T>, options?: WatchOptions): Function
 }
 
 export type ApiMethods =

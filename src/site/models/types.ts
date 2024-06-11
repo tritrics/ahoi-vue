@@ -208,6 +208,10 @@ export interface IUsersModel extends IBaseEntriesModel {
   type: 'users'
 }
 
+export interface IModelList {
+  [ key: string ]: IBaseModel
+}
+
 /**
  * Metadata as used in models
  */
@@ -218,12 +222,17 @@ export interface IFileMeta {
   name: string
   ext: string
   href: string
+  node: string
+  lang?: string
   filetype: 'image' | 'file'
   blueprint: string
   title: string
-  lang: string
   modified: Date
-  node: string|Object
+  translations?: {
+    lang: string
+    href: string
+    node: string
+  }[]
 }
 
 export interface IImageMeta extends IFileMeta {
@@ -240,23 +249,42 @@ export interface ILanguageMeta {
   code: string
   title: string
   default: boolean
+  origin?: string
+  slug: string
   locale: string
   direction: string
 }
 
+export interface ISiteMeta {
+  node: string
+  lang?: string
+  blueprint: 'site'
+  title: string
+  modified: Date
+  translations?: {
+    lang: string
+    node: string
+  }[]
+  api?: Object
+}
+
 export interface IPageMeta {
-  id: string
   slug: string
   href: string
-  parent: string
+  node: string
+  lang?: string
   blueprint: string
-  title: string
   status: string
   sort: number
   home: boolean
-  lang: string
+  title: string
   modified: Date
-  node: string|Object
+  translations?: {
+    lang: string
+    href: string
+    node: string
+  }[]
+  api?: Object
 }
 
 /**

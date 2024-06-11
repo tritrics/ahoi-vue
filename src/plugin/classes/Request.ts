@@ -1,20 +1,19 @@
-import { upper, each, lower, count, unique, objToParam, isStr, isObj, isUrl, isArr, isInt, isBool, toPath, toKey, toInt, toBool } from '../fn'
-import { APIVERSION } from './index'
-import { stores } from '../stores'
-import { inject, hasAddon } from '../addons'
-import type { Object, IFormParams, ApiMethods, JSONObject, ApiOrder } from '../types'
+import { upper, each, lower, count, unique, objToParam, isStr, isObj, isUrl, isArr, isInt, isBool, toPath, toKey, toInt, toBool } from '../../fn'
+import { inject, globalStore } from '../index'
+import { APIVERSION } from '../index'
+import type { Object, IFormParams, ApiMethods, JSONObject, ApiOrder } from '../../types'
 
 /**
  * Class to handle a single request
  */
 class Request {
   
-  options: Object = {}
+  _options: Object = {}
 
   /**
    */
   constructor(options: Object) {
-    this.options = options
+    this._options = options
   }
 
   /**
@@ -24,10 +23,10 @@ class Request {
    */
   get host(): string|null {
     let res: string|null = null
-    if (isUrl(this.options.host)) {
-      res = this.options.host
-    } else if (isUrl(stores.global.get('host'))) {
-      res = stores.global.get('host')
+    if (isUrl(this._options.host)) {
+      res = this._options.host
+    } else if (isUrl(globalStore.get('host'))) {
+      res = globalStore.get('host')
     }
     if (isStr(res) && res.endsWith('/')) {
       res = res.substring(0, res.length - 1)
@@ -42,8 +41,8 @@ class Request {
    */
   get fields(): string[] {
     const fields: string[] = []
-    if (isArr(this.options.fields)) {
-      each (this.options.fields, (arg: any) => {
+    if (isArr(this._options.fields)) {
+      each (this._options.fields, (arg: any) => {
         each(isArr(arg) ? arg : [ arg ], (field: any) => {
           if (isStr(field, 1)) {
             fields.push(lower(field))
@@ -59,8 +58,8 @@ class Request {
    * Used in API request pages() to limit the number of returned pages.
    */
   get limit(): number {
-    if (isInt(this.options.limit, 1)) {
-      return toInt(this.options.limit)
+    if (isInt(this._options.limit, 1)) {
+      return toInt(this._options.limit)
     }
     return 10
   }
@@ -70,8 +69,8 @@ class Request {
    * Used in API request pages() to get a specified result set in combination with limit.
    */
   get set(): number {
-    if (isInt(this.options.set, 1)) {
-      return toInt(this.options.set)
+    if (isInt(this._options.set, 1)) {
+      return toInt(this._options.set)
     }
     return 1
   }
@@ -82,20 +81,19 @@ class Request {
    */
   get order(): ApiOrder {
     let res: string = ''
-    if (isStr(this.options.order)) {
-      res = toKey(this.options.order)
+    if (isStr(this._options.order)) {
+      res = toKey(this._options.order)
     }
     return res === 'desc' ? 'desc' : 'asc'
   }
 
   /**
    * Get option `raw`.
-   * Override core-plugin if existing for this request.
    * Can only be set to true, if site plugin exists.
    */
   get raw(): boolean {
-    if (hasAddon('site')) {
-      return isBool(this.options.raw) ? toBool(this.options.raw) : false
+    if (inject('site')) {
+      return isBool(this._options.raw) ? toBool(this._options.raw) : false
     }
     return true
   }

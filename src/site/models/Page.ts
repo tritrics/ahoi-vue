@@ -1,7 +1,7 @@
 import { has, isTrue } from '../../fn'
 import BaseFieldsModel from './BaseFields'
 import CollectionModel from './Collection'
-import { parseModelsRec } from '../index'
+import { parse } from '../index'
 import { createLinkByValues } from './Link'
 import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta } from './types'
 import type { JSONObject } from '../../types'
@@ -26,7 +26,7 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
       this.collection = new CollectionModel(obj.collection)
     }
     if (has(obj, 'entries')) {
-      this.entries = parseModelsRec(obj.entries) as (IPageModel|IFileModel)[]
+      this.entries = parse(obj.entries) as (IPageModel|IFileModel)[]
     }
   }
 
@@ -41,7 +41,7 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
   // ... more functions?
   
   get attr(): Object {
-    return this.link !== undefined ? this.link.attr : {}
+    return this.link.attr ?? {}
   }
 
   toJSON() {

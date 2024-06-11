@@ -27,7 +27,7 @@ export default class FileModel extends BaseFieldsModel implements IFileModel {
   }
   
   get attr(): Object {
-    return this.link !== undefined ? this.link.attr : {}
+    return this.link.attr ?? {}
   }
 
   // ... more functions?

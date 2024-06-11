@@ -1,8 +1,7 @@
-import { toStr, isEmpty, uuid, has, isTrue } from '../../fn'
 import { watchEffect } from 'vue'
+import { toStr, isEmpty, uuid, has, isTrue } from '../../fn'
 import type { ModelTypes, IBaseModel, IListModel } from './types'
-import type { FormPostValue } from "../../types"
-import type { Object } from '../../types'
+import type { Object, FormPostValue } from "../../types"
 
 export default class BaseModel implements IBaseModel {
   type: ModelTypes = 'base'
@@ -30,6 +29,7 @@ export default class BaseModel implements IBaseModel {
     }
   }
   
+  // val important to kick off the watchEffect
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(val?: any): void {
     return this.setValid()
@@ -44,8 +44,6 @@ export default class BaseModel implements IBaseModel {
     if (start) {
       if(this.stop === null) {
         this.stop = watchEffect(() => {
-
-          // important to kick off the watchEffect
           this.validate(this.value)
         })
       }
@@ -59,7 +57,7 @@ export default class BaseModel implements IBaseModel {
     return toStr(this.value)
   }
 
-  delete(id?: string): void {
+  delete(): void {
     if (this.parent instanceof BaseModel && this.parent.type === 'list') {
       this.parent.delete(this.id)
     }

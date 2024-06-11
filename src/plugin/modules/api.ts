@@ -1,5 +1,5 @@
-import Request from './Request'
-import type { IFormParams, IApiRequestOptions, ApiMethods, JSONObject } from '../types'
+import { Request } from '../index'
+import type { IFormParams, IApiRequestOptions, ApiMethods, JSONObject } from '../../types'
 
 /**
  * Generic API-request

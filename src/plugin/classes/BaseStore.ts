@@ -1,13 +1,17 @@
 import { ref, watch, toRef } from 'vue'
-import { each, has, isArr, isStr, isTrue, isFalse, isEmpty } from '../fn'
-import type { IStore } from './types'
-import type { Object } from '../types'
+import { each, has, isArr, isStr, isTrue, isFalse, isEmpty } from '../../fn'
+import type { Object, IBaseStore } from '../../types'
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
 
 /**
  * Simple store.
  */
-class Store implements IStore {
+class BaseStore implements IBaseStore {
+
+  /**
+   * The options given by user.
+   */
+  _options: Object = {}
 
   /**
    * Object with store values.
@@ -15,7 +19,15 @@ class Store implements IStore {
   _data: Object = {}
 
   /**
-   * Getting an option as value.
+   * Init store.
+   * Is called, after all store instances have been created.
+   */
+  async init(options: Object = {}): Promise<void> {
+    this._options = options ?? {}
+  }
+
+  /**
+   * Getting a value.
    */
   get(key: string): any {
     if (has(this._data, key)) {
@@ -28,25 +40,25 @@ class Store implements IStore {
    * Checking a boolean value.
    */
   isTrue(key: string): boolean {
-    return has(this._data, key) && isTrue(this._data[key].value)
+    return isTrue(this.get(key))
   }
 
   /**
    * Checking a boolean value.
    */
   isFalse(key: string): boolean {
-    return has(this._data, key) && isFalse(this._data[key].value)
+    return isFalse(this.get(key))
   }
 
   /**
    * Checking empty value.
    */
   isEmpty(key: string): boolean {
-    return has(this._data, key) && isEmpty(this._data[key].value)
+    return isEmpty(this.get(key))
   }
 
   /**
-   * Getting an option as ref.
+   * Getting a value as ref.
    */
   ref(key: string): Ref {
     if (!has(this._data, key)) {
@@ -58,7 +70,7 @@ class Store implements IStore {
   /**
    * Setter
    */
-  set(key: string, val?: any): void {
+  async set(key: string, val?: any): Promise<void> {
     if (isStr(key, 1)) {
       if (has(this._data, key)) {
         this._data[key].value = val
@@ -90,4 +102,4 @@ class Store implements IStore {
   }
 }
 
-export default Store
+export default BaseStore

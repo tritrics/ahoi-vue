@@ -24,7 +24,7 @@ export default defineConfig({
     //minify: 'terser',
     lib: {
       entry: [
-        'src/api/index.ts',
+        'src/plugin/index.ts',
         'src/fn/index.ts',
         'src/form/index.ts',
         'src/lang/index.ts',
@@ -39,7 +39,7 @@ export default defineConfig({
       ],
       external: ['vue'], // external deps, don't bundle in library
       input: {
-        'api': './src/api/index.ts',
+        'api': './src/plugin/index.ts',
         'fn': './src/fn/index.ts',
         'form': './src/form/index.ts',
         'lang': './src/lang/index.ts',
@@ -47,7 +47,7 @@ export default defineConfig({
       },
       output: {
         manualChunks(id: any) {
-		      if(id.includes('/api')) { return 'api'; }
+		      if(id.includes('/plugin')) { return 'api'; }
 		      if(id.includes('/fn')) { return 'fn'; }
 		      if(id.includes('/form')) { return 'form'; }
 		      if(id.includes('/lang')) { return 'lang'; }

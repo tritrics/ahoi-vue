@@ -1,43 +1,6 @@
-import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../fn'
-import FileModel from './models/File'
-import type { IFileModel } from './models/types'
-import type { IThumbModel, IThumbOptions, IThumbImage, IThumbDimensions, ThumbCropOptions } from './types'
-import type { Object }  from '../types' 
-
-/**
- * Create a Thumb instance with handy image resizing and handling methods.
- */
-export function createThumb (
-  mixed: IThumbImage|IFileModel|any,
-  width: number|null = null,
-  height: number|null = null,
-  options: IThumbOptions = {}
-): Thumb|undefined
-{
-  // Instance of thumb class is given
-  if (mixed instanceof Thumb) {
-    return mixed.options(options).dim(width, height)
-  } 
-
-  // Instance of file model is given
-  else if (mixed instanceof FileModel && mixed.isImage()) {
-    return new Thumb(mixed.meta as IThumbImage, width, height, options)
-  }
-
-  else if (isObj(mixed)) {
-    const prefs = {
-      host: '',
-      dir: '',
-      name: '',
-      ext: '',
-      width: null,
-      height: null,
-      title: ''
-    }
-    const image: IThumbImage = { ...prefs, ...mixed }
-    new Thumb(image, width, height, options)
-  }
-}
+import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../../fn'
+import type { IThumbModel, IThumbOptions, IThumbImage, IThumbDimensions, ThumbCropOptions } from '../types'
+import type { Object }  from '../../types' 
 
 /**
  * Representation of an image with helper functions to create scaled thumbs.

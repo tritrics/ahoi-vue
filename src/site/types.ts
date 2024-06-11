@@ -1,4 +1,4 @@
-import type { Object, DateTimeFormat } from "../types"
+import type { Object, DateTimeFormat, IBaseStore } from "../types"
 
 /**
  * Plugin
@@ -31,8 +31,8 @@ export interface IThumbImage {
   dir: string
   name: string
   ext: string
-  width: number|null
-  height: number|null
+  width: number
+  height: number
   title?: string
 }
 
@@ -49,6 +49,10 @@ export interface IThumbDimensions {
   width: number
   height: number
 }
+
+export interface ISiteStore extends IBaseStore {}
+
+export interface IPageStore extends IBaseStore {}
 
 export type ThumbCropOptions =
   | 'top-left'

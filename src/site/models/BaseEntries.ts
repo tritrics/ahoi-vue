@@ -1,4 +1,4 @@
-import { parseModelsRec } from '../index'
+import { parse } from '../index'
 import BaseModel from './Base'
 import type { IBaseModel, IBaseEntriesModel } from './types'
 import type { JSONObject } from '../../types'
@@ -8,6 +8,6 @@ export default class BaseEntriesModel extends BaseModel implements IBaseEntriesM
 
   constructor(obj: JSONObject) {
     super(undefined)
-    this.entries = parseModelsRec(obj.entries) as BaseModel[]
+    this.entries = parse(obj.entries) as BaseModel[]
   }
 }
