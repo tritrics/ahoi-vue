@@ -47,6 +47,7 @@ async function init(): Promise<void> {
 
 /**
  * Detect the best valid language from browser or settings.
+ * @TODO: check also by language.meta.origin?
  */
 function detectLanguage(): string|null {
 
