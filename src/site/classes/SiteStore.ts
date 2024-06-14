@@ -1,7 +1,7 @@
 
 import { ref } from 'vue'
 import { isObj } from '../../fn'
-import { BaseStore, getSite, globalStore } from '../../plugin'
+import { BaseStore, getPage, globalStore } from '../../plugin'
 import { convertResponse } from '../index'
 import type { IPageModel, ILinkModel, IModelList, IPageMeta } from '../models/types'
 import type { Object, IBaseStore } from '../../types'
@@ -44,7 +44,6 @@ class SiteStore extends BaseStore implements IBaseStore {
 
   /**
    * Init store.
-   * Is called, after all store instances have been created.
    */
   async init(): Promise<void> {
     globalStore.watch('lang', async (newVal: string) => {
@@ -61,7 +60,7 @@ class SiteStore extends BaseStore implements IBaseStore {
    * Request site, implicit done on init().
    */
   async _requestSite(lang: string): Promise<void> {
-    const json = await getSite(lang, { raw: true })
+    const json = await getPage(lang, { raw: true })
     let res: Object = {}
     if (isObj(json) && json.ok) {
       res = convertResponse(json)

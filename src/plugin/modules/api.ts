@@ -87,17 +87,6 @@ export async function getPages(
 }
 
 /**
- * Call API interface /site/(:any?).
- * Returns information of a single page or site (if node is empty).
- */
-export async function getSite(
-  lang: string|null,
-  options: IApiRequestOptions = {}
-): Promise<JSONObject> {
-  return await createRequest(options).getNode('site', lang)
-}
-
-/**
  * Submit data to a specified action /action/(:any).
  */
 export async function postCreate(

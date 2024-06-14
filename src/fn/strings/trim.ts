@@ -11,7 +11,19 @@ import { isStr, regEsc } from '../'
  * \v a vertical tab
  * chars = additional (!) characters to trim
  */
-export default function trim(val: string, left: boolean = true, right: boolean = true, chars: string = ''): string {
+export function trim(val: string, chars: string = ''): string {
+  return trimStr(val, chars, true, true)
+}
+
+export function ltrim(val: string, chars: string = ''): string {
+  return trimStr(val, chars, true, false)
+}
+
+export function rtrim(val: string, chars: string = ''): string {
+  return trimStr(val, chars, false, true)
+}
+
+function trimStr(val: string, chars: string = '', left: boolean = true, right: boolean = true): string {
   if (isStr(val)) {
     const search = regEsc(` \r\n\t\0\v${chars}`)
     const reg = []

@@ -63,9 +63,7 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
     }
   }
   for (const name in storesMap) {
-    if (name !== 'global') {
-      await storesMap[name].init()
-    }
+    await storesMap[name].init()
   }
   return registered
 }

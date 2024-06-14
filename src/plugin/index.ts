@@ -3,7 +3,7 @@ import BaseStore from './classes/BaseStore'
 import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
-import { call, getFile, getFiles, getInfo, getLanguage, getPage, getPages, getSite, postCreate } from './modules/api'
+import { call, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
 import type { IApiOptions, IApiAddon, IGlobalStore } from '../types'
@@ -17,7 +17,7 @@ const APIVERSION: string = 'v1'
 /**
  * The global store. Initialized before all other stores.
  */
-const globalStore: IGlobalStore = new GlobalStore()
+let globalStore: IGlobalStore
 
 /** 
  * Plugin factory
@@ -25,7 +25,7 @@ const globalStore: IGlobalStore = new GlobalStore()
 export async function createApi(options: IApiOptions) {
   const load: IApiAddon[] = options.addons ?? []
   unset(options, 'addons')
-  globalStore.init(options)
+  globalStore = new GlobalStore(options)
   stores('global', globalStore)
   const addons: IApiAddon[] = await loadAddons(load.flat())
   
@@ -44,7 +44,6 @@ export async function createApi(options: IApiOptions) {
         getLanguage,
         getPage,
         getPages,
-        getSite,
         postCreate
       }
       app.provide('api',  app.config.globalProperties['$api'])
@@ -75,7 +74,6 @@ export {
   getLanguage,
   getPage,
   getPages,
-  getSite,
   postCreate,
   BaseStore,
   Request,

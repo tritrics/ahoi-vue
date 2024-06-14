@@ -34,7 +34,7 @@ export default class LinkModel extends BaseModel implements ILinkModel {
 export function createLinkByValues(type: LinkTypes, title: string, href: string): ILinkModel {
   return new LinkModel({
     value: title,
-    link: {
+    meta: {
       type,
       href
     }

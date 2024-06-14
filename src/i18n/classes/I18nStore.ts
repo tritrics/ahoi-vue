@@ -20,7 +20,6 @@ class I18nStore extends BaseStore implements II18nStore {
 
   /**
    * Init store.
-   * Is called, after all store instances have been created.
    */
   async init(): Promise<void> {
     globalStore.watch('lang', async (newVal: string) => {
@@ -41,8 +40,12 @@ class I18nStore extends BaseStore implements II18nStore {
     if (globalStore.isValidLang(normCode) && (normCode !== globalStore.get('lang'))) {
       const json: JSONObject = await getLanguage(normCode, { raw: true })
       if (isObj(json) && json.ok) {
-        const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json) as Function
-        this._data.terms.value = fn(json)
+        if (inject('site')) {
+          const convertResponse = inject('site', 'convertResponse') as Function
+          this._data.terms.value = convertResponse(json)
+        } else {
+          this._data.terms.value = json
+        }
       }
     }
   }

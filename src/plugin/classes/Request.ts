@@ -126,9 +126,9 @@ class Request {
   }
 
   /**
-   * getSite, getPage and getFile are identical
+   * getPage and getFile are identical
    */
-  async getNode(node: 'site'|'page'|'file', path: string|string[]|null): Promise<JSONObject> {
+  async getNode(node: 'page'|'file', path: string|string[]|null): Promise<JSONObject> {
     const url: string = this.getUrl(
       this.host,
       APIVERSION,
@@ -215,7 +215,7 @@ class Request {
    * Helper to build an URL from multiple parts.
    */
   getUrl(...args: (string|string[]|null)[]): string {
-    const res = toPath(...args)
+    const res = toPath(args)
     if (!isUrl(res)) {
       throw new Error('No host defined for Api request')
     }
@@ -226,11 +226,11 @@ class Request {
    * Parse response, if core plugin is installed.
    */
   convertResponse(json: JSONObject): JSONObject {
-    if (this.raw) {
-      return json
+    if (inject('site') && !this.raw) {
+      const fn = inject('site', 'convertResponse') as Function
+      return fn(json)
     }
-    const fn = inject('site', 'convertResponse', (json: JSONObject): JSONObject => json)
-    return fn(json)
+    return json
   }
 
   /**

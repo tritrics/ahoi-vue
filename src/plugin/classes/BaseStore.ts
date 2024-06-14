@@ -20,7 +20,6 @@ class BaseStore implements IBaseStore {
 
   /**
    * Init store.
-   * Is called, after all store instances have been created.
    */
   async init(options: Object = {}): Promise<void> {
     this._options = options ?? {}

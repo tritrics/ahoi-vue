@@ -58,7 +58,6 @@ class MetaStore extends BaseStore implements IMetaStore {
 
   /**
    * Init store.
-   * Is called, after all store instances have been created.
    */
   async init(): Promise<void> {
 

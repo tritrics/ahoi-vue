@@ -14,6 +14,9 @@ export interface IBaseStore {
 
 export interface IGlobalStore extends IBaseStore {
   getOption(key: string, defaultVal?: any): any
+  getDefaultLang(): string|null
+  getLangFromUrl(href?: string): string|null
+  getNodeFromPath(val: string): string
   isValidLang(code: string): boolean
   isCurrentLang(code: string): boolean
 }

@@ -1,4 +1,4 @@
-import { each, isObj, isTrue, isUndef } from '../fn'
+import { isObj, isStr, isUndef } from '../fn'
 import { getInfo, globalStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
 import PageStore from './classes/PageStore'
@@ -9,7 +9,7 @@ import AhoiThumb from './components/AhoiThumb.vue'
 import AhoiLangSwitch from './components/AhoiLangSwitch.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
-import type { IApiAddon, Object, ISiteStore, IPageStore } from '../types'
+import type { IApiAddon, ISiteStore, IPageStore } from '../types'
 
 /**
  * Site store
@@ -37,7 +37,8 @@ async function init(): Promise<void> {
     globalStore.set('languages', json.body.languages ?? [])
   }
 
-  // ... setting other infos
+  // setting other infos
+  globalStore.set('home', json.body.meta.home)
 
   // if multilang: detect and select language
   if (globalStore.isTrue('multilang')) {
@@ -47,33 +48,31 @@ async function init(): Promise<void> {
 
 /**
  * Detect the best valid language from browser or settings.
- * @TODO: check also by language.meta.origin?
  */
 function detectLanguage(): string|null {
 
-  // 1. lang given by options
+  // 1. from url
+  const urlLang = globalStore.getLangFromUrl()
+  if (isStr(urlLang, 1)) {
+    return urlLang
+  }
+
+  // 2. from user options
   const userLang = globalStore.getOption('lang')
   if (globalStore.isValidLang(userLang)) {
     return userLang
   }
 
-  // 2. lang from browser
+  // 3. from browser
   for (let i = 0; i < navigator.languages.length; i++) {
-    const code: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
-    if (!isUndef(code) && globalStore.isValidLang(code)) {
-      return code
+    const navLang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
+    if (!isUndef(navLang) && globalStore.isValidLang(navLang)) {
+      return navLang
     }
   }
 
-  // 3. default lang
-  const languages = globalStore.get('languages')
-  let res: string|null = languages[0].meta.code
-  each(globalStore.get('languages'), (language: Object) => {
-    if (isTrue(language.meta.default)) {
-      res = language.meta.code
-    }
-  })
-  return res
+  // 4. default lang
+  return globalStore.getDefaultLang()
 }
 
 /**
