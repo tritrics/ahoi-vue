@@ -1,18 +1,25 @@
 import { unset, each } from '../fn'
+import AddonStore from './classes/AddonStore'
 import BaseStore from './classes/BaseStore'
+import UserStore from './classes/UserStore'
 import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
 import { call, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
-import type { IApiOptions, IApiAddon, IGlobalStore } from '../types'
+import type { IApiOptions, IApiAddon, IGlobalStore, IAddonStore } from '../types'
 
 /**
  * The API interface version.
  * Same as defined in Kirby-Plugin and required for all requests.
  */
 const APIVERSION: string = 'v1'
+
+/**
+ * The user options store. Initialized before all other stores.
+ */
+let optionsStore: IAddonStore
 
 /**
  * The global store. Initialized before all other stores.
@@ -23,11 +30,14 @@ let globalStore: IGlobalStore
  * Plugin factory
  */
 export async function createApi(options: IApiOptions) {
-  const load: IApiAddon[] = options.addons ?? []
+  const addonFns: Function[] = options.addons ?? []
   unset(options, 'addons')
-  globalStore = new GlobalStore(options)
+  optionsStore = new AddonStore(options)
+  stores('options', optionsStore)
+  globalStore = new GlobalStore()
   stores('global', globalStore)
-  const addons: IApiAddon[] = await loadAddons(load.flat())
+  const addons: IApiAddon[] = await loadAddons(addonFns)
+  console.log('load plugin')
   
   // register plugin
   return {
@@ -36,6 +46,7 @@ export async function createApi(options: IApiOptions) {
         APIVERSION,
         VERSION,
         store: globalStore,
+        options: optionsStore,
         stores,
         call,
         getFile,
@@ -66,6 +77,7 @@ export {
   APIVERSION,
   VERSION,
   globalStore,
+  optionsStore,
   stores,
   call,
   getFile,
@@ -75,7 +87,9 @@ export {
   getPage,
   getPages,
   postCreate,
+  AddonStore,
   BaseStore,
+  UserStore,
   Request,
   inject
 }

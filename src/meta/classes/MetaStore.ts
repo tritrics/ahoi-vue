@@ -1,80 +1,34 @@
-import { ref } from 'vue'
 import { escape, isStr, isUrl, isEmpty, isNull, toStr } from '../../fn'
-import { BaseStore, globalStore } from '../../plugin'
-import type { Object, IMetaStore } from '../../types'
+import { UserStore, optionsStore } from '../../plugin'
+import type { IMetaStore } from '../../types'
 
 /**
- * Store with plugin and addons options.
+ * Meta value store, extends user store, because user can add more properties.
  */
-class MetaStore extends BaseStore implements IMetaStore {
+class MetaStore extends UserStore implements IMetaStore {
 
-  /**
-   * Object with store values.
-   */
-  _data: Object = {
+  constructor() {
+    super({
+      brand: '',
+      description: '',
+      lang: '',
+      locale: '',
+      image: '',
+      separator: ' - ',
+      title: '',
+      //url: ''
+    })
 
-    /**
-     * Brand of the page (= site title)
-     */
-    brand: ref<string>(''),
+    // get user-values from options
+    this.set('brand', optionsStore.get('brand'))
+    this.set('description', optionsStore.get('description'))
+    this.set('lang', optionsStore.get('lang'))
+    this.set('locale', optionsStore.get('locale'))
+    this.set('image', optionsStore.get('image'))
+    this.set('separator', optionsStore.get('separator'))
+    this.set('title', optionsStore.get('title'))
 
-    /**
-     * Meta description
-     */
-    description: ref<string>(''),
-
-    /**
-     * Lang in <html>
-     * Taken from global store
-     */
-    lang: ref<string>(''),
-
-    /**
-     * Meta locale
-     * Taken from global store
-     */
-    locale: ref<string>(''),
-
-    /**
-     * Meta preview image
-     */
-    image: ref<string>(''),
-
-    /**
-     * Separator to combine brand and title in <title>
-     */
-    separator: ref<string>(' - '),
-
-    /**
-     * Title of the page (= page title)
-     */
-    title: ref<string>(''),
-
-    /**
-     * Meta url
-     */
-    // url: ref<string>(''),
-  }
-
-  /**
-   * Init store.
-   */
-  async init(): Promise<void> {
-
-    // @TODO: make values dynamic from field values in site or page
-    this.set('brand', globalStore.getOption('brand'))
-    this.set('description', globalStore.getOption('description'))
-    this.set('lang', globalStore.getOption('lang'))
-    this.set('locale', globalStore.getOption('locale'))
-    this.set('image', globalStore.getOption('image'))
-    this.set('title', globalStore.getOption('title'))
-
-    globalStore.watch('lang', (newVal: string) => {
-      this.set('lang', newVal)
-    }, { immediate: true })
-    globalStore.watch('locale', (newVal: string) => {
-      this.set('locale', newVal)
-    }, { immediate: true })
+    // watch lang, locale
   }
 
   /**
@@ -87,53 +41,53 @@ class MetaStore extends BaseStore implements IMetaStore {
     val = toStr(val)
     switch(key) {
       case 'brand':
-        this._data.brand.value = val
-        this._writeMeta('og:site_name', val)
-        this._writeTitle()
+        super.set('brand', val)
+        this.#writeMeta('og:site_name', val)
+        this.#writeTitle()
         break
       case 'description':
-        this._data.description.value = val
-        this._writeMeta('description', val)
-        this._writeMeta('og:description', val)
-        this._writeMeta('twitter:card', val)
+        super.set('description', val)
+        this.#writeMeta('description', val)
+        this.#writeMeta('og:description', val)
+        this.#writeMeta('twitter:card', val)
         break
       case 'lang':
-        this._data.lang.value = val
-        this._writeLang()
+        super.set('lang', val)
+        this.#writeLang()
         break
       case 'locale':
-        this._data.locale.value = val
-        this._writeMeta('og:locale', val)
+        super.set('locale', val)
+        this.#writeMeta('og:locale', val)
         break
       case 'image':
-        this._data.image.value = val
-        this._writeMeta('og:image', val)
+        super.set('image', val)
+        this.#writeMeta('og:image', val)
         break
       case 'separator':
-        this._data.separator.value = val
-        this._writeTitle()
+        super.set('separator', val)
+        this.#writeTitle()
         break
       case 'title':
-        this._data.title.value = val
-        this._writeTitle()
+        super.set('title', val)
+        this.#writeTitle()
         break
       //case 'url':
       //  if (isUrl(val) || isEmpty(val)) {
-      //    this._data.url.value = val
-      //    this._writeMeta('og:url', val)
+      //    super.set('url', val)
+      //    this.#writeMeta('og:url', val)
       //  }
       //  break
       default:
-        this._data[key] = ref(val)
-        this._writeMeta(key, val)
+        super.set(key, val)
+        this.#writeMeta(key, val)
     }
   }
 
   /**
    * setting lang in <html>
    */
-  _writeLang(): void {
-    const content: string = escape(this._data.lang.value)
+  #writeLang(): void {
+    const content: string = escape(this.get('lang'))
     if (document.documentElement.getAttribute('lang') !== content) {
       document.documentElement.setAttribute('lang', content)
     }
@@ -142,7 +96,7 @@ class MetaStore extends BaseStore implements IMetaStore {
   /**
    * setting meta in <head>
    */
-  _writeMeta(name: string, val: string): void {
+  #writeMeta(name: string, val: string): void {
     const content: string = escape(val)
     const type: 'name'|'property' = name.startsWith('og:') ? 'property' : 'name'
     const nodes = document.head.querySelectorAll(`meta[${type}="${name}"]`)
@@ -165,16 +119,16 @@ class MetaStore extends BaseStore implements IMetaStore {
   /**
    * setting title in <head><title>
    */
-  _writeTitle(): void {
+  #writeTitle(): void {
     const parts: string[] = []
-    if (isStr(this._data.title.value, 1)) {
-      parts.push(this._data.title.value)
+    if (isStr(this.get('title'), 1)) {
+      parts.push(this.get('title'))
     }
-    if (isStr(this._data.brand.value, 1)) {
-      parts.push(this._data.brand.value)
+    if (isStr(this.get('brand'), 1)) {
+      parts.push(this.get('brand'))
     }
-    const title = parts.join(this._data.separator.value)
-    this._writeMeta('og:title', title)
+    const title = parts.join(this.get('separator'))
+    this.#writeMeta('og:title', title)
     const content: string = escape(title)
     if (document.title !== content) {
       document.title = content

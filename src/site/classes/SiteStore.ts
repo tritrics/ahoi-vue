@@ -1,75 +1,59 @@
-
-import { ref } from 'vue'
-import { isObj } from '../../fn'
-import { BaseStore, getPage, globalStore } from '../../plugin'
+import { isObj, isStr } from '../../fn'
+import { AddonStore, getPage, globalStore } from '../../plugin'
 import { convertResponse } from '../index'
-import type { IPageModel, ILinkModel, IModelList, IPageMeta } from '../models/types'
-import type { Object, IBaseStore } from '../../types'
+import type { Object, ISiteStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
-class SiteStore extends BaseStore implements IBaseStore {
+class SiteStore extends AddonStore implements ISiteStore {
 
-  /**
-   * Object with store values.
-   */
-  _data: Object = {
+  /** */
+  constructor() {
+    super({
+      lang: '',
+      meta: {},
+      link: {},
+      home: {},
+      fields: {}
+    })
 
-    /**
-     * The resquested node (= lang or empty).
-     */
-    node: ref<string>(''),
-
-    /**
-     * Meta object from response.
-     */
-    meta: ref<IPageMeta>(),
-
-    /**
-     * Link object from response.
-     */
-    link: ref<ILinkModel>(),
-
-    /**
-     * Home page
-     */
-    home: ref<IPageModel>(),
-
-    /**
-     * List of fields from response.
-     */
-    fields: ref<IModelList>({}),
+    globalStore.watch('lang', async (newVal) => {
+      this.set('lang', newVal)
+    })
   }
 
   /**
-   * Init store.
+   * Setter
    */
-  async init(): Promise<void> {
-    globalStore.watch('lang', async (newVal: string) => {
-      await this._requestSite(newVal)
-    }, { immediate: true })
+  async set(key: string, val?: any): Promise<void> {
+    switch(key) {
+      case 'lang':
+        if (isStr(val) && this.isNot('lang', val)) {
+          super.set('lang', val)
+          await this.#setSite(val)
+        }
+        break
+    }
   }
-
-  /**
-   * Setter disabled.
-   */
-  async set(): Promise<void> {}
 
   /**
    * Request site, implicit done on init().
    */
-  async _requestSite(lang: string): Promise<void> {
+  async #setSite(lang: string): Promise<void> {
     const json = await getPage(lang, { raw: true })
-    let res: Object = {}
-    if (isObj(json) && json.ok) {
-      res = convertResponse(json)
-      this._data.node.value = lang ?? ''
-      this._data.meta.value = res.meta
-      this._data.link.value = res.link
-      this._data.home.value = res.home
-      this._data.fields.value = res.fields
+    if (!isObj(json) || !json.ok) {
+      super.set('meta', {})
+      super.set('link', {})
+      super.set('home', {})
+      super.set('fields', {})
+      return
     }
+    const res: Object = convertResponse(json)
+    super.set('meta', res.meta)
+    super.set('link', res.link)
+    super.set('home', res.home)
+    super.set('fields', res.fields)
   }
 }
 

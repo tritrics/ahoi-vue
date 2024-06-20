@@ -1,10 +1,11 @@
 import type { ComputedRef } from 'vue'
-import type { Object, IBaseStore, JSONObject } from '../types'
+import type { Object, IAddonStore, JSONObject } from '../types'
 
-export interface IFormStore extends IBaseStore {
+export interface IFormStore extends IAddonStore {
   valid: ComputedRef<boolean>
   getFieldValues(): IFormParams
   submit(): Promise<JSONObject>
+  reset(): void
   validate(onInput: boolean): void
 }
 

@@ -1,5 +1,5 @@
 import { has, isFunc, inArr, isObj, isStr } from '../../fn'
-import { stores, storesMap } from './stores'
+import { stores } from './stores'
 import type { Object, IApiAddon } from '../../types'
 
 /**
@@ -31,8 +31,15 @@ export function inject(addon: string, method: string|null = null, fnDefault: Fun
 /**
  * Load Addons
  */
-export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
+export async function loadAddons(addonFns: Function[]): Promise<IApiAddon[]> {
   const registered: IApiAddon[] = []
+
+  // call addon functions
+  let addons: IApiAddon[] = []
+  for (let i = 0; i < addonFns.length; i++) {
+    addons.push(addonFns[i]())
+  }
+  addons = addons.flat()
 
   // register addons
   for (let i = 0; i < addons.length; i++) {
@@ -47,23 +54,21 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
         registeredMethods[key] = addons[i].export as Object
       }
     }
+    console.log('registered', key)
   }
 
   // init functions
-  for (let j = 0; j < registered.length; j++) {
-    if (isFunc(registered[j].init)) {
-      await registered[j].init!()
+  for (let i = 0; i < registered.length; i++) {
+    if (isFunc(registered[i].init)) {
+      await registered[i].init!()
     }
   }
 
-  // register and init 
-  for (let j = 0; j < registered.length; j++) {
-    if (has(registered[j], 'store')) {
-      stores(registered[j].name, registered[j].store)
+  // register stores 
+  for (let i = 0; i < registered.length; i++) {
+    if (has(registered[i], 'store')) {
+      stores(registered[i].name, registered[i].store)
     }
-  }
-  for (const name in storesMap) {
-    await storesMap[name].init()
   }
   return registered
 }

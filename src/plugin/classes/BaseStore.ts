@@ -1,38 +1,73 @@
-import { ref, watch, toRef } from 'vue'
-import { each, has, isArr, isStr, isTrue, isFalse, isEmpty } from '../../fn'
-import type { Object, IBaseStore } from '../../types'
-import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
+import { ref } from 'vue'
+import { each, has, uuid, unset, count, isStr, isTrue, isFalse, isEmpty, isObj } from '../../fn'
+import type { Object, IBaseStore, IStoreData, IWatchOptions, IWatchDefintion, IWatchCallback, IWatchStop } from '../../types'
+import type { Ref } from 'vue'
 
 /**
- * Simple store.
+ * Basic class for all stores.
  */
 class BaseStore implements IBaseStore {
 
   /**
-   * The options given by user.
-   */
-  _options: Object = {}
-
-  /**
    * Object with store values.
    */
-  _data: Object = {}
+  #data: IStoreData = {}
 
   /**
-   * Init store.
+   * Flag to determine, if new properties can be added by set('foo', 'bar).
    */
-  async init(options: Object = {}): Promise<void> {
-    this._options = options ?? {}
+  get ADD_PROPERTIES(): boolean {
+    return true
+  }
+
+  /** */
+  constructor(initialValues: Object = {}) {
+    if (isObj(initialValues)) {
+      each(initialValues, (val: any, key: string) => {
+        this.#addProperty(key, val) // don't use set() here
+      })
+    }
+  }
+
+  /**
+   * Adding a property to data store.
+   */
+  #addProperty(key: string, val: any): void {
+    this.#data[key] = {
+        ref: ref(val),
+        observer: []
+    }
   }
 
   /**
    * Getting a value.
    */
   get(key: string): any {
-    if (has(this._data, key)) {
-      return this._data[key].value
+    if (this.has(key)) {
+      return this.#data[key].ref.value
     }
     return null
+  }
+
+  /**
+   * Checking existance of a property.
+   */
+  has(key: string): boolean {
+    return has(this.#data, key)
+  }
+
+  /**
+   * Checking equality.
+   */
+  is(key: string, val: any): boolean {
+    return this.get(key) === val
+  }
+
+  /**
+   * Checking non-equality.
+   */
+  isNot(key: string, val: any): boolean {
+    return !this.is(key, val)
   }
 
   /**
@@ -60,44 +95,88 @@ class BaseStore implements IBaseStore {
    * Getting a value as ref.
    */
   ref(key: string): Ref {
-    if (!has(this._data, key)) {
-      this.set(key, null)
+    if (this.has(key)) {
+      return this.#data[key].ref
     }
-    return toRef(this._data[key])
+    return ref(null)
   }
 
   /**
    * Setter
    */
   async set(key: string, val?: any): Promise<void> {
+    let oldVal: any = undefined
     if (isStr(key, 1)) {
-      if (has(this._data, key)) {
-        this._data[key].value = val
-      } else {
-        this._data[key] = ref(val)
+      if (this.has(key)) {
+        oldVal = this.#data[key].ref.value
+        this.#data[key].ref.value = val
+      } else if (this.ADD_PROPERTIES) {
+        this.#addProperty(key, val)
       }
+      await this.#watchCall(key, val, oldVal)
     }
   }
 
   /**
-   * Watch a pref or an array of prefs.
+   * Stop all watchers at once, useful on unload component.
    */
-  watch<T>(keys: string|string[], callback: WatchCallback<T>, options: WatchOptions = {}): WatchStopHandle {
-    let sources: Ref<string>[] = []
-    if (isArr(keys)) {
-      each(keys, (key: string) => {
-        if (!has(this._data, key)) {
-          this.set(key, null)
-        }
-        sources.push(this._data[key])
-      })
-    } else if(isStr(keys, 1)) {
-      if (!has(this._data, keys)) {
-        this.set(keys, null)
-      }
-      sources = this._data[keys]
+  stop(): void {
+    each(this.#data, (property: Object) => {
+      property.observer = {}
+    })
+  }
+
+  /**
+   * Watch a property or an array of properties.
+   * Here we don't use Vue's watch(), because with this implementation we can wait
+   * for asynchrous callbacks.
+   */
+  async watch(key: string|string[], callback: IWatchCallback, options: IWatchOptions = {}): Promise<IWatchStop> {
+    const keys = [ key ].flat().filter((key) => isStr(key, 1) && this.has(key))
+    const promises: Promise<void>[] = []
+    if (count(keys) === 0) {
+      return () => {}
     }
-    return watch(sources, callback as WatchCallback, options)
+    const id = uuid()
+    each(keys, (key: string) => {
+      const watcher: IWatchDefintion = {
+        id,
+        callback,
+        options
+      }
+      this.#data[key].observer.push(watcher)
+      if (isTrue(options.immediate)) {
+        promises.push(callback(this.get(key), undefined, options.payload))
+      }
+    })
+    await Promise.all(promises)
+    return () => this.#watchStop(keys, id)
+  }
+
+  async #watchCall(key: string, newVal: any, oldVal?: any): Promise<void> {
+    const promises: Promise<void>[] = []
+    for (let i = 0; i < this.#data[key].observer.length; i++) {
+      promises.push(this.#data[key].observer[i].callback(
+        newVal,
+        oldVal,
+        this.#data[key].observer[i].options.payload
+      ))
+    }
+    await Promise.all(promises)
+  }
+
+  /**
+   * Stop a watcher.
+   * Function is always applied with valid keys.
+   */
+  #watchStop(keys: string|string[], id: string): void {
+    each(keys, (key: string) => {
+      for (let i = 0; i < this.#data[key].observer.length; i++) {
+        if (this.#data[key].observer[i].id === id) {
+          return unset(this.#data[key].observer, i)
+        }
+      }
+    })
   }
 }
 

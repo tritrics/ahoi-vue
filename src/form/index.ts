@@ -1,4 +1,4 @@
-import { has, isObj, isStr } from '../fn'
+import { has, isStr } from '../fn'
 import FormStore from './classes/FormStore'
 import type { IApiAddon, IFormStore, Object, IFormOptions } from '../types'
 
@@ -9,53 +9,33 @@ const formsMap: Object = {}
 
 /**
  * Get, register or implicitely create a form.
+ * @TODO: request fielddef from Kirby
  */
 function forms(mixed: string|IFormOptions, options?: IFormOptions): IFormStore {
 
   // no name given, options in mixed, don't register form
   if (!isStr(mixed, 1)) {
-    const form: IFormStore = new FormStore()
-    setOptions(form, options)
-    return form
+    return new FormStore(options)
   }
   
   // create form
   if (!has(formsMap, mixed)) {
-    formsMap[mixed] = new FormStore()
-    setOptions(formsMap[mixed], options)
+    formsMap[mixed] = new FormStore(options)
   }
   return formsMap[mixed]
 }
 
 /**
- * Setting form options
- */
-function setOptions(form: IFormStore, options?: IFormOptions): void {
-  if (isObj(options)) {
-    if(!isObj(options.fields)) {
-      options.fields = getFieldDefsFromApi(options)
-    }
-    form.init(options)
-  }
-}
-
-  /**
-   * Request field definition from blueprint by given action
-   * @TODO: request from Kirby
-   */
- function getFieldDefsFromApi(options: Object): Object {
-    return {}
-  }
-
-/**
  * Addon factory
  */
-export function createForm(): IApiAddon {
-  return {
-    name: 'form',
-    export: {
-      forms,
-    },
+export function createForm(): Function {
+  return (): IApiAddon => {
+    return {
+      name: 'form',
+      export: {
+        forms,
+      }
+    }
   }
 }
 

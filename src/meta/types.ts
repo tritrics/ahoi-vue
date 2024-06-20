@@ -1,3 +1,3 @@
-import type { Object, IBaseStore } from "../types"
+import type { IUserStore } from "../types"
 
-export interface IMetaStore extends IBaseStore {}
+export interface IMetaStore extends IUserStore {}

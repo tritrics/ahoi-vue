@@ -1,5 +1,5 @@
 import { isObj, isStr, isUndef } from '../fn'
-import { getInfo, globalStore } from '../plugin'
+import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
 import PageStore from './classes/PageStore'
 import Thumb from './classes/Thumb'
@@ -14,18 +14,17 @@ import type { IApiAddon, ISiteStore, IPageStore } from '../types'
 /**
  * Site store
  */
-const siteStore: ISiteStore = new SiteStore()
+let siteStore: ISiteStore
 
 /**
  * Page store
  */
-const pageStore: IPageStore = new PageStore()
+let pageStore: IPageStore
 
 /**
  * Setup
  */
 async function init(): Promise<void> {
-
   // requesting info
   const json = await getInfo({ raw: true })
   if (!isObj(json) || !json.ok) {
@@ -42,7 +41,7 @@ async function init(): Promise<void> {
 
   // if multilang: detect and select language
   if (globalStore.isTrue('multilang')) {
-    globalStore.set('lang', detectLanguage())
+    await globalStore.set('lang', detectLanguage())
   }
 }
 
@@ -58,7 +57,7 @@ function detectLanguage(): string|null {
   }
 
   // 2. from user options
-  const userLang = globalStore.getOption('lang')
+  const userLang = optionsStore.get('lang')
   if (globalStore.isValidLang(userLang)) {
     return userLang
   }
@@ -78,31 +77,37 @@ function detectLanguage(): string|null {
 /**
  * Addon factory, returns site and page
  */
-export function createSite(): IApiAddon[] {
-  return [{
-    name: 'site',
-    store: siteStore,
-    components: {
-      'AhoiHtml': AhoiHtml,
-      'AhoiLink': AhoiLink,
-      'AhoiThumb': AhoiThumb,
-      'AhoiLangSwitch': AhoiLangSwitch,
-    },
-    export: {
+export function createSite(): Function {
+  return (): IApiAddon[] => {
+    siteStore = new SiteStore()
+    pageStore = new PageStore()
+    return [{
+      name: 'site',
       store: siteStore,
-      createThumb,
-      convertResponse
-    },
-    init: async (): Promise<void> => {
-      await init()
-    },
-  }, {
-    name: 'page',
-    store: pageStore,
-    export: {
+      components: {
+        'AhoiHtml': AhoiHtml,
+        'AhoiLink': AhoiLink,
+        'AhoiThumb': AhoiThumb,
+        'AhoiLangSwitch': AhoiLangSwitch,
+      },
+      export: {
+        store: siteStore,
+        createThumb,
+        convertResponse
+      },
+      init: async (): Promise<void> => {
+        console.log('site addon init', 'start')
+        await init()
+        console.log('site addon init', 'ready')
+      },
+    }, {
+      name: 'page',
       store: pageStore,
-    },
-  }]
+      export: {
+        store: pageStore,
+      }
+    }]
+  }
 }
 
 /**

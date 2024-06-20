@@ -5,18 +5,21 @@ import type { IApiAddon } from '../types'
 /**
  * Module's store
  */
-const store: II18nStore = new I18nStore()
+let store: II18nStore
 
 /**
  * Addon factory
  */
-export function createI18n(): IApiAddon {
-  return {
-    name: 'i18n',
-    store,
-    export: {
-      store
-    },
+export function createI18n(): Function {
+  return (): IApiAddon => {
+    store = new I18nStore()
+    return {
+      name: 'i18n',
+      store,
+      export: {
+        store
+      }
+    }
   }
 }
 

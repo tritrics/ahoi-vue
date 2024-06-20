@@ -1,24 +1,42 @@
-import type { Ref, WatchCallback, WatchOptions } from 'vue'
+import type { Ref } from 'vue'
 import type { Object } from '../types'
 
 export interface IBaseStore {
-  init(options?: Object): void
+  ADD_PROPERTIES: boolean
   get(key: string): any
+  has(key: string): boolean
+  is(key: string, val: any): boolean
+  isNot(key: string, val: any): boolean
   isFalse(key: string): boolean
   isTrue(key: string): boolean
   isEmpty(key: string): boolean
   ref(key: string): Ref
   set(key: string|Object, val?: any): void
-  watch<T>(source: string|string[], callback: WatchCallback<T>, options?: WatchOptions): Function
+  stop(): void
+  watch(source: string|string[], callback: IWatchCallback, options?: IWatchOptions): Promise<IWatchStop>
 }
 
-export interface IGlobalStore extends IBaseStore {
-  getOption(key: string, defaultVal?: any): any
+export interface IAddonStore extends IBaseStore {
+  ADD_PROPERTIES: false
+}
+
+export interface IUserStore extends IBaseStore {
+  ADD_PROPERTIES: true
+}
+
+export interface IGlobalStore extends IAddonStore {
   getDefaultLang(): string|null
   getLangFromUrl(href?: string): string|null
   getNodeFromPath(val: string): string
   isValidLang(code: string): boolean
   isCurrentLang(code: string): boolean
+}
+
+export interface IStoreData {
+  [ key: string ]: {
+    ref: Ref<any>
+    observer: IWatchDefintion[]
+  }
 }
 
 export interface IApiAddon {
@@ -33,7 +51,7 @@ export interface IApiOptions {
   name?: string,
   host?: string,
   lang?: string,
-  addons?: IApiAddon[],
+  addons?: Function[],
   request?: IApiRequestOptions
 }
 
@@ -56,6 +74,21 @@ export interface IApiRequestOptions {
   set?: number
   order?: ApiOrder
   raw?: boolean
+}
+
+export type IWatchCallback = (newVal: any, oldVal?: any, playload?: any) => Promise<void>
+
+export type IWatchStop = () => void
+
+export interface IWatchOptions {
+  immediate?: boolean
+  payload?: any
+}
+
+export interface IWatchDefintion {
+  id: string
+  callback: Function
+  options: IWatchOptions
 }
 
 export type ApiMethods =

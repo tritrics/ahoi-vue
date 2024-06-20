@@ -107,7 +107,9 @@ class Request {
       APIVERSION,
       'info'
     )
+    console.log('request info', 'start')
     const res: JSONObject = await this.apiRequest(url)
+    console.log('request info', 'ready')
     return this.convertResponse(res)
   }
 
@@ -121,7 +123,9 @@ class Request {
       'language',
       lang
     )
+    console.log('request language', 'start', lang)
     const res: JSONObject = await this.apiRequest(url)
+    console.log('request language', 'ready', lang)
     return this.convertResponse(res)
   }
 
@@ -135,11 +139,13 @@ class Request {
       node,
       path
     )
+    console.log(isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'start', path)
     const data: IFormParams = {}
     if (count(this.fields) > 0) {
       data.fields = this.fields
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
+    console.log(isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'ready', path)
     return this.convertResponse(res)
   }
 
