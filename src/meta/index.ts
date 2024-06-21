@@ -5,20 +5,17 @@ import type { IApiAddon } from '../types'
 /**
  * Module's store
  */
-let store: IMetaStore
+const store: IMetaStore = new MetaStore()
 
  /**
  * Addon factory
  */
-export function createMeta(): Function {
-  return (): IApiAddon => {
-    store = new MetaStore()
-    return {
-      name: 'meta',
-      store,
-      export: {
-        store
-      }
+export function createMeta(): IApiAddon {
+  return {
+    name: 'meta',
+    store,
+    export: {
+      store
     }
   }
 }

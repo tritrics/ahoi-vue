@@ -1,19 +1,29 @@
-import type { Ref } from 'vue'
+import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
 import type { Object } from '../types'
 
 export interface IBaseStore {
   ADD_PROPERTIES: boolean
   get(key: string): any
   has(key: string): boolean
+  init(): Promise<void>
   is(key: string, val: any): boolean
   isNot(key: string, val: any): boolean
   isFalse(key: string): boolean
   isTrue(key: string): boolean
   isEmpty(key: string): boolean
   ref(key: string): Ref
-  set(key: string|Object, val?: any): void
+  set(key: string, val?: any): void
   stop(): void
-  watch(source: string|string[], callback: IWatchCallback, options?: IWatchOptions): Promise<IWatchStop>
+  watch<T>(keys: string|string[], callback: WatchCallback<T>, options?: WatchOptions): WatchStopHandle
+}
+
+export interface IStoreData {
+  [ key: string ]: IStoreDataValue
+}
+
+export interface IStoreDataValue {
+  ref: Ref,
+  watchstop: WatchStopHandle[]
 }
 
 export interface IAddonStore extends IBaseStore {
@@ -30,13 +40,6 @@ export interface IGlobalStore extends IAddonStore {
   getNodeFromPath(val: string): string
   isValidLang(code: string): boolean
   isCurrentLang(code: string): boolean
-}
-
-export interface IStoreData {
-  [ key: string ]: {
-    ref: Ref<any>
-    observer: IWatchDefintion[]
-  }
 }
 
 export interface IApiAddon {
@@ -74,21 +77,6 @@ export interface IApiRequestOptions {
   set?: number
   order?: ApiOrder
   raw?: boolean
-}
-
-export type IWatchCallback = (newVal: any, oldVal?: any, playload?: any) => Promise<void>
-
-export type IWatchStop = () => void
-
-export interface IWatchOptions {
-  immediate?: boolean
-  payload?: any
-}
-
-export interface IWatchDefintion {
-  id: string
-  callback: Function
-  options: IWatchOptions
 }
 
 export type ApiMethods =

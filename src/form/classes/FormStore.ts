@@ -34,20 +34,6 @@ class FormStore extends AddonStore implements IFormStore {
   }
 
   /**
-   * Overall valid flag
-   */
-  valid = computed<boolean>(() => {
-    let res: boolean = true
-    const fields = this.ref('fields')
-    each(fields.value, (field: IBaseModel) => {
-      if (!field.valid) {
-        res = false
-      }
-    })
-    return res
-  })
-
-  /**
    * Special getter for field values.
    */
   getFieldValues(): IFormParams {
@@ -59,43 +45,65 @@ class FormStore extends AddonStore implements IFormStore {
   }
 
   /**
-   * Setter.
+   * Reset form
    */
-  async set(key: string, val?: any): Promise<void> {
-    switch(key) {
-      case 'action':
-        if (isStr(val, 1)) {
-          super.set('action', val)
+  reset(): void {
+    const options = this.get('options')
+    super._set('processing', false)
+    this.set('immediate', false) // stop watching old fields
+    this.set('action', options.action)
+    this.set('lang', options.lang)
+    this.set('fields', options.fields)
+    this.set('immediate', options.immediate)
+  }
+
+  /**
+   * Setter for action
+   */
+  _setAction(val: any): void {
+    if (isStr(val, 1)) {
+      super._set('action', val)
+    }
+  }
+
+  /**
+   * Setter for fields
+   * Creates the field classes
+   */
+  _setFields(val: any): void {
+    if (isObj(val)) {
+      const fields: Object = {}
+      each(val, (def: Object, key: string) => {
+        const type = toKey(def.type) ?? 'base'
+        if (modelsMap[type] !== undefined) {
+          fields[key] = new modelsMap[type](def)
+        } else {
+          fields[key] = new BaseModel(def)
         }
-        break
-      case 'fields':
-        if (isObj(val)) {
-          const fields: Object = {}
-          each(val, (def: Object, key: string) => {
-            const type = toKey(def.type) ?? 'base'
-            if (modelsMap[type] !== undefined) {
-              fields[key] = new modelsMap[type](def)
-            } else {
-              fields[key] = new BaseModel(def)
-            }
-          })
-          super.set('fields', fields)
-        }
-        break
-      case 'lang':
-        if (isStr(val, 1)) {
-          super.set('lang', val)
-        }
-        break
-      case 'immediate':
-        if (isBool(val, false)) {
-          const immediate = toBool(val)
-          super.set('immediate', immediate)
-          each(this.get('fields'), (field: IBaseModel) => {
-            field.watch(immediate) // watch on/off
-          })
-        }
-        break
+      })
+      super._set('fields', fields)
+    }
+  }
+
+  /**
+   * Setter for lang
+   */
+  _setLang(val: any): void {
+    if (isStr(val, 1)) {
+      super._set('lang', val)
+    }
+  }
+
+  /**
+   * Setter for immediate flag
+   */
+  _setImmediate(val: any): void {
+    if (isBool(val, false)) {
+      const immediate = toBool(val)
+      super._set('immediate', immediate)
+      each(this.get('fields'), (field: IBaseModel) => {
+        field.watch(immediate) // watch on/off
+      })
     }
   }
 
@@ -114,24 +122,25 @@ class FormStore extends AddonStore implements IFormStore {
     if (isStr(lang, 1)) {
       options.lang = lang
     }
-    super.set('processing', true)
+    super._set('processing', true)
     const res = await postCreate(action, this.getFieldValues(), options)
-    super.set('processing', false)
+    super._set('processing', false)
     return res
   }
 
   /**
-   * Reset form
+   * Overall valid flag
    */
-  async reset(): Promise<void> {
-    const options = this.get('options')
-    super.set('processing', false)
-    this.set('immediate', false) // stop watching old fields
-    this.set('action', options.action)
-    this.set('lang', options.lang)
-    this.set('fields', options.fields)
-    this.set('immediate', options.immediate)
-  }
+  valid = computed<boolean>(() => {
+    let res: boolean = true
+    const fields = this.ref('fields')
+    each(fields.value, (field: IBaseModel) => {
+      if (!field.valid) {
+        res = false
+      }
+    })
+    return res
+  })
 
   /**
    * Validation of all fields and also switch the immediate setting

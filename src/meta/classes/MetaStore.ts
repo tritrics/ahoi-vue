@@ -1,5 +1,5 @@
-import { escape, isStr, isUrl, isEmpty, isNull, toStr } from '../../fn'
-import { UserStore, optionsStore } from '../../plugin'
+import { escape, upperFirst, isStr, isUrl, isEmpty, isNull, toStr, isFunc } from '../../fn'
+import { UserStore, optionsStore, globalStore } from '../../plugin'
 import type { IMetaStore } from '../../types'
 
 /**
@@ -18,70 +18,134 @@ class MetaStore extends UserStore implements IMetaStore {
       title: '',
       //url: ''
     })
+  }
+  
+  /**
+   * Initialization
+   */
+  async init(): Promise<void> {
 
     // get user-values from options
     this.set('brand', optionsStore.get('brand'))
     this.set('description', optionsStore.get('description'))
-    this.set('lang', optionsStore.get('lang'))
-    this.set('locale', optionsStore.get('locale'))
     this.set('image', optionsStore.get('image'))
     this.set('separator', optionsStore.get('separator'))
     this.set('title', optionsStore.get('title'))
 
-    // watch lang, locale
+    // watcher
+    globalStore.watch('lang', (newVal: string) => {
+      this._setLang(newVal)
+    }, { immediate: true })
+    globalStore.watch('locale', (newVal: string) => {
+      this._setLocale(newVal)
+    }, { immediate: true })
+    return Promise.resolve()
   }
 
   /**
-   * Setter
+   * Public setter
+   * Overwritten because of #writeMeta()
    */
-  async set(key: string, val?: any): Promise<void> {
-    if (!isStr(val) && !isNull(val)) {
-      return
-    }
-    val = toStr(val)
-    switch(key) {
-      case 'brand':
-        super.set('brand', val)
-        this.#writeMeta('og:site_name', val)
-        this.#writeTitle()
-        break
-      case 'description':
-        super.set('description', val)
-        this.#writeMeta('description', val)
-        this.#writeMeta('og:description', val)
-        this.#writeMeta('twitter:card', val)
-        break
-      case 'lang':
-        super.set('lang', val)
-        this.#writeLang()
-        break
-      case 'locale':
-        super.set('locale', val)
-        this.#writeMeta('og:locale', val)
-        break
-      case 'image':
-        super.set('image', val)
-        this.#writeMeta('og:image', val)
-        break
-      case 'separator':
-        super.set('separator', val)
-        this.#writeTitle()
-        break
-      case 'title':
-        super.set('title', val)
-        this.#writeTitle()
-        break
-      //case 'url':
-      //  if (isUrl(val) || isEmpty(val)) {
-      //    super.set('url', val)
-      //    this.#writeMeta('og:url', val)
-      //  }
-      //  break
-      default:
-        super.set(key, val)
+  set(key: string, val?: any): void {
+    if (isStr(key, 1)) {
+      const setter: string = `_set${upperFirst(key)}`
+      if (isFunc((<any>this)[setter])) {
+        (<any>this)[setter](val)
+      } else {
+        this._set(key, val)
         this.#writeMeta(key, val)
+      }
     }
   }
+
+  /**
+   * Setter for brand meta value
+   */
+  _setBrand(val: any): void {
+    if (isStr(val) || isNull(val)) {
+      val = toStr(val)
+      super._set('brand', val)
+      this.#writeMeta('og:site_name', val)
+      this.#writeTitle()
+    }
+  }
+
+  /**
+   * Setter for description meta value
+   */
+  _setDescription(val: any): void {
+    if (isStr(val) || isNull(val)) {
+      val = toStr(val)
+      super._set('description', val)
+      this.#writeMeta('description', val)
+      this.#writeMeta('og:description', val)
+      this.#writeMeta('twitter:card', val)
+    }
+  }
+
+  /**
+   * Setter for lang meta value
+   */
+  _setLang(val: any): void {
+    if (isStr(val) || isNull(val)) {
+      val = toStr(val)
+      super._set('lang', val)
+      this.#writeLang()
+    }
+  }
+
+  /**
+   * Setter for locale meta value
+   */
+  _setLocale(val: any): void {
+    if (isStr(val) || isNull(val)) {
+      val = toStr(val)
+      super._set('locale', val)
+      this.#writeMeta('og:locale', val)
+    }
+  }
+
+  /**
+   * Setter for image meta value
+   */
+  _setImage(val: any): void {
+    if (isUrl(val) || isNull(val)) {
+      val = toStr(val)
+      super._set('image', val)
+      this.#writeMeta('og:image', val)
+    }
+  }
+
+  /**
+   * Setter for title separator
+   */
+  _setSeparator(val: any): void {
+    if (isStr(val)) {
+      super._set('separator', val)
+      this.#writeTitle()
+    }
+  }
+
+  /**
+   * Setter for title meta value
+   */
+  _setTitle(val: any): void {
+    if (isStr(val) || isNull(val)) {
+      val = toStr(val)
+      super._set('title', val)
+      this.#writeTitle()
+    }
+  }
+
+  /**
+   * Setter for url meta value
+   */
+  //_setUrl(val: any): void {
+  //  if (isUrl(val) || isEmpty(val)) {
+  //    super._set('url', val)
+  //    this.#writeMeta('og:url', val)
+  //  }
+  //}
 
   /**
    * setting lang in <html>

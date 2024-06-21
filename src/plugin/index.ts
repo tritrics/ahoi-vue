@@ -37,7 +37,6 @@ export async function createApi(options: IApiOptions) {
   globalStore = new GlobalStore()
   stores('global', globalStore)
   const addons: IApiAddon[] = await loadAddons(addonFns)
-  console.log('load plugin')
   
   // register plugin
   return {

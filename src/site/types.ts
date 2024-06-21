@@ -50,9 +50,13 @@ export interface IThumbDimensions {
   height: number
 }
 
-export interface ISiteStore extends IAddonStore {}
+export interface ISiteStore extends IAddonStore {
+  load(lang: string): Promise<void>
+}
 
-export interface IPageStore extends IAddonStore {}
+export interface IPageStore extends IAddonStore {
+  load(lang: string): Promise<void>
+}
 
 export type ThumbCropOptions =
   | 'top-left'

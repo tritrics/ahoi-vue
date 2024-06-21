@@ -19,38 +19,33 @@ class PageStore extends AddonStore implements IPageStore {
   }
 
   /**
-   * Setter
+   * Request page
    */
-  async set(key: string, val?: any): Promise<void> {
-    switch(key) {
-      case 'node':
-        if (isStr(val) && this.isNot('node', val)) {
-          super.set('node', val)
-          await this.#setPage(val)
-        }
-        break
+  async load(node: string): Promise<void> {
+    if (!isStr(node, 1) || this.is('node', node)) {
+      return
     }
-  }
-
-  /**
-   * Request the page and set store values.
-   */
-  async #setPage(node: string): Promise<void> {
+    super._set('node', node)
     const json = await getPage(node, { raw: true })
     if (!isObj(json) || !json.ok) {
-      super.set('meta', {})
-      super.set('link', {})
-      super.set('fields', {})
+      super._set('meta', {})
+      super._set('link', {})
+      super._set('fields', {})
       return
     }
     if (inject('meta') && has(json.body.fields, 'title')) {
       stores('meta').set('title', json.body.fields.title.value)
     }
     const res: Object = convertResponse(json)
-    super.set('meta', res.meta)
-    super.set('link', res.link)
-    super.set('fields', res.fields)
+    super._set('meta', res.meta)
+    super._set('link', res.link)
+    super._set('fields', res.fields)
   }
+
+  /**
+   * Setter disabled
+   */
+  set(): void {}
 }
 
 export default PageStore

@@ -50,73 +50,6 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   }
 
   /**
-   * Setter
-   */
-  async set(key: string, val?: any): Promise<void> {
-    switch(key) {
-      case 'date':
-        if (isObj(val)) { // @TODO: check array entries
-          super.set('date', val)
-        }
-        break
-      case 'direction': {
-        const direction = toKey(val)
-        if (direction === 'ltr' || direction === 'rtl') {
-          super.set('direction', val)
-        }
-        break
-      }
-      case 'home':
-        if (isStr(val, 1)) {
-          super.set('home', `/${trim(val, '/')}`)
-        }
-        break
-      case 'host':
-        if (isUrl(val)) {
-          super.set('host', val)
-        }
-        break
-      case 'lang': {
-        const lang = toKey(val)
-        if (this.isValidLang(lang)) {
-          super.set('lang', lang)
-          this.set('locale', this.#langmap[lang].locale)
-          this.set('direction', this.#langmap[lang].direction)
-        }
-        break
-      }
-      case 'languages': {
-        const multilang: boolean = isArr(val) && count(val) > 0
-        const languages: Object = multilang ? val : {}
-        super.set('languages', languages)
-        super.set('multilang', multilang)
-        this.#initLanguages()
-        break
-      }
-      case 'locale':
-        if (isLocale(val, false)) {
-          super.set('locale', toLocale(val, '-'))
-        }
-        break
-      case 'nl2br':
-        if (isBool(val, false)) {
-          super.set('nl2br', toBool(val))
-        }
-        break
-      case 'router':
-        if (isBool(val, false)) {
-          super.set('router', toBool(val))
-        }
-        break
-      case 'time':
-        if (isArr(val)) { // @TODO: check array entries
-          super.set('time', val)
-        }
-        break
-    }
-  }
-
-  /**
    * Get default language.
    */
   getDefaultLang(): string|null {
@@ -181,7 +114,6 @@ class GlobalStore extends AddonStore implements IGlobalStore {
 
     // multilang, remove prefix from start and replace with lang
     const code: string = this.get('lang')
-    console.log('getNodeFromPath', code, val)
     path = path.replace(this.#langmap[code]['reg'], '/')
     return rtrim(`/${code}${path === '/' ? home : path}`, '/')
   }
@@ -201,13 +133,84 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   }
 
   /**
-   * Initializing languages, set langmap and langdetect
+   * Setter for date settings
+   * Options for printing out date values
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
    */
-  #initLanguages(): void {
+  _setDate(val: any): void {
+    if (isObj(val)) { // @TODO: check array entries
+      super._set('date', val)
+    }
+  }
+
+  /**
+   * Setter for language direction
+   * Reading direction of language
+   * ltr = left to right
+   * rtl = right to left
+   */
+  _setDirection(val: any): void {
+    const direction = toKey(val)
+    if (direction === 'ltr' || direction === 'rtl') {
+      super._set('direction', val)
+    }
+  }
+
+  /**
+   * Setter for home-slug
+   * The home-slug (not path) like optionally defined in Kirby's config.php.
+   * The href to homepage is '/' and this slug is needed to compute the
+   * corresponding node.
+   */
+  _setHome(val: any): void {
+    if (isStr(val, 1)) {
+      super._set('home', `/${trim(val, '/')}`)
+    }
+  }
+
+  /**
+   * Setter for host url
+   * The host url of the API, including path like
+   * https://domain.com/public-api
+   * but without version, which is automatically taken from ./index
+   */
+  _setHost(val: any): void {
+    if (isUrl(val)) {
+      super._set('host', val)
+    }
+  }
+
+  /**
+   * Setter for lang-code
+   * The language of the current page, used in <html lang="en">
+   * Empty on init, because it may be a non-multilang-site.
+   * Can only be set in a multilang-enviroment.
+   */
+  _setLang(val: any): void {
+    const lang = toKey(val)
+    if (this.isValidLang(lang)) {
+      this.set('locale', this.#langmap[lang].locale)
+      this.set('direction', this.#langmap[lang].direction)
+      super._set('lang', lang)
+    }
+  }
+
+  /**
+   * Setter for languages and multilang
+   * Languages: List with all available languages.
+   * { code: meta }
+   * Multilang: Flag to determine, if this is a multilanguage installation and
+   * langcode must be added to API requests.
+   */
+  _setLanguages(val: any): void {
+    const multilang: boolean = isArr(val) && count(val) > 0
+    const languages: Object[] = multilang ? val : {}
+    super._set('languages', languages)
+    super._set('multilang', multilang)
     this.#langmap = {}
     this.#langdetect = false
     const urls: string[] = []
-    each(this.get('languages'), (language: Object) => {
+    each(languages, (language: Object) => {
       const code = language.meta.code
       this.#langmap[code] = language.meta
 
@@ -224,6 +227,49 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       urls.push(`${language.meta.origin}${language.meta.slug}`)
     })
     this.#langdetect = count(urls) > 1 && count(urls) === count(unique(urls))
+  }
+
+  /**
+   * Setter for locale
+   * Locale in the format with -, used in <meta> and for printing
+   * out date, time and numbers.
+   */
+  _setLocale(val: any): void {
+    if (isLocale(val, false)) {
+      super._set('locale', toLocale(val, '-'))
+    }
+  }
+
+  /**
+   * Setter for nl2br
+   * Print textfields with linebreaks or <br />
+   */
+  _setNl2br(val: any): void {
+    if (isBool(val, false)) {
+      super._set('nl2br', toBool(val))
+    }
+  }
+
+  /**
+   * Setter for router
+   * Flag to determine, if component <router-link> should be used for
+   * intern links. Components itself check, if router is installed.
+   */
+  _setRouter(val: any): void {
+    if (isBool(val, false)) {
+      super._set('router', toBool(val))
+    }
+  }
+
+  /**
+   * Setter for time settings
+   * Options for printing out time values
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleTimeString
+   */
+  _setTime(val: any): void {
+    if (isArr(val)) { // @TODO: check array entries
+      super._set('time', val)
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { isObj, isStr } from '../../fn'
+import { isObj } from '../../fn'
 import { AddonStore, getPage, globalStore } from '../../plugin'
 import { convertResponse } from '../index'
 import type { Object, ISiteStore } from '../../types'
@@ -17,44 +17,45 @@ class SiteStore extends AddonStore implements ISiteStore {
       home: {},
       fields: {}
     })
+  }
 
-    globalStore.watch('lang', async (newVal) => {
-      this.set('lang', newVal)
+  /**
+   * Initialization
+   */
+  init(): Promise<void> {
+    globalStore.watch('lang', (newVal: string) => {
+      this.load(newVal)
     })
+    return this.load(globalStore.get('lang')) // don't use { immediate: true }, because we need the Promise here
   }
 
   /**
-   * Setter
+   * Request site.
    */
-  async set(key: string, val?: any): Promise<void> {
-    switch(key) {
-      case 'lang':
-        if (isStr(val) && this.isNot('lang', val)) {
-          super.set('lang', val)
-          await this.#setSite(val)
-        }
-        break
+  async load(lang: string): Promise<void> {
+    if (!globalStore.isValidLang(lang) || this.is('lang', lang)) {
+      return
     }
-  }
-
-  /**
-   * Request site, implicit done on init().
-   */
-  async #setSite(lang: string): Promise<void> {
+    super._set('lang', lang)
     const json = await getPage(lang, { raw: true })
     if (!isObj(json) || !json.ok) {
-      super.set('meta', {})
-      super.set('link', {})
-      super.set('home', {})
-      super.set('fields', {})
+      super._set('meta', {})
+      super._set('link', {})
+      super._set('home', {})
+      super._set('fields', {})
       return
     }
     const res: Object = convertResponse(json)
-    super.set('meta', res.meta)
-    super.set('link', res.link)
-    super.set('home', res.home)
-    super.set('fields', res.fields)
+    super._set('meta', res.meta)
+    super._set('link', res.link)
+    super._set('home', res.home)
+    super._set('fields', res.fields)
   }
+
+  /**
+   * Setter disabled
+   */
+  set(): void {}
 }
 
 export default SiteStore

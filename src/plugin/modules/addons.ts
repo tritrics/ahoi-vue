@@ -31,14 +31,8 @@ export function inject(addon: string, method: string|null = null, fnDefault: Fun
 /**
  * Load Addons
  */
-export async function loadAddons(addonFns: Function[]): Promise<IApiAddon[]> {
+export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
   const registered: IApiAddon[] = []
-
-  // call addon functions
-  let addons: IApiAddon[] = []
-  for (let i = 0; i < addonFns.length; i++) {
-    addons.push(addonFns[i]())
-  }
   addons = addons.flat()
 
   // register addons
@@ -46,21 +40,13 @@ export async function loadAddons(addonFns: Function[]): Promise<IApiAddon[]> {
     if ( !isObj(addons[i]) || !has(addons[i], 'name')) {
       continue
     }
-    registered.push(addons[i])
     const key: string = addons[i].name
     if (!inArr(key, registeredAddons)) {
+      registered.push(addons[i])
       registeredAddons.push(key)
       if (isObj(addons[i].export)) {
         registeredMethods[key] = addons[i].export as Object
       }
-    }
-    console.log('registered', key)
-  }
-
-  // init functions
-  for (let i = 0; i < registered.length; i++) {
-    if (isFunc(registered[i].init)) {
-      await registered[i].init!()
     }
   }
 
@@ -70,5 +56,28 @@ export async function loadAddons(addonFns: Function[]): Promise<IApiAddon[]> {
       stores(registered[i].name, registered[i].store)
     }
   }
-  return registered
+
+  // init functions
+  return Promise.resolve()
+    .then(() => {
+      const promises: Promise<void>[] = []
+      for (let i = 0; i < registered.length; i++) {
+        if (isFunc(registered[i].init)) {
+          promises.push(registered[i].init!())
+        }
+      }
+      return Promise.all(promises)
+    })
+    .then(() => {
+      const promises: Promise<void>[] = []
+      for (let i = 0; i < registered.length; i++) {
+        if (has(registered[i], 'store')) {
+          promises.push(registered[i].store!.init())
+        }
+      }
+      return Promise.all(promises)
+    })
+    .then(() => {
+      return registered
+    })
 }

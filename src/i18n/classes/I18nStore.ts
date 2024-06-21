@@ -1,4 +1,4 @@
-import { isObj, isStr } from '../../fn'
+import { isObj } from '../../fn'
 import { AddonStore, getLanguage, inject, globalStore } from '../../plugin'
 import type { II18nStore } from '../types'
 import type { JSONObject } from '../../types'
@@ -13,41 +13,44 @@ class I18nStore extends AddonStore implements II18nStore {
       lang: '',
       terms: {}
     })
-
-    // watch lang
+  }
+  
+  /**
+   * Initialization
+   */
+  init(): Promise<void> {
+    globalStore.watch('lang', (newVal: string) => {
+      this.load(newVal)
+    })
+    return this.load(globalStore.get('lang')) // don't use { immediate: true }, because we need the Promise here
   }
 
   /**
-   * Setter
+   * Request terms
    */
-  async set(key: string, val?: any): Promise<void> {
-    switch(key) {
-      case 'lang':
-        if (isStr(val) && this.isNot('lang', val)) {
-          super.set('lang', val)
-          await this.#setTerms(val)
-        }
-        break
+  async load(lang: string): Promise<void> {
+    if (!globalStore.isValidLang(lang) || this.is('lang', lang)) {
+      return
     }
-  }
-
-  /**
-   * Selecting terms of a language.
-   */
-  async #setTerms(code: string): Promise<undefined> {
-    const json: JSONObject = await getLanguage(code, { raw: true })
+    super._set('lang', lang)
+    const json: JSONObject = await getLanguage(lang, { raw: true })
     if (!isObj(json) || !json.ok) {
-      super.set('terms', {})
+      super._set('terms', {})
       return
     }
     if (inject('site')) {
       const convertResponse = inject('site', 'convertResponse') as Function
       const res = convertResponse(json)
-      super.set('terms', res.terms)
+      super._set('terms', res.terms)
     } else {
-      super.set('terms', json.body.terms)
+      super._set('terms', json.body.terms)
     }
   }
+
+  /**
+   * Setter disabled
+   */
+  set(): void {}
 }
 
 export default I18nStore

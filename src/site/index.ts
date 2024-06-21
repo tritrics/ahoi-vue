@@ -14,35 +14,33 @@ import type { IApiAddon, ISiteStore, IPageStore } from '../types'
 /**
  * Site store
  */
-let siteStore: ISiteStore
+const siteStore: ISiteStore = new SiteStore()
 
 /**
  * Page store
  */
-let pageStore: IPageStore
+const pageStore: IPageStore = new PageStore()
 
 /**
  * Setup
  */
 async function init(): Promise<void> {
-  // requesting info
-  const json = await getInfo({ raw: true })
-  if (!isObj(json) || !json.ok) {
-    return
-  }
-
-  // setting languages
-  if(json.body.meta.multilang) {
-    globalStore.set('languages', json.body.languages ?? [])
-  }
-
-  // setting other infos
-  globalStore.set('home', json.body.meta.home)
-
-  // if multilang: detect and select language
-  if (globalStore.isTrue('multilang')) {
-    await globalStore.set('lang', detectLanguage())
-  }
+  return Promise.resolve()
+    .then(() => {
+      return getInfo({ raw: true })
+    })
+    .then((json) => {
+      if (!isObj(json) || !json.ok) {
+        return
+      }
+      if(json.body.meta.multilang) {
+        globalStore.set('languages', json.body.languages ?? [])
+      }
+      globalStore.set('home', json.body.meta.home)
+      if (globalStore.isTrue('multilang')) {
+        globalStore.set('lang', detectLanguage())
+      }
+    })
 }
 
 /**
@@ -77,40 +75,32 @@ function detectLanguage(): string|null {
 /**
  * Addon factory, returns site and page
  */
-export function createSite(): Function {
-  return (): IApiAddon[] => {
-    siteStore = new SiteStore()
-    pageStore = new PageStore()
-    return [{
-      name: 'site',
+export function createSite(): IApiAddon[] {
+  return [{
+    name: 'site',
+    store: siteStore,
+    components: {
+      'AhoiHtml': AhoiHtml,
+      'AhoiLink': AhoiLink,
+      'AhoiThumb': AhoiThumb,
+      'AhoiLangSwitch': AhoiLangSwitch,
+    },
+    export: {
       store: siteStore,
-      components: {
-        'AhoiHtml': AhoiHtml,
-        'AhoiLink': AhoiLink,
-        'AhoiThumb': AhoiThumb,
-        'AhoiLangSwitch': AhoiLangSwitch,
-      },
-      export: {
-        store: siteStore,
-        createThumb,
-        convertResponse
-      },
-      init: async (): Promise<void> => {
-        console.log('site addon init', 'start')
-        await init()
-        console.log('site addon init', 'ready')
-      },
-    }, {
-      name: 'page',
+      createThumb,
+      convertResponse
+    },
+    init
+  }, {
+    name: 'page',
+    store: pageStore,
+    export: {
       store: pageStore,
-      export: {
-        store: pageStore,
-      }
-    }]
-  }
+    }
+  }]
 }
 
 /**
  * Export module
  */
-export { siteStore, pageStore, parse, createThumb, convertResponse, Thumb }
+export { siteStore, pageStore, Thumb, parse, createThumb, convertResponse, detectLanguage }

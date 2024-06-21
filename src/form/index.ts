@@ -28,13 +28,11 @@ function forms(mixed: string|IFormOptions, options?: IFormOptions): IFormStore {
 /**
  * Addon factory
  */
-export function createForm(): Function {
-  return (): IApiAddon => {
-    return {
-      name: 'form',
-      export: {
-        forms,
-      }
+export function createForm(): IApiAddon {
+  return {
+    name: 'form',
+    export: {
+      forms,
     }
   }
 }
