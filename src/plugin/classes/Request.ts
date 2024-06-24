@@ -98,6 +98,13 @@ class Request {
     return true
   }
 
+  get id(): string|null {
+    if (isStr(this._options.id, 1)) {
+      return this._options.id
+    }
+    return null
+  }
+
   /**
    * Call API interface /info.
    */
@@ -124,7 +131,11 @@ class Request {
       lang
     )
     console.log('request language', 'start', lang)
-    const res: JSONObject = await this.apiRequest(url)
+    const data: IFormParams = {}
+    if (this.id) {
+      data.id = this.id
+    }
+    const res: JSONObject = await this.apiRequest(url, 'GET', data)
     console.log('request language', 'ready', lang)
     return this.convertResponse(res)
   }
@@ -143,6 +154,9 @@ class Request {
     const data: IFormParams = {}
     if (count(this.fields) > 0) {
       data.fields = this.fields
+    }
+    if (this.id) {
+      data.id = this.id
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
     console.log(isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'ready', path)
@@ -166,6 +180,9 @@ class Request {
     }
     if (count(this.fields) > 0) {
       data.fields = this.fields
+    }
+    if (this.id) {
+      data.id = this.id
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
     return this.convertResponse(res)
@@ -259,7 +276,7 @@ class Request {
       mode: 'cors',
       cache:'no-cache',
     }
-    if (isObj(data)) {
+    if (isObj(data) && count(data) > 0) {
       if (method === 'GET') {
         url = `${url}${objToParam(data)}`
       } else {

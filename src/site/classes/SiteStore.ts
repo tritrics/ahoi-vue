@@ -1,4 +1,4 @@
-import { isObj } from '../../fn'
+import { uuid, isObj } from '../../fn'
 import { AddonStore, getPage, globalStore } from '../../plugin'
 import { convertResponse } from '../index'
 import type { Object, ISiteStore } from '../../types'
@@ -7,6 +7,11 @@ import type { Object, ISiteStore } from '../../types'
  * Store with plugin and addons options.
  */
 class SiteStore extends AddonStore implements ISiteStore {
+
+  /**
+   * Avoid race conditions
+   */
+  #requestid: string = ''
 
   /** */
   constructor() {
@@ -36,9 +41,13 @@ class SiteStore extends AddonStore implements ISiteStore {
     if (!globalStore.isValidLang(lang) || this.is('lang', lang)) {
       return
     }
-    super._set('lang', lang)
-    const json = await getPage(lang, { raw: true })
+    this.#requestid = uuid()
+    const json = await getPage(lang, { raw: true, id: this.#requestid })
+    if (json.id !== this.#requestid) {
+      return
+    }
     if (!isObj(json) || !json.ok) {
+      super._set('lang', '')
       super._set('meta', {})
       super._set('link', {})
       super._set('home', {})
@@ -46,6 +55,7 @@ class SiteStore extends AddonStore implements ISiteStore {
       return
     }
     const res: Object = convertResponse(json)
+    super._set('lang', lang)
     super._set('meta', res.meta)
     super._set('link', res.link)
     super._set('home', res.home)

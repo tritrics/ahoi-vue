@@ -58,17 +58,6 @@ export interface IApiOptions {
   request?: IApiRequestOptions
 }
 
-export interface IApiRequestOptionsAll {
-  host: string|null
-  lang: string|null
-  fields: string[]
-  limit: number
-  set: number
-  order: ApiOrder
-  raw: boolean
-  multilang: boolean
-}
-
 export interface IApiRequestOptions {
   host?: string|null
   lang?: string|null
@@ -77,6 +66,7 @@ export interface IApiRequestOptions {
   set?: number
   order?: ApiOrder
   raw?: boolean
+  id?: string
 }
 
 export type ApiMethods =
