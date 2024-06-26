@@ -1,6 +1,6 @@
 import { has, isFunc, inArr, isObj, isStr } from '../../fn'
 import { stores } from './stores'
-import type { Object, IApiAddon } from '../../types'
+import type { Object, IApiAddon, IBaseStore } from '../../types'
 
 /**
  * Registered plugins as given with createApi(options)
@@ -11,16 +11,16 @@ const registeredAddons: string[] = []
 /**
  * Vue's inject can't be used outside components, so we build our own
  */
-const registeredMethods: { [ key: string ]: Object } = {}
+const registeredExports: { [ key: string ]: Object } = {}
 
 /**
  * Inject a method from other addon.
  * If not method is given, the function returnes the existance of the addon as boolean.
  */
-export function inject(addon: string, method: string|null = null, fnDefault: Function = () => {}): Function|boolean {
+export function inject(addon: string, method: string|null = null, fnDefault: Function = () => {}): Function|IBaseStore|boolean {
   if (isStr(method, 1)) {
-    if (has(registeredMethods, addon, method)) {
-      return registeredMethods[addon][method]
+    if (has(registeredExports, addon, method)) {
+      return registeredExports[addon][method]
     } else {
       return fnDefault
     }
@@ -45,7 +45,7 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
       registered.push(addons[i])
       registeredAddons.push(key)
       if (isObj(addons[i].export)) {
-        registeredMethods[key] = addons[i].export as Object
+        registeredExports[key] = addons[i].export as Object
       }
     }
   }

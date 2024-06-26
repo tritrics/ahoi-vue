@@ -25,16 +25,6 @@ class SiteStore extends AddonStore implements ISiteStore {
   }
 
   /**
-   * Initialization
-   */
-  init(): Promise<void> {
-    globalStore.watch('lang', (newVal: string) => {
-      this.load(newVal)
-    })
-    return this.load(globalStore.get('lang')) // don't use { immediate: true }, because we need the Promise here
-  }
-
-  /**
    * Request site.
    */
   async load(lang: string): Promise<void> {

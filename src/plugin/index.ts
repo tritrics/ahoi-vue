@@ -30,6 +30,7 @@ let globalStore: IGlobalStore
  * Plugin factory
  */
 export async function createApi(options: IApiOptions) {
+  window.log = () => {}
   const addonFns: Function[] = options.addons ?? []
   unset(options, 'addons')
   optionsStore = new AddonStore(options)

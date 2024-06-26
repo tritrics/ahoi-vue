@@ -26,11 +26,11 @@ class MetaStore extends UserStore implements IMetaStore {
   async init(): Promise<void> {
 
     // get user-values from options
-    this.set('brand', optionsStore.get('brand'))
-    this.set('description', optionsStore.get('description'))
-    this.set('image', optionsStore.get('image'))
-    this.set('separator', optionsStore.get('separator'))
-    this.set('title', optionsStore.get('title'))
+    this._setBrand(optionsStore.get('brand'))
+    this._setDescription(optionsStore.get('description'))
+    this._setImage(optionsStore.get('image'))
+    this._setSeparator(optionsStore.get('separator'))
+    this._setTitle(optionsStore.get('title'))
 
     // watcher
     globalStore.watch('lang', (newVal: string) => {

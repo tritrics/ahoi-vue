@@ -19,16 +19,6 @@ class I18nStore extends AddonStore implements II18nStore {
       terms: {}
     })
   }
-  
-  /**
-   * Initialization
-   */
-  init(): Promise<void> {
-    globalStore.watch('lang', (newVal: string) => {
-      this.load(newVal)
-    })
-    return this.load(globalStore.get('lang')) // don't use { immediate: true }, because we need the Promise here
-  }
 
   /**
    * Request terms

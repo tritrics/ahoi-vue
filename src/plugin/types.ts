@@ -35,11 +35,12 @@ export interface IUserStore extends IBaseStore {
 }
 
 export interface IGlobalStore extends IAddonStore {
-  getDefaultLang(): string|null
-  getLangFromUrl(href?: string): string|null
   getNodeFromPath(val: string): string
-  isValidLang(code: string): boolean
+  getHomeSlug(code?: string): string
+  isValidLang(code: string|undefined): boolean
   isCurrentLang(code: string): boolean
+  setLangFromDetected(): Promise<void>
+  setLangFromUrl(url?: string): Promise<void>
 }
 
 export interface IApiAddon {

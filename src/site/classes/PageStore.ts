@@ -25,6 +25,7 @@ class PageStore extends AddonStore implements IPageStore {
 
   /**
    * Request page
+   * mixed can be path or router object "to"
    */
   async load(node: string): Promise<void> {
     if (!isStr(node, 1) || this.is('node', node)) {
@@ -40,7 +41,7 @@ class PageStore extends AddonStore implements IPageStore {
       super._set('meta', {})
       super._set('link', {})
       super._set('fields', {})
-      return
+      return Promise.reject()
     }
     if (inject('meta') && has(json.body.fields, 'title')) {
       stores('meta').set('title', json.body.fields.title.value)

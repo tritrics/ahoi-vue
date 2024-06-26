@@ -1,18 +1,12 @@
-import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isLocale, toBool, isTrue, toLocale, toKey } from '../../fn'
+import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../fn'
 import AddonStore from './AddonStore'
-import { optionsStore } from '../index'
-import type { Object, IGlobalStore } from '../../types'
+import { optionsStore, inject } from '../index'
+import type { Object, IGlobalStore, II18nStore, ISiteStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
 class GlobalStore extends AddonStore implements IGlobalStore {
-
-  /**
-   * Flag, if language detection from url is possible. This is the case,
-   * when origin + slug of all languages i unique.
-   */
-  #langdetect: boolean = false
 
   /**
    * Intern lookup map with meta-values of languages
@@ -26,77 +20,37 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   constructor() {
     super({
       date: { year: 'numeric', month: 'numeric', day: 'numeric' },
+      detected: false, // lang detected 
       direction: 'ltr',
       home: '/home',
       host: '',
       lang: '',
+      langDefault: '',
       languages: [],
       locale: 'en-EN',
-      multilang: false,
+      multilang: false, // autoset with languages
       nl2br: false,
       router: true,
       time: { hour: '2-digit', minute: '2-digit' }
     })
 
     // get user-values from options
-    this.set('date', optionsStore.get('date'))
-    this.set('direction', optionsStore.get('direction'))
-    this.set('home', optionsStore.get('home'))
-    this.set('host', optionsStore.get('host'))
-    this.set('locale', optionsStore.get('locale'))
-    this.set('nl2br', optionsStore.get('nl2br'))
-    this.set('router', optionsStore.get('router'))
-    this.set('time', optionsStore.get('time'))
-  }
-
-  /**
-   * Get default language.
-   */
-  getDefaultLang(): string|null {
-    if (this.isFalse('multilang')) {
-      return optionsStore.get('lang')
-    }
-    for(const code in this.#langmap) {
-      if (isTrue(this.#langmap[code].default)) {
-        return code
-      }
-    }
-    return Object.keys(this.#langmap).shift() as string
-  }
-
-  /**
-   * Detect language from url
-   */
-  getLangFromUrl(href?: string): string|null {
-    if (!this.#langdetect) {
-      return null
-    }
-    let res: string|null = null
-    const url = new URL(href ?? window.location.href)
-    for(const code in this.#langmap) {
-      if (!this.#langmap[code]['reg'].test(url.pathname)) {
-        continue
-      }
-      if (isStr(this.#langmap[code].origin, 1)) {
-        if (this.#langmap[code].origin === lower(url.origin)) {
-          return code
-        } else if (isStr(this.#langmap[code].slug, 1)) {
-          return code
-        }
-      } else {
-        if (isStr(this.#langmap[code].slug, 1)) {
-          return code
-        }
-        res = code
-      }
-    }
-    return res
+    this._setDate(optionsStore.get('date'))
+    this._setDirection(optionsStore.get('direction'))
+    this._setHome(optionsStore.get('home'))
+    this._setHost(optionsStore.get('host'))
+    this._setDetected(optionsStore.get('lang'))
+    this._setLocale(optionsStore.get('locale'))
+    this._setNl2br(optionsStore.get('nl2br'))
+    this._setRouter(optionsStore.get('router'))
+    this._setTime(optionsStore.get('time'))
   }
 
   /**
    * In a multilang enviroment, the path of a page may be different from
    * the node, due to Kirby's language setting "url". Here we replace or
    * prepend the language slug to the beginning of the path.
+   * (Language must be set before.)
    */
   getNodeFromPath(val: string): string {
 
@@ -119,10 +73,34 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   }
 
   /**
+   * Get the home slug for a given, selected or detected language.
+   */
+  getHomeSlug(code?: string): string {
+    if (this.isFalse('multilang')) {
+      return ''
+    }
+    if (isStr(code, 1)) {
+      return this.isValidLang(code) ? this.#langmap[code].slug : ''
+    }
+    const selected = this.get('lang')
+    if (this.isValidLang(selected)) {
+      return this.#langmap[selected].slug
+    }
+    const detected = this.get('detected')
+    if (this.isValidLang(detected)) {
+      return this.#langmap[detected].slug
+    }
+    return ''
+  }
+
+  /**
    * Check, if the given language is valid.
    */
-  isValidLang(code: string): boolean {
-    return isStr(code, 1) && this.isTrue('multilang') && has(this.#langmap, code)
+  isValidLang(code: string|undefined): boolean {
+    if (this.isFalse('multilang')) {
+      return code === ''
+    }
+    return isStr(code, 1) && has(this.#langmap, code)
   }
 
   /**
@@ -130,6 +108,61 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   isCurrentLang(code: string): boolean {
     return isStr(code, 1) && this.is('lang', code)
+  }
+
+  /**
+   * Setting lang from detected lang.
+   */
+  async setLangFromDetected(): Promise<void> {
+    if (this.isTrue('multilang')) {
+      await this._setLang(this.get('detected'))
+    }
+  }
+
+  /**
+   * Detect and set language from url. Sets detected lang, if
+   * url detection fails and no lang was set before.
+   */
+  async setLangFromUrl(url?: string): Promise<void> {
+    if (this.isTrue('multilang')) {
+      if (this.isTrue('langdetect')) {
+        const code = this._getLangFromUrl(url ?? window.location.href)
+        if (this.isValidLang(code) && this.isNot('lang', code)) {
+          log('>', 'set lang', code)
+          await this._setLang(code)
+          log('<', 'set lang', code)
+        }
+      }
+      if (!this.isValidLang(this.get('lang'))) {
+        await this.setLangFromDetected()
+      }
+    }
+  }
+
+  /**
+   * Detect language from url
+   */
+  _getLangFromUrl(href: string): string {
+    let res: string = ''
+    const url = new URL(`${rtrim(href, '/')}/`)
+    for(const code in this.#langmap) {
+      if (!this.#langmap[code]['reg'].test(url.pathname)) {
+        continue
+      }
+      if (isStr(this.#langmap[code].origin, 1)) {
+        if (this.#langmap[code].origin === lower(url.origin)) {
+          return code
+        } else if (isStr(this.#langmap[code].slug, 1)) {
+          return code
+        }
+      } else {
+        if (isStr(this.#langmap[code].slug, 1)) {
+          return code
+        }
+        res = code
+      }
+    }
+    return res
   }
 
   /**
@@ -141,6 +174,45 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     if (isObj(val)) { // @TODO: check array entries
       super._set('date', val)
     }
+  }
+
+  /**
+   * Default language is the best language computed from user-option,
+   * browser language and default language. Can differ from lang, which
+   * may change in runtime.
+   */
+  _setDetected(val: any): void {
+
+    // 1. from given (user-option)
+    const userLang: string = toKey(val)
+    if (this.isValidLang(userLang)) {
+      super._set('detected', userLang)
+      return
+    }
+
+    // 2. from browser
+    for (let i = 0; i < navigator.languages.length; i++) {
+      const navLang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
+      if (!isUndef(navLang) && this.isValidLang(navLang)) {
+        super._set('detected', navLang)
+        return
+      }
+    }
+    
+    if (this.isFalse('multilang')) {
+      return
+    }
+
+    // 3. default lang like defined in Kirby
+    for(const lang in this.#langmap) {
+      if (isTrue(this.#langmap[lang].default)) {
+        super._set('detected', lang)
+        return
+      }
+    }
+
+    // 4. first lang
+    super._set('detected', Object.keys(this.#langmap).shift())
   }
 
   /**
@@ -182,17 +254,26 @@ class GlobalStore extends AddonStore implements IGlobalStore {
 
   /**
    * Setter for lang-code
-   * The language of the current page, used in <html lang="en">
-   * Empty on init, because it may be a non-multilang-site.
-   * Can only be set in a multilang-enviroment.
+   * Can only be set in a multilang-enviroment. In a singlelang-enviroment the
+   * lang code remains an empty string.
    */
-  _setLang(val: any): void {
+  async _setLang(val: any): Promise<void> {
     const lang = toKey(val)
-    if (this.isValidLang(lang)) {
-      this.set('locale', this.#langmap[lang].locale)
-      this.set('direction', this.#langmap[lang].direction)
+    const promises: Promise<void>[] = []
+    if (this.isNot('lang', lang) && this.isTrue('multilang') && this.isValidLang(lang)) {
+      this._setLocale(this.#langmap[lang].locale)
+      this._setDirection(this.#langmap[lang].direction)
       super._set('lang', lang)
+      if (inject('site')) {
+        const siteStore = inject('site', 'store') as ISiteStore
+        promises.push(siteStore.load(lang))
+      }
+      if (inject('i18n')) {
+        const i18nStore = inject('i18n', 'store') as II18nStore
+        promises.push(i18nStore.load(lang))
+      }
     }
+    await Promise.all(promises)
   }
 
   /**
@@ -208,10 +289,9 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     super._set('languages', languages)
     super._set('multilang', multilang)
     this.#langmap = {}
-    this.#langdetect = false
     const urls: string[] = []
     each(languages, (language: Object) => {
-      const code = language.meta.code
+      const code = toKey(language.meta.code)
       this.#langmap[code] = language.meta
 
       // normalize values
@@ -226,7 +306,8 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       // language detection.
       urls.push(`${language.meta.origin}${language.meta.slug}`)
     })
-    this.#langdetect = count(urls) > 1 && count(urls) === count(unique(urls))
+    super._set('langdetect', count(urls) > 1 && count(urls) === count(unique(urls)))
+    this._setDetected(optionsStore.get('lang'))
   }
 
   /**

@@ -27,10 +27,10 @@ class FormStore extends AddonStore implements IFormStore {
       immediate: false,
       processing: false,
     })
-    this.set('action', options.action)
-    this.set('lang', options.lang)
-    this.set('fields', options.fields)
-    this.set('immediate', options.immediate)
+    this._setAction(options.action)
+    this._setLang(options.lang)
+    this._setFields(options.fields)
+    this._setImmediate(options.immediate)
   }
 
   /**
@@ -50,11 +50,11 @@ class FormStore extends AddonStore implements IFormStore {
   reset(): void {
     const options = this.get('options')
     super._set('processing', false)
-    this.set('immediate', false) // stop watching old fields
-    this.set('action', options.action)
-    this.set('lang', options.lang)
-    this.set('fields', options.fields)
-    this.set('immediate', options.immediate)
+    this._setImmediate(false) // stop watching old fields
+    this._setAction(options.action)
+    this._setLang(options.lang)
+    this._setFields(options.fields)
+    this._setImmediate(options.immediate)
   }
 
   /**
@@ -149,7 +149,7 @@ class FormStore extends AddonStore implements IFormStore {
     each(this.get('fields'), (field: IBaseModel) => {
       field.validate()
     })
-    this.set('immediate', immediate)
+    this._setImmediate(immediate)
   }
 }
 
