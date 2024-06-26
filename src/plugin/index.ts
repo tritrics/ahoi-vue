@@ -1,4 +1,4 @@
-import { unset, each } from '../fn'
+import { unset, each, isTrue } from '../fn'
 import AddonStore from './classes/AddonStore'
 import BaseStore from './classes/BaseStore'
 import UserStore from './classes/UserStore'
@@ -26,12 +26,39 @@ let optionsStore: IAddonStore
  */
 let globalStore: IGlobalStore
 
+/**
+ * Logging
+ */
+let logLevel: number = 0
+
+/**
+ * Provide a simple logging function to display async start/stop overview.
+ * log('>', [start message])
+ * log('<', [end message])
+ * Disabled in production.
+ */
+function log(...args: any) {
+  if (logLevel === -1) {
+    return
+  }
+  const start: boolean = args[0] === '>'
+  if (args[0] === '<') {
+    logLevel = logLevel > 0 ? logLevel - 1 : logLevel
+  }
+  console.log(' |'.repeat(logLevel), ...args)
+  if (start) {
+    logLevel++
+  }
+}
+
 /** 
  * Plugin factory
  */
 export async function createApi(options: IApiOptions) {
-  window.log = () => {}
-  const addonFns: Function[] = options.addons ?? []
+  logLevel = isTrue(options.debug, false) && !import.meta.env.PROD ? 0 : -1
+  window.log = log
+  log('––––––––– AHOI PLUGIN INSTALLED –––––––––')
+  const addonFns: IApiAddon[] = options.addons ?? []
   unset(options, 'addons')
   optionsStore = new AddonStore(options)
   stores('options', optionsStore)

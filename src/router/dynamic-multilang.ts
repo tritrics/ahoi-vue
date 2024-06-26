@@ -56,12 +56,14 @@ export function createRouter(
 
   // Navigation guards (don't use beforeResolve())
   router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    log('>', 'route beforeEach')
 
     // redirect to home
     if (to.name === 'api') {
       if (to.path === '/' || to.path === '') {
         const home = globalStore.getHomeSlug()
         if (isStr(home, 1)) {
+          log('<', 'route beforeEach')
           return next(home)
         }
       }
@@ -74,8 +76,10 @@ export function createRouter(
         const node = globalStore.getNodeFromPath(to.path)
         await pageStore.load(node)
       }
+      log('<', 'route beforeEach')
       return next()
     } catch (error) {
+      log('<', 'route beforeEach')
       return next(options.error)
     }
   })

@@ -1,5 +1,5 @@
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
-import type { Object } from '../types'
+import type { Object, DateTimeFormat } from '../types'
 
 export interface IBaseStore {
   ADD_PROPERTIES: boolean
@@ -52,11 +52,22 @@ export interface IApiAddon {
 }
 
 export interface IApiOptions {
-  name?: string,
-  host?: string,
-  lang?: string,
-  addons?: Function[],
-  request?: IApiRequestOptions
+  host: string
+  lang?: string
+  langdetect?: boolean
+  locale?: string
+  debug?: boolean
+  direction?: 'ltr' | 'rtl'
+  nl2br?: boolean
+  router?: boolean
+  date?: DateTimeFormat
+  time?: DateTimeFormat
+  brand?: string
+  title?: string
+  keywords?: string
+  description?: string
+  image?: string
+  addons?: IApiAddon[]
 }
 
 export interface IApiRequestOptions {
