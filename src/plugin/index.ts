@@ -38,17 +38,16 @@ let logLevel: number = 0
  * Disabled in production.
  */
 function log(...args: any) {
-  if (logLevel === -1) {
-    return
-  }
-  const start: boolean = args[0] === '>'
+  if (logLevel < 0) return
+  const add: number = args[0] === '>' ? 1 : 0
   if (args[0] === '<') {
     logLevel = logLevel > 0 ? logLevel - 1 : logLevel
   }
-  console.log(' |'.repeat(logLevel), ...args)
-  if (start) {
-    logLevel++
+  if (logLevel > 0) {
+    args.unshift('|' + ' |'.repeat(logLevel-1))
   }
+  console.log(...args)
+  logLevel = logLevel + add
 }
 
 /** 
@@ -57,7 +56,7 @@ function log(...args: any) {
 export async function createApi(options: IApiOptions) {
   logLevel = isTrue(options.debug, false) && !import.meta.env.PROD ? 0 : -1
   window.log = log
-  log('––––––––– AHOI PLUGIN INSTALLED –––––––––')
+  log(':: AHOI PLUGIN INSTALLED ::')
   const addonFns: IApiAddon[] = options.addons ?? []
   unset(options, 'addons')
   optionsStore = new AddonStore(options)
@@ -74,7 +73,6 @@ export async function createApi(options: IApiOptions) {
         VERSION,
         store: globalStore,
         options: optionsStore,
-        stores,
         call,
         getFile,
         getFiles,
@@ -82,7 +80,8 @@ export async function createApi(options: IApiOptions) {
         getLanguage,
         getPage,
         getPages,
-        postCreate
+        postCreate,
+        stores,
       }
       app.provide('api',  app.config.globalProperties['$api'])
       // app.provide('api.app', app)
@@ -101,11 +100,14 @@ export async function createApi(options: IApiOptions) {
  * Export module
  */
 export {
+  AddonStore,
+  BaseStore,
+  UserStore,
+  Request,
   APIVERSION,
   VERSION,
   globalStore,
   optionsStore,
-  stores,
   call,
   getFile,
   getFiles,
@@ -113,10 +115,7 @@ export {
   getLanguage,
   getPage,
   getPages,
+  inject,
   postCreate,
-  AddonStore,
-  BaseStore,
-  UserStore,
-  Request,
-  inject
+  stores,
 }
