@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { Request } from '../index'
 import type { IFormParams, IApiRequestOptions, ApiMethods, JSONObject } from '../../types'
 
@@ -30,6 +31,17 @@ export async function getFile(
   options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
   return await createRequest(options).getNode('file', path)
+}
+
+/**
+ * Shortcut to get only the fields of a page or site as ref()
+ */
+export async function getFieldsRef(
+  path: string|string[],
+  options: IApiRequestOptions = {}
+): Promise<JSONObject> {
+  const response = await createRequest(options).getNode('page', path)
+  return ref(response.fields ?? response.body.fields)
 }
 
 /**

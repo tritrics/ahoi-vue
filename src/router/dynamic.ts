@@ -1,9 +1,9 @@
 import { createRouter as createVueRouter } from 'vue-router'
-import { each, count, isObj, isStr, trim } from '../fn'
+import { each, count, has, isObj, isStr } from '../fn'
 import { globalStore } from '../plugin'
 import { pageStore } from '../site'
 import { getHistoryMode, getComponent } from './modules/helper'
-import type { Router, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
+import type { Router, RouteLocationNormalized } from 'vue-router'
 import type { IRouterRoutes, IRouterComponentsMap, IRouterOptions } from "../types"
 
 /**
@@ -27,60 +27,84 @@ export function createRouter(
   options: IRouterOptions
 ): Router {
 
+  const hasTemplate: boolean = has(options, 'template') && isStr(options.template, 1)
+
   // create basic router
   const router = createVueRouter({
     history: getHistoryMode(options.history),
     routes: []
   })
 
-  // add static routes
+  // add home route
+  router.addRoute({
+    path: '/',
+    name: 'home',
+    meta: { type: 'home' },
+    component: () => import(options.template as string),
+    children: []
+  })
+
+  // add optional static routes
   if (isObj(staticRoutes) && count(staticRoutes) > 0) {
     each(staticRoutes, (template: string, path: string) => {
       router.addRoute({
         path,
-        name: trim(path, '/').replace('/', '-'),
+        meta: { type: 'static' },
         component: () => import(template),
       })
     })
   }
 
-  // add dynamic api route
+  // add catch all route
   router.addRoute({
     path: '/:catchAll(.*)',
-    name: 'api',
-    component: () => {
-      const meta = pageStore.get('meta')
-      return getComponent(components, meta.blueprint ?? 'default')
-    }
+    meta: { type: 'catchall' },
+    component: () => import(getComponent(components, 'default'))
   })
 
   // Navigation guards (don't use beforeResolve())
-  router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    log('>', 'route beforeEach')
+  // router.beforeResolve((to, from) => {})
+  // router.afterEach((to, from) => {})
+  router.beforeEach(async (to: RouteLocationNormalized) => {
 
     // redirect to home
-    if (to.name === 'api') {
-      if (to.path === '/' || to.path === '') {
-        const home = globalStore.getHomeSlug()
-        if (isStr(home, 1)) {
-          log('<', 'route beforeEach')
-          return next(home)
-        }
+    if (to.meta.type === 'root') {
+      const home = globalStore.getHomeSlug()
+      if (isStr(home, 1)) {
+        return home
       }
     }
 
     // set lang and request page
     try {
       await globalStore.setLangFromUrl()
-      if (to.name === 'api') {
-        const node = globalStore.getNodeFromPath(to.path)
-        await pageStore.load(node)
+
+      // dynamic route allready added
+      if (to.meta.type === 'dynamic') {
+        await pageStore.load(to.path, true)
+        return
       }
-      log('<', 'route beforeEach')
-      return next()
-    } catch (error) {
-      log('<', 'route beforeEach')
-      return next(options.error)
+      // dynamic route missing -> add route and redirect
+      else if (to.meta.type === 'catchall') {
+        await pageStore.load(to.path, true)
+        const route = {
+          path: to.path,
+          meta: { type: 'dynamic' },
+          component: () => import(getComponent(components, pageStore.get('blueprint')))
+        }
+        if (hasTemplate) {
+          router.addRoute('home', route)
+        } else {
+          router.addRoute(route)
+        }
+        return to.fullPath
+      }
+    }
+    
+    // error in setting language or requesting page
+    catch (error) {
+      ahoi.error('error while resolving route', error)
+      return options.notfound
     }
   })
   return router

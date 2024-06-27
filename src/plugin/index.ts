@@ -5,7 +5,8 @@ import UserStore from './classes/UserStore'
 import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
-import { call, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
+import { activateLog } from './modules/debug'
+import { call, getFieldsRef, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
 import type { IApiOptions, IApiAddon, IGlobalStore, IAddonStore } from '../types'
@@ -26,37 +27,12 @@ let optionsStore: IAddonStore
  */
 let globalStore: IGlobalStore
 
-/**
- * Logging
- */
-let logLevel: number = 0
-
-/**
- * Provide a simple logging function to display async start/stop overview.
- * log('>', [start message])
- * log('<', [end message])
- * Disabled in production.
- */
-function log(...args: any) {
-  if (logLevel < 0) return
-  const add: number = args[0] === '>' ? 1 : 0
-  if (args[0] === '<') {
-    logLevel = logLevel > 0 ? logLevel - 1 : logLevel
-  }
-  if (logLevel > 0) {
-    args.unshift('|' + ' |'.repeat(logLevel-1))
-  }
-  console.log(...args)
-  logLevel = logLevel + add
-}
-
 /** 
  * Plugin factory
  */
 export async function createApi(options: IApiOptions) {
-  logLevel = isTrue(options.debug, false) && !import.meta.env.PROD ? 0 : -1
-  window.log = log
-  log(':: AHOI PLUGIN INSTALLED ::')
+  activateLog(isTrue(options.debug, false) && !import.meta.env.PROD)
+  ahoi.log(':: AHOI PLUGIN INSTALLED ::')
   const addonFns: IApiAddon[] = options.addons ?? []
   unset(options, 'addons')
   optionsStore = new AddonStore(options)
@@ -74,6 +50,7 @@ export async function createApi(options: IApiOptions) {
         store: globalStore,
         options: optionsStore,
         call,
+        getFieldsRef,
         getFile,
         getFiles,
         getInfo,
@@ -109,6 +86,7 @@ export {
   globalStore,
   optionsStore,
   call,
+  getFieldsRef,
   getFile,
   getFiles,
   getInfo,

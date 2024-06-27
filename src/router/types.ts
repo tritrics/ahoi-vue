@@ -9,5 +9,6 @@ export interface IRouterComponentsMap {
 
 export interface IRouterOptions {
   history?: 'hash' | 'web' | 'memory',
-  error: string
+  template?: string
+  notfound: string
 }

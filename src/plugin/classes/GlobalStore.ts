@@ -128,9 +128,9 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       if (this.isTrue('langdetect')) {
         const code = this._getLangFromUrl(url ?? window.location.href)
         if (this.isValidLang(code) && this.isNot('lang', code)) {
-          log('>', 'set lang', code)
+          ahoi.log('>', 'set lang', code)
           await this._setLang(code)
-          log('<', 'set lang', code)
+          ahoi.log('<', 'set lang', code)
         }
       }
       if (!this.isValidLang(this.get('lang'))) {

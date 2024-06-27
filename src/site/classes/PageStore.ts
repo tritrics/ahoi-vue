@@ -1,6 +1,6 @@
 import { has, uuid, isStr, isObj } from '../../fn'
 import { convertResponse } from '../index'
-import { inject, getPage, stores, AddonStore } from '../../plugin'
+import { inject, getPage, stores, globalStore, AddonStore } from '../../plugin'
 import type { Object, IPageStore } from '../../types'
 
 /**
@@ -17,6 +17,7 @@ class PageStore extends AddonStore implements IPageStore {
   constructor() {
     super({
       node: '',
+      blueprint: 'default',
       meta: {},
       link: {},
       fields: {}
@@ -25,9 +26,10 @@ class PageStore extends AddonStore implements IPageStore {
 
   /**
    * Request page
-   * mixed can be path or router object "to"
+   * mixed can be node or path
    */
-  async load(node: string): Promise<void> {
+  async load(mixed: string, isPath: boolean = false): Promise<void> {
+    const node = isPath ? globalStore.getNodeFromPath(mixed) : mixed
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
@@ -38,6 +40,7 @@ class PageStore extends AddonStore implements IPageStore {
     }
     if (!isObj(json) || !json.ok) {
       super._set('node', '')
+      super._set('blueprint', 'default')
       super._set('meta', {})
       super._set('link', {})
       super._set('fields', {})
@@ -48,6 +51,7 @@ class PageStore extends AddonStore implements IPageStore {
     }
     const res: Object = convertResponse(json)
     super._set('node', node)
+    super._set('blueprint', res.meta.blueprint ?? 'default')
     super._set('meta', res.meta)
     super._set('link', res.link)
     super._set('fields', res.fields)

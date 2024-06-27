@@ -13,6 +13,21 @@ export interface IsiteOptions {
 }
 
 /**
+ * Logging/Debuggin
+ */
+declare global {
+  interface IGlobalFunctions {
+    log: Function
+    warn: Function
+    error: Function
+  }
+  interface Window {
+    ahoi: IGlobalFunctions
+  }
+  const ahoi: IGlobalFunctions
+}
+
+/**
  * Image / Thumb
  */
 export interface IThumbModel {
@@ -55,7 +70,7 @@ export interface ISiteStore extends IAddonStore {
 }
 
 export interface IPageStore extends IAddonStore {
-  load(lang: string): Promise<void>
+  load(mixed: string, isPath: boolean): Promise<void>
 }
 
 export type ThumbCropOptions =

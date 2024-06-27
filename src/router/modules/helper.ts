@@ -1,5 +1,6 @@
 import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { toKey, isStr } from '../../fn'
+import { has, trim, upperFirst, toKey, isStr } from '../../fn'
+import type { Router, RouteRecordRaw } from 'vue-router'
 import type { IRouterComponentsMap } from '../types'
 
 /**
@@ -19,12 +20,19 @@ export function getHistoryMode(mode: string|undefined) {
 /**
  * Get a component for dynamic routes.
  */
-export function getComponent(components: string|IRouterComponentsMap, key: string): Promise<any> {
+export function getComponent(components: string|IRouterComponentsMap, blueprint: string): string {
   let component: string
+  const key = toKey(blueprint)
   if (isStr(components)) {
     component = components
+  } else if(has(components, key)) {
+    component = components[key]
   } else {
-    component = components[key] ?? components.default
+    component = components.default
   }
-  return import(component)
+
+  // Replace placeholder for blueprint
+  return component
+    .replace('%blueprint%', key)
+    .replace('%Blueprint%', upperFirst(key))
 }
