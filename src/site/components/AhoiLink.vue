@@ -104,8 +104,8 @@ watchEffect(() => {
     if (props.to?.link?.type === 'link' || props.to?.type === 'link') {
       link.value = {
         source: 'api',
-        type: props.to.link?.attr.type ?? props.to.attr.type,
-        data: props.to.link ?? props.to as ILinkModel
+        type: props.to.attr.type,
+        data: props.to as ILinkModel
       }
     }
     

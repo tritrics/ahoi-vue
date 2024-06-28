@@ -124,6 +124,7 @@ export function createRouter(
   router.addRoute({
     path: '/',
     name: 'home',
+    component: null,
     children: [],
   })
 

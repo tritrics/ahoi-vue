@@ -14,8 +14,8 @@ const formsMap: Object = {}
 function forms(mixed: string|IFormOptions, options?: IFormOptions): IFormStore {
 
   // no name given, options in mixed, don't register form
-  if (!isStr(mixed, 1)) {
-    return new FormStore(options)
+  if (!isStr(mixed)) {
+    return new FormStore(mixed)
   }
   
   // create form
