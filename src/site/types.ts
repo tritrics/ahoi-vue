@@ -70,6 +70,7 @@ export interface ISiteStore extends IAddonStore {
 }
 
 export interface IPageStore extends IAddonStore {
+  getHref(lang: string): string|null
   load(mixed: string, isPath: boolean): Promise<void>
 }
 
@@ -83,3 +84,22 @@ export type ThumbCropOptions =
   | 'bottom-left'
   | 'bottom'
   | 'bottom-right'
+
+/**
+ * Router
+ */
+export interface IRoutes {
+  [ key: string ]: string|string[]
+}
+
+export interface IRoutesNormalized {
+  [ key: string ]: IRouteComponents,
+  default: IRouteComponents
+}
+
+export type IRouteComponents = [ string ] | [ string, string ]
+
+export interface IRouterOptions {
+  history?: 'hash' | 'web' | 'memory',
+  notfound: string
+}

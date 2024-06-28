@@ -1,4 +1,4 @@
-import { has, uuid, isStr, isObj } from '../../fn'
+import { has, uuid, isStr, isObj, toKey } from '../../fn'
 import { convertResponse } from '../index'
 import { inject, getPage, stores, globalStore, AddonStore } from '../../plugin'
 import type { Object, IPageStore } from '../../types'
@@ -22,6 +22,22 @@ class PageStore extends AddonStore implements IPageStore {
       link: {},
       fields: {}
     })
+  }
+
+  /**
+   * Getting href for a given language.
+   */
+  getHref(lang: string): string|null {
+    const meta = this.get('meta')
+    lang = toKey(lang)
+    if (has(meta, 'translations')) {
+      for(const key in meta.translations) {
+        if (meta.translations[key].lang === lang) {
+          return meta.translations[key].href
+        }
+      }
+    }
+    return null
   }
 
   /**
