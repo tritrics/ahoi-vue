@@ -116,11 +116,11 @@ export interface ILanguageModel extends IBaseModel {
 export interface ILinkModel extends IBaseModel {
   type: 'link'
   value: string
-  attr?: {
-    type: string
+  meta: {
+    type: LinkTypes
     href: string
   }
-  meta?: Object
+  attr: Object
 }
 
 export interface IMarkdownModel extends IBaseModel {
@@ -291,6 +291,7 @@ export interface IPageMeta {
  * Types
  */
 export type LinkTypes =
+  | 'url'
   | 'page'
   | 'file'
   | 'email'

@@ -1,32 +1,9 @@
 import type { RouteParams } from 'vue-router'
 import type { Object } from '../../types'
-import type { ILinkModel } from '../models/types'
 
 export interface Props {
   to: string | RouteParams | ParserModel
   disabled?: boolean
-}
-
-export type LinkType = 'page' | 'url' | 'email' | 'tel' | 'file' | 'anchor' | 'custom'
-
-export type ElemType = 'a' | 'router-link'
-
-export interface LinkString {
-  source: 'string'
-  type: LinkType
-  data: string
-}
-
-export interface LinkApi {
-  source: 'api'
-  type: LinkType
-  data: ILinkModel
-}
-
-export interface LinkRouter {
-  source: 'router'
-  type: LinkType
-  data: RouteParams
 }
 
 export interface Attributes {
@@ -35,4 +12,32 @@ export interface Attributes {
   class?: string
   target?: string
   disabled?: 'disabled'
+}
+
+export interface ILinkA {
+  elem: 'a',
+  type: LinkType
+  href: string
+  to: null
+  title: string
+}
+
+export interface ILinkRouter {
+  elem: 'router-link'
+  type: 'page'
+  href: null
+  to: ILinkRouterPath | ILinkRouterName
+  title: string
+}
+
+type LinkType = 'page' | 'url' | 'email' | 'tel' | 'file' | 'anchor' | 'custom'
+
+interface ILinkRouterPath {
+  path: string
+  [ key: string ]: string|Object
+}
+
+interface ILinkRouterName {
+  name: string
+  [ key: string ]: string|Object
 }

@@ -102,7 +102,7 @@ export async function getPages(
  * Submit data to a specified action /action/(:any).
  */
 export async function postCreate(
-  action: string,
+  action: string|string[],
   data: IFormParams = {},
   options: IApiRequestOptions = {}
 ): Promise<JSONObject>

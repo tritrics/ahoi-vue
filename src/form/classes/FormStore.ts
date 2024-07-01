@@ -118,12 +118,8 @@ class FormStore extends AddonStore implements IFormStore {
       return Promise.resolve({} as JSONObject)
     }
     const options: Object = {}
-    const lang = this.get('lang')
-    if (isStr(lang, 1)) {
-      options.lang = lang
-    }
     super._set('processing', true)
-    const res = await postCreate(action, this.getFieldValues(), options)
+    const res = await postCreate([ this.get('lang'), action], this.getFieldValues(), options)
     super._set('processing', false)
     return res
   }

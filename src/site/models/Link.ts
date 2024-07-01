@@ -1,4 +1,4 @@
-import { has, unset, count, toStr } from '../../fn'
+import { has, toStr } from '../../fn'
 import BaseModel from './Base'
 import type { LinkTypes, ILinkModel } from './types'
 import type { Object, JSONObject } from '../../types'
@@ -6,27 +6,25 @@ import type { Object, JSONObject } from '../../types'
 export default class LinkModel extends BaseModel implements ILinkModel {
   type: 'link' = 'link'
 
-  attr?: {
-    type: string
+  meta: {
+    type: LinkTypes
     href: string
   }
 
-  meta?: Object
+  attr: Object
 
   constructor(obj: JSONObject) {
     super(toStr(obj.meta?.title ?? obj.value))
-    if (has(obj, 'meta')) {
-      this.attr = {
-        type: obj.meta.type as string,
-        href: obj.meta.href as string
-      }
-      unset(obj.meta, 'type')
-      unset(obj.meta, 'href')
-      if (count(obj.meta)) {
-        this.meta = obj.meta
-      }
-    } else if (has(obj, 'attr')) {
-      this.attr = obj.attr
+    if (!obj.meta) {
+      ahoi.log(obj)
+    }
+    this.meta = {
+      type: obj.meta.type as LinkTypes,
+      href: obj.meta.href as string
+    }
+    this.attr = obj.attr ?? {}
+    if (has(this.meta, 'href') && !has(this.attr, 'href')) {
+      this.attr.href = this.meta.href
     }
   }
 }

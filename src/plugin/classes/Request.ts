@@ -191,7 +191,7 @@ class Request {
   /**
    * Post data to a specified action /action/(:any).
    */
-  async postCreate(action: string, data: IFormParams): Promise<JSONObject> {
+  async postCreate(action: string|string[], data: IFormParams): Promise<JSONObject> {
 
     // get token
     const urlToken: string = this.getUrl(
