@@ -1,4 +1,4 @@
-import { isObj, isStr, isUndef } from '../fn'
+import { isObj } from '../fn'
 import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
 import PageStore from './classes/PageStore'
@@ -6,7 +6,6 @@ import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
-import AhoiLangSwitch from './components/AhoiLangSwitch.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
 import type { IApiAddon, ISiteStore, IPageStore } from '../types'
@@ -54,7 +53,6 @@ export function createSite(): IApiAddon[] {
       'AhoiHtml': AhoiHtml,
       'AhoiLink': AhoiLink,
       'AhoiThumb': AhoiThumb,
-      'AhoiLangSwitch': AhoiLangSwitch,
     },
     export: {
       store: siteStore,
@@ -74,4 +72,4 @@ export function createSite(): IApiAddon[] {
 /**
  * Export module
  */
-export { siteStore, pageStore, Thumb, parse, createThumb, convertResponse, detectLanguage }
+export { siteStore, pageStore, Thumb, parse, createThumb, convertResponse }

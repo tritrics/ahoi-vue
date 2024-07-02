@@ -25,10 +25,6 @@ export default class FileModel extends BaseFieldsModel implements IFileModel {
   isImage(): boolean {
     return this.meta.filetype === 'image'
   }
-  
-  get attr(): Object {
-    return this.link.attr ?? {}
-  }
 
   // ... more functions?
 

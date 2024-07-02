@@ -80,7 +80,6 @@ export interface IFileModel extends IBaseFieldsModel {
   value: undefined
   meta: IFileMeta
   link: ILinkModel
-  attr: Object 
   isImage(): boolean
 }
 
@@ -120,7 +119,6 @@ export interface ILinkModel extends IBaseModel {
     type: LinkTypes
     href: string
   }
-  attr: Object
 }
 
 export interface IMarkdownModel extends IBaseModel {
@@ -159,9 +157,9 @@ export interface IPageModel extends IBaseFieldsModel {
   value: undefined
   meta: IPageMeta
   link: ILinkModel
+  translations?: ITranslation[]
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
-  attr: Object 
   blueprint(): string
   isHome(): boolean
 }
@@ -174,7 +172,7 @@ export interface ISiteModel extends IBaseFieldsModel {
   type: 'site'
   value: undefined
   meta: IPageMeta
-  home?: IPageModel
+  home: IPageModel
   blueprint(): string
 }
 
@@ -285,6 +283,13 @@ export interface IPageMeta {
     node: string
   }[]
   api?: Object
+}
+
+export interface ITranslation {
+  lang: string
+  slug: string
+  node: string
+  link: ILinkModel
 }
 
 /**

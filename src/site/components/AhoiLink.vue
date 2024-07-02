@@ -23,11 +23,17 @@ const emit = defineEmits<{
 }>()
 
 /**
+ * Using router-link depends on setting in globalStore AND if router is installed.
+ * (needs to be computed value, fails otherwise in watchEffect())
+ */
+const useRouter = computed(() => {
+  return globalStore.isTrue('router') && !!getCurrentInstance()?.appContext.config.globalProperties.$router
+})
+
+/**
  * Normalized data for link generation.
  */
 const link: Ref<ILinkA|ILinkRouter|undefined >  = ref()
-
-// -------------------------------------------
 
 /**
  * All the attributes
@@ -51,14 +57,14 @@ const attr = computed<Attributes>(() => {
  *  Normalize props.to, can be string, model or router params
  */
 watchEffect(() => {
+
   const res: Object = {}
-  const useRouter = globalStore.isTrue('router') && !!getCurrentInstance()?.appContext.config.globalProperties.$router
 
   // to is instance of LinkModel
   if (props.to instanceof LinkModel) {
     res.type = props.to.meta.type
     res.title = props.to.str()
-    if (res.type === 'page' && useRouter) {
+    if (res.type === 'page' && useRouter.value) {
       res.elem = 'router-link'
       res.to = {
         path: props.to.meta.href
@@ -73,7 +79,7 @@ watchEffect(() => {
   else if (isObj(props.to) && (has(props.to, 'path') || has(props.to, 'name'))) {
     res.type = 'page'
     res.title = ''
-    if (useRouter) {
+    if (useRouter.value) {
       res.elem = 'router-link'
       res.to = props.to as ILinkRouterName|ILinkRouterPath
     } else {
@@ -87,7 +93,7 @@ watchEffect(() => {
     res.type = 'page'
     res.title = ''
     if (props.to.substring(0, 1) === '/') {
-      if (res.type === 'page' && useRouter) {
+      if (res.type === 'page' && useRouter.value) {
         res.elem = 'router-link'
         res.to = {
           path: props.to

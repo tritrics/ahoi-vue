@@ -1,5 +1,5 @@
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { each, has, count, upperFirst, isArr, isStr, toKey, toStr } from '../../fn'
+import { each, has, count, upperFirst, uuid, trim, isArr, isStr, toKey, toStr } from '../../fn'
 import { globalStore } from '../../plugin'
 import { pageStore } from '../index'
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
@@ -16,6 +16,45 @@ export function getHistoryMode(mode: string|undefined) {
       return createMemoryHistory()
     default:
        return createWebHistory() // import.meta.env.BASE_URL
+  }
+}
+
+/**
+ * Home route definition
+ */
+function getHomeRoute(component?: string|null): RouteRecordRaw {
+  return {
+    path: '/',
+    name: 'home',
+    meta: { type: 'home' },
+    component: isStr(component) ? () => import(component) : null,
+    children: [],
+  }
+}
+
+/**
+ * Catch all route defintion
+ */
+function getCatchAllRoute(): RouteRecordRaw {
+  return {
+    path: '/:catchAll(.*)',
+    name: 'cachall',
+    meta: { type: 'catchall' },
+    component: null,
+    children: []
+  }
+}
+
+/**
+ * Dynmaic route definition
+ */
+function getDynamicRoute(path: string, component: string|null, meta: Object): RouteRecordRaw {
+  return {
+    path,
+    name: `dynamic-${uuid()}`,
+    meta: { ...meta, type: 'dynamic'},
+    component: isStr(component) ? () => import(component) : undefined,
+    children: [],
   }
 }
 
@@ -56,7 +95,8 @@ export function getComponent(routes: IRoutesNormalized, blueprint: string): IRou
  */
 async function loadPage(path: string, success: string|boolean, error: string): Promise<string|boolean> {
   try {
-    await globalStore.setLangFromUrl()
+    const url = new URL(path, window.location.href)
+    await globalStore.setLangFromUrl(url.href)
     await pageStore.load(path, true)
     return success
   }
@@ -66,30 +106,25 @@ async function loadPage(path: string, success: string|boolean, error: string): P
   }
 }
 
-function addRoute(router: Router, path: string, components: IRouteComponents, isApiRoute: boolean): void {
+/**
+ * Routine to add the dynamic routes. Routes are added as child to home.
+ * If path has more slugs, a child route is added for each slug to enable the
+ * routes link classes (router-link-active).
+ */
+function addDynamicRoute(router: Router, path: string, components: IRouteComponents, meta: Object = {}): void {
   const component = components.pop() as string
-  const dynamicRoute: RouteRecordRaw = {
-    path: path,
-    name: 'dynamic',
-    meta: { api: isApiRoute },
-    component: () => import(component)
-  }
 
-  // route is added to home route
-  if (count(components) === 1) {
-    router.addRoute({
-      path: '/',
-      name: 'home',
-      component: () => import(components[0]),
-      children: [],
-    })
-    router.addRoute('home', dynamicRoute)
-  }
-  
-  // route is added to root stack
-  else {
-    router.addRoute(dynamicRoute)
-  }
+  // adding home
+  router.addRoute(getHomeRoute(count(components) === 1 ? components[0] : null))
+
+  // adding dynamic routes
+  const slugs = trim(path, '/').split('/')
+  let parent: string = 'home'
+  each(slugs, (slug: string) => {
+    const route = getDynamicRoute(slug, component, meta)
+    router.addRoute(parent, route)
+    parent = route.name as string
+  })
 }
 
 /**
@@ -119,25 +154,12 @@ export function createRouter(
     history: getHistoryMode(options.history),
     routes: []
   })
+  router.addRoute(getHomeRoute())
+  router.addRoute(getCatchAllRoute())
 
-  // add home route
-  router.addRoute({
-    path: '/',
-    name: 'home',
-    component: null,
-    children: [],
-  })
-
-  // add catch all route
-  // @ts-expect-error
-  router.addRoute({
-    path: '/:catchAll(.*)',
-    name: 'catchall',
-    component: null,
-  })
-
+  // beforeEach handles dynamic route creation and page request
   router.beforeEach(async (to: RouteLocationNormalized) => {
-    switch(to.name) {
+    switch(to.meta.type) {
 
       // home '/', redirects or loads, holds also the children of nested routes
       case 'home': {
@@ -161,14 +183,24 @@ export function createRouter(
 
         // static
         if (has(routesNormalized, to.path)) {
-          addRoute(router, to.path, routesNormalized[to.path], false)
+          addDynamicRoute(
+            router,
+            to.path,
+            routesNormalized[to.path],
+            { api: false }
+          )
           return to.fullPath
         }
         
         // blueprint
         else {
           const redirect = await loadPage(to.path, to.fullPath, options.notfound)
-          addRoute(router, to.path, getComponent(routesNormalized, pageStore.get('blueprint')), true)
+          addDynamicRoute(
+            router,
+            to.path,
+            getComponent(routesNormalized, pageStore.get('blueprint')),
+            { api: true }
+          )
           return redirect
         }
       }
