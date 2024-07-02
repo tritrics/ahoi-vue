@@ -20,6 +20,7 @@ class PageStore extends AddonStore implements IPageStore {
       blueprint: 'default',
       meta: {},
       link: {},
+      translations: {},
       fields: {}
     })
   }
@@ -59,6 +60,7 @@ class PageStore extends AddonStore implements IPageStore {
       super._set('blueprint', 'default')
       super._set('meta', {})
       super._set('link', {})
+      super._set('translations', {})
       super._set('fields', {})
       return Promise.reject()
     }
@@ -70,6 +72,7 @@ class PageStore extends AddonStore implements IPageStore {
     super._set('blueprint', res.meta.blueprint ?? 'default')
     super._set('meta', res.meta)
     super._set('link', res.link)
+    super._set('translations', res.translations)
     super._set('fields', res.fields)
   }
 

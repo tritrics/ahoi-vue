@@ -52,7 +52,7 @@ function getDynamicRoute(path: string, component: string|null, meta: Object): Ro
   return {
     path,
     name: `dynamic-${uuid()}`,
-    meta: { ...meta, type: 'dynamic'},
+    meta: { ...meta }, // ts
     component: isStr(component) ? () => import(component) : undefined,
     children: [],
   }
@@ -111,20 +111,28 @@ async function loadPage(path: string, success: string|boolean, error: string): P
  * If path has more slugs, a child route is added for each slug to enable the
  * routes link classes (router-link-active).
  */
-function addDynamicRoute(router: Router, path: string, components: IRouteComponents, meta: Object = {}): void {
+function addRoutes(router: Router, path: string, components: IRouteComponents, api: boolean): void {
   const component = components.pop() as string
 
   // adding home
   router.addRoute(getHomeRoute(count(components) === 1 ? components[0] : null))
 
   // adding dynamic routes
-  const slugs = trim(path, '/').split('/')
+  const slugs: string[] = trim(path, '/').split('/')
   let parent: string = 'home'
-  each(slugs, (slug: string) => {
-    const route = getDynamicRoute(slug, component, meta)
+  for (let i = 0; i < slugs.length; i++) {
+
+    // Only last child is "dynamic", the parents are "catchall" –
+    // otherwise the component wont't be reloaded when navigating from /foo/bar to /foo.
+    const meta: Object = {
+      type: (i + 1 === slugs.length) ? 'dynamic' : 'catchall',
+      api,
+    }
+    const route = getDynamicRoute(slugs[i], component, meta)
     router.addRoute(parent, route)
     parent = route.name as string
-  })
+  }
+  ahoi.log(router.getRoutes())
 }
 
 /**
@@ -183,24 +191,14 @@ export function createRouter(
 
         // static
         if (has(routesNormalized, to.path)) {
-          addDynamicRoute(
-            router,
-            to.path,
-            routesNormalized[to.path],
-            { api: false }
-          )
+          addRoutes( router, to.path, routesNormalized[to.path], false)
           return to.fullPath
         }
         
         // blueprint
         else {
           const redirect = await loadPage(to.path, to.fullPath, options.notfound)
-          addDynamicRoute(
-            router,
-            to.path,
-            getComponent(routesNormalized, pageStore.get('blueprint')),
-            { api: true }
-          )
+          addRoutes(router, to.path, getComponent(routesNormalized, pageStore.get('blueprint')), true)
           return redirect
         }
       }
