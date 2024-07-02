@@ -1,4 +1,4 @@
-import { has, uuid, isStr, isObj, toKey } from '../../fn'
+import { has, uuid, isStr, isObj } from '../../fn'
 import { convertResponse } from '../index'
 import { inject, getPage, stores, globalStore, AddonStore } from '../../plugin'
 import type { Object, IPageStore } from '../../types'
@@ -26,32 +26,20 @@ class PageStore extends AddonStore implements IPageStore {
   }
 
   /**
-   * Getting href for a given language.
-   */
-  getHref(lang: string): string|null {
-    const meta = this.get('meta')
-    lang = toKey(lang)
-    if (has(meta, 'translations')) {
-      for(const key in meta.translations) {
-        if (meta.translations[key].lang === lang) {
-          return meta.translations[key].href
-        }
-      }
-    }
-    return null
-  }
-
-  /**
    * Request page
    * mixed can be node or path
    */
-  async load(mixed: string, isPath: boolean = false): Promise<void> {
+  async load(mixed: string, isPath: boolean = false, requestFields: boolean = true): Promise<void> {
     const node = isPath ? globalStore.getNodeFromPath(mixed) : mixed
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
     this.#requestid = uuid()
-    const json = await getPage(node, { raw: true, id: this.#requestid })
+    const json = await getPage(node, {
+      raw: true,
+      id: this.#requestid,
+      fields: (requestFields ? [] : [ 'title' ])
+    })
     if (json.id !== this.#requestid) {
       return
     }
@@ -60,7 +48,7 @@ class PageStore extends AddonStore implements IPageStore {
       super._set('blueprint', 'default')
       super._set('meta', {})
       super._set('link', {})
-      super._set('translations', {})
+      super._set('translations', [])
       super._set('fields', {})
       return Promise.reject()
     }
@@ -72,8 +60,8 @@ class PageStore extends AddonStore implements IPageStore {
     super._set('blueprint', res.meta.blueprint ?? 'default')
     super._set('meta', res.meta)
     super._set('link', res.link)
-    super._set('translations', res.translations)
-    super._set('fields', res.fields)
+    super._set('translations', res.translations ?? [])
+    super._set('fields', res.fields ?? {})
   }
 
   /**

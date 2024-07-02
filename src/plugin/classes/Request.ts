@@ -38,6 +38,7 @@ class Request {
    * Get option `fields`.
    * Fields can be array with single fieldnames or subarray:
    * this.options.fields = [ field1, field2, [field3, field4]]
+   * If fields is empty array, all fields are returned.
    */
   get fields(): string[] {
     const fields: string[] = []

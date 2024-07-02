@@ -1,7 +1,7 @@
 import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../fn'
 import AddonStore from './AddonStore'
 import { optionsStore, inject } from '../index'
-import type { Object, IGlobalStore, II18nStore, ISiteStore } from '../../types'
+import type { Object, IGlobalStore, II18nStore, ISiteStore, IPageStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
@@ -22,7 +22,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       date: { year: 'numeric', month: 'numeric', day: 'numeric' },
       detected: false, // lang detected 
       direction: 'ltr',
-      home: '/home',
+      home: 'home',
       host: '',
       lang: '',
       langDefault: '',
@@ -55,7 +55,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   getNodeFromPath(val: string): string {
 
     // normalize path and home to /foo/bar/ or /
-    const home = `${this.get('home')}/`
+    const home = `/${this.get('home')}/`
     let path = `/${trim(val, '/')}/`
     if (path === '//') {
       path = '/'
@@ -236,7 +236,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setHome(val: any): void {
     if (isStr(val, 1)) {
-      super._set('home', `/${trim(val, '/')}`)
+      super._set('home', trim(val, '/'))
     }
   }
 
@@ -267,6 +267,10 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       if (inject('site')) {
         const siteStore = inject('site', 'store') as ISiteStore
         promises.push(siteStore.load(lang))
+      }
+      if (inject('home')) {
+        const homeStore = inject('home', 'store') as IPageStore
+        promises.push(homeStore.load(`/${lang}/${this.get('home')}`, false, false))
       }
       if (inject('i18n')) {
         const i18nStore = inject('i18n', 'store') as II18nStore

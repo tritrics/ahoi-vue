@@ -70,8 +70,7 @@ export interface ISiteStore extends IAddonStore {
 }
 
 export interface IPageStore extends IAddonStore {
-  getHref(lang: string): string|null
-  load(mixed: string, isPath: boolean): Promise<void>
+  load(mixed: string, isPath?: boolean, requestFields?: boolean): Promise<void>
 }
 
 export type ThumbCropOptions =

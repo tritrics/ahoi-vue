@@ -115,21 +115,6 @@ class BaseStore implements IBaseStore {
   }
 
   /**
-   * Intern Setter
-   * Always creates the property if it's not existing.
-   */
-  _set(key: string, val?: any): void {
-    if (this.has(key)) {
-      this.#data[key].ref.value = val
-    } else {
-      this.#data[key] =  {
-        ref: ref(val),
-        watchstop: []
-      }
-    }
-  }
-
-  /**
    * Stop all watchers at once, useful on unload component.
    */
   stop(): void {
@@ -159,6 +144,21 @@ class BaseStore implements IBaseStore {
       this.#data[key].watchstop.push(stopHandle)
     })
     return stopHandle
+  }
+
+  /**
+   * Intern Setter
+   * Always creates the property if it's not existing.
+   */
+  _set(key: string, val?: any): void {
+    if (this.has(key)) {
+      this.#data[key].ref.value = val
+    } else {
+      this.#data[key] =  {
+        ref: ref(val),
+        watchstop: []
+      }
+    }
   }
 }
 

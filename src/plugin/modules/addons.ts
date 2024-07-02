@@ -57,7 +57,7 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
     }
   }
 
-  // init functions
+  // call init functions in addon and stores
   return Promise.resolve()
     .then(() => {
       const promises: Promise<void>[] = []

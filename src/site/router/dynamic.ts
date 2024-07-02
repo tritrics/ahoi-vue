@@ -132,7 +132,6 @@ function addRoutes(router: Router, path: string, components: IRouteComponents, a
     router.addRoute(parent, route)
     parent = route.name as string
   }
-  ahoi.log(router.getRoutes())
 }
 
 /**

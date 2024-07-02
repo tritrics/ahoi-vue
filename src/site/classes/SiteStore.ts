@@ -18,8 +18,6 @@ class SiteStore extends AddonStore implements ISiteStore {
     super({
       lang: '',
       meta: {},
-      translations: [],
-      home: {},
       fields: {}
     })
   }
@@ -39,16 +37,12 @@ class SiteStore extends AddonStore implements ISiteStore {
     if (!isObj(json) || !json.ok) {
       super._set('lang', '')
       super._set('meta', {})
-      super._set('translations', [])
-      super._set('home', {})
       super._set('fields', {})
       return
     }
     const res: Object = convertResponse(json)
     super._set('lang', lang)
     super._set('meta', res.meta)
-    super._set('translations', res.translations)
-    super._set('home', res.home)
     super._set('fields', res.fields)
   }
 

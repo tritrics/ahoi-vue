@@ -13,9 +13,6 @@ export default class LinkModel extends BaseModel implements ILinkModel {
 
   constructor(obj: JSONObject) {
     super(toStr(obj.meta?.title ?? obj.value))
-    if (!obj.meta) {
-      ahoi.log(obj)
-    }
     this.meta = {
       type: obj.meta.type as LinkTypes,
       href: obj.meta.href as string

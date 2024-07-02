@@ -172,7 +172,6 @@ export interface ISiteModel extends IBaseFieldsModel {
   type: 'site'
   value: undefined
   meta: IPageMeta
-  home: IPageModel
   blueprint(): string
 }
 

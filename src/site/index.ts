@@ -16,6 +16,11 @@ import type { IApiAddon, ISiteStore, IPageStore } from '../types'
 const siteStore: ISiteStore = new SiteStore()
 
 /**
+ * Home(page) store
+ */
+const homeStore: IPageStore = new PageStore()
+
+/**
  * Page store
  */
 const pageStore: IPageStore = new PageStore()
@@ -31,6 +36,8 @@ async function init(): Promise<void> {
     .then((json) => {
       if (isObj(json) && json.ok) {
         globalStore.set('home', json.body.meta.home)
+
+        // set languages in a multilang installation
         if(json.body.meta.multilang) {
           globalStore.set('languages', json.body.languages ?? [])
           if (optionsStore.isTrue('langdetect')) {
@@ -60,6 +67,12 @@ export function createSite(): IApiAddon[] {
       convertResponse
     },
     init
+  }, {
+    name: 'home',
+    store: homeStore,
+    export: {
+      store: homeStore,
+    }
   }, {
     name: 'page',
     store: pageStore,
