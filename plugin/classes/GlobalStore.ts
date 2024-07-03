@@ -1,4 +1,26 @@
-import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../fn'
+import {
+  each,
+  count,
+  has,
+  trim,
+  lower,
+  regEsc,
+  rtrim,
+  unique,
+  isUrl,
+  isArr,
+  isBool,
+  isStr,
+  isObj,
+  isEmpty,
+  isLocale,
+  toBool,
+  isUndef,
+  isTrue,
+  toLocale,
+  toPath,
+  toKey
+} from '../../fn'
 import AddonStore from './AddonStore'
 import { optionsStore, inject } from '../index'
 import type { Object, IGlobalStore, II18nStore, ISiteStore, IPageStore } from '../../types'
@@ -23,9 +45,9 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       detected: false, // lang detected 
       direction: 'ltr',
       home: 'home',
-      host: '',
-      lang: '', // selected lang in a multilang enviroment, empty on default!
-      langDefault: '',
+      host: null,
+      lang: null, // selected lang in a multilang enviroment, null on default!
+      langDefault: null,
       languages: [],
       locale: 'en-EN',
       multilang: false, // autoset with languages
@@ -96,9 +118,9 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   /**
    * Check, if the given language is valid.
    */
-  isValidLang(code: string|undefined): boolean {
+  isValidLang(code: string|null|undefined): boolean {
     if (this.isFalse('multilang')) {
-      return code === ''
+      return isEmpty(code)
     }
     return isStr(code, 1) && has(this.#langmap, code)
   }
@@ -144,21 +166,21 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   async updateStores(): Promise<void> {
     const promises: Promise<void>[] = []
     const lang = this.get('lang')
-    ahoi.log('>', 'update stores', lang)
+    ahoi.log('>', 'update stores', lang ?? '')
     if (inject('site')) {
       const siteStore = inject('site', 'store') as ISiteStore
       promises.push(siteStore.load(lang))
     }
     if (inject('home')) {
       const homeStore = inject('home', 'store') as IPageStore
-      promises.push(homeStore.load(`/${lang}/${this.get('home')}`, false, false))
+      promises.push(homeStore.load(lang))
     }
     if (inject('i18n')) {
       const i18nStore = inject('i18n', 'store') as II18nStore
       promises.push(i18nStore.load(lang))
     }
     await Promise.all(promises)
-    ahoi.log('<', 'update stores', lang)
+    ahoi.log('<', 'update stores', lang ?? '')
   }
 
   /**

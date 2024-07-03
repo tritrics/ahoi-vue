@@ -1,4 +1,4 @@
-import { uuid, isObj } from '../../fn'
+import { uuid, isStr } from '../../fn'
 import { AddonStore, getPage, globalStore } from '../../plugin'
 import { convertResponse } from '../index'
 import type { Object, ISiteStore } from '../../types'
@@ -9,6 +9,12 @@ import type { Object, ISiteStore } from '../../types'
 class SiteStore extends AddonStore implements ISiteStore {
 
   /**
+   * Flag if site was already requested.
+   * Simple check for lang doesn't work in singelang enviroments.
+   */
+  #pristine: boolean = true
+
+  /**
    * Avoid race conditions
    */
   #requestid: string = ''
@@ -16,7 +22,7 @@ class SiteStore extends AddonStore implements ISiteStore {
   /** */
   constructor() {
     super({
-      lang: '',
+      lang: null,
       meta: {},
       fields: {}
     })
@@ -25,25 +31,20 @@ class SiteStore extends AddonStore implements ISiteStore {
   /**
    * Request site.
    */
-  async load(lang: string): Promise<void> {
-    if (!globalStore.isValidLang(lang) || this.is('lang', lang)) {
+  async load(lang: string|null = null): Promise<void> {
+    if (!globalStore.isValidLang(lang) || (!this.#pristine && this.is('lang', lang))) {
       return
     }
     this.#requestid = uuid()
     const json = await getPage(lang, { raw: true, id: this.#requestid })
     if (json.id !== this.#requestid) {
-      return
-    }
-    if (!isObj(json) || !json.ok) {
-      super._set('lang', '')
-      super._set('meta', {})
-      super._set('fields', {})
-      return
+      return Promise.resolve()
     }
     const res: Object = convertResponse(json)
     super._set('lang', lang)
     super._set('meta', res.meta)
     super._set('fields', res.fields)
+    this.#pristine = false
   }
 
   /**

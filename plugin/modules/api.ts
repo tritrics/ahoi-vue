@@ -81,7 +81,7 @@ export async function getLanguage(
  * Returns information of a single page or site (if node is empty).
  */
 export async function getPage(
-  path: string|string[],
+  path: string|string[]|null = null,
   options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
   return await createRequest(options).getNode('page', path)
@@ -92,7 +92,7 @@ export async function getPage(
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
 export async function getPages(
-  path: string|string[]|null,
+  path: string|string[]|null = null,
   options: IApiRequestOptions = {}
 ): Promise<JSONObject> {
   return await createRequest(options).getCollection('pages', path)

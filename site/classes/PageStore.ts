@@ -1,4 +1,4 @@
-import { has, uuid, isStr, isObj } from '../../fn'
+import { has, uuid, isStr } from '../../fn'
 import { convertResponse } from '../index'
 import { inject, getPage, stores, globalStore, AddonStore } from '../../plugin'
 import type { Object, IPageStore } from '../../types'
@@ -16,7 +16,7 @@ class PageStore extends AddonStore implements IPageStore {
   /** */
   constructor() {
     super({
-      node: '',
+      node: null,
       blueprint: 'default',
       meta: {},
       link: {},
@@ -29,28 +29,15 @@ class PageStore extends AddonStore implements IPageStore {
    * Request page
    * mixed can be node or path
    */
-  async load(mixed: string, isPath: boolean = false, requestFields: boolean = true): Promise<void> {
+  async load(mixed: string, isPath: boolean = false): Promise<void> {
     const node = isPath ? globalStore.getNodeFromPath(mixed) : mixed
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
     this.#requestid = uuid()
-    const json = await getPage(node, {
-      raw: true,
-      id: this.#requestid,
-      fields: (requestFields ? [] : [ 'title' ])
-    })
+    const json = await getPage(node, { raw: true, id: this.#requestid })
     if (json.id !== this.#requestid) {
-      return
-    }
-    if (!isObj(json) || !json.ok) {
-      super._set('node', '')
-      super._set('blueprint', 'default')
-      super._set('meta', {})
-      super._set('link', {})
-      super._set('translations', [])
-      super._set('fields', {})
-      return Promise.reject()
+      return Promise.resolve()
     }
     if (inject('meta') && has(json.body.fields, 'title')) {
       stores('meta').set('title', json.body.fields.title.value)

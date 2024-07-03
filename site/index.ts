@@ -1,6 +1,7 @@
 import { isObj } from '../fn'
 import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
+import HomeStore from './classes/HomeStore'
 import PageStore from './classes/PageStore'
 import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
@@ -8,7 +9,7 @@ import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
-import type { IApiAddon, ISiteStore, IPageStore } from '../types'
+import type { IApiAddon, ISiteStore, IHomeStore, IPageStore } from '../types'
 
 /**
  * Site store
@@ -16,9 +17,9 @@ import type { IApiAddon, ISiteStore, IPageStore } from '../types'
 const siteStore: ISiteStore = new SiteStore()
 
 /**
- * Home(page) store
+ * Home store
  */
-const homeStore: IPageStore = new PageStore()
+const homeStore: IHomeStore = new HomeStore()
 
 /**
  * Page store

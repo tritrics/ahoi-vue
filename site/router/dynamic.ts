@@ -95,9 +95,11 @@ export function getComponent(routes: IRoutesNormalized, blueprint: string): IRou
  */
 async function loadPage(path: string, success: string|boolean, error: string): Promise<string|boolean> {
   try {
-    const url = new URL(path, window.location.href)
-    globalStore.setLangFromUrl(url.href)
-    await globalStore.updateStores()
+    if (globalStore.isTrue('multilang')) {
+      const url = new URL(path, window.location.href)
+      globalStore.setLangFromUrl(url.href)
+      await globalStore.updateStores()
+    }
     await pageStore.load(path, true)
     return success
   }
@@ -162,7 +164,7 @@ export function createRouter(
     history: getHistoryMode(options.history),
     routes: []
   })
-  router.addRoute(getHomeRoute())
+  //router.addRoute(getHomeRoute())
   router.addRoute(getCatchAllRoute())
 
   // beforeEach handles dynamic route creation and page request

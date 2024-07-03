@@ -1,4 +1,4 @@
-import { uuid, isObj } from '../../fn'
+import { uuid, isStr } from '../../fn'
 import { AddonStore, getLanguage, inject, globalStore } from '../../plugin'
 import type { II18nStore } from '../types'
 import type { JSONObject } from '../../types'
@@ -15,7 +15,7 @@ class I18nStore extends AddonStore implements II18nStore {
 
   constructor() {
     super({
-      lang: '',
+      lang: null,
       terms: {}
     })
   }
@@ -24,17 +24,13 @@ class I18nStore extends AddonStore implements II18nStore {
    * Request terms
    */
   async load(lang: string): Promise<void> {
-    if (!globalStore.isValidLang(lang) || this.is('lang', lang)) {
+    if (!isStr(lang, 1) || !globalStore.isValidLang(lang) ||this.is('lang', lang)) {
       return
     }
     this.#requestid = uuid()
     const json: JSONObject = await getLanguage(lang, { raw: true, id: this.#requestid })
     if (json.id !== this.#requestid) {
-      return
-    }
-    if (!isObj(json) || !json.ok) {
-      super._set('terms', {})
-      return
+      return Promise.resolve()
     }
     super._set('lang', lang)
     if (inject('site')) {

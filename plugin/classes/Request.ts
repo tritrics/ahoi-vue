@@ -151,7 +151,7 @@ class Request {
       node,
       path
     )
-    ahoi.log('>', isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'start', path)
+    ahoi.log('>', isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'start', path ?? '')
     const data: IFormParams = {}
     if (count(this.fields) > 0) {
       data.fields = this.fields
@@ -160,7 +160,7 @@ class Request {
       data.id = this.id
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
-    ahoi.log('<', isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'ready', path)
+    ahoi.log('<', isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'ready', path ?? '')
     return this.convertResponse(res)
   }
 

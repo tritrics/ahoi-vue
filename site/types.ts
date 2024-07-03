@@ -66,11 +66,15 @@ export interface IThumbDimensions {
 }
 
 export interface ISiteStore extends IAddonStore {
-  load(lang: string): Promise<void>
+  load(lang: string|null): Promise<void>
+}
+
+export interface IHomeStore extends IAddonStore {
+  load(lang: string|null): Promise<void>
 }
 
 export interface IPageStore extends IAddonStore {
-  load(mixed: string, isPath?: boolean, requestFields?: boolean): Promise<void>
+  load(mixed: string, isPath?: boolean): Promise<void>
 }
 
 export type ThumbCropOptions =

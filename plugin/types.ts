@@ -37,7 +37,7 @@ export interface IUserStore extends IBaseStore {
 export interface IGlobalStore extends IAddonStore {
   getNodeFromPath(val: string): string
   getHomeSlug(code?: string): string
-  isValidLang(code: string|undefined): boolean
+  isValidLang(code: string|null|undefined): boolean
   isCurrentLang(code: string): boolean
   setLangFromDetected(): void
   setLangFromUrl(url?: string): void
