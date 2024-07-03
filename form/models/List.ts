@@ -68,7 +68,7 @@ export default class ListModel extends BaseModel implements IListModel {
     this.value.push(new StringModel(def, this))
   }
 
-  delete(id: string): void {
+  delete(id?: string): void {
     for (let key = 0; key < this.value.length; key++) {
       if (this.value[key].id === id) {
         this.value[key].watch(false)

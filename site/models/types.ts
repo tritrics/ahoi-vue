@@ -157,7 +157,7 @@ export interface IPageModel extends IBaseFieldsModel {
   value: undefined
   meta: IPageMeta
   link: ILinkModel
-  translations?: ITranslation[]
+  translations?: ITranslationModel[]
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
   blueprint(): string

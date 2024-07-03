@@ -47,9 +47,9 @@ function addRoutes(router: Router, path: string, components: IRouteComponents, a
  */
 export function getHistoryMode(mode: string|undefined) {
   switch(toKey(mode)) {
-    case 'hash-disabled': // different History modes not supported yet
+    case 'hash':
       return createWebHashHistory()
-    case 'memory-disabled':
+    case 'memory':
       return createMemoryHistory()
     default:
        return createWebHistory() // import.meta.env.BASE_URL
@@ -134,7 +134,13 @@ export function createRouter(
   // create router
   const router = createVueRouter({
     history: getHistoryMode(options.history),
-    routes: []
+    routes: [],
+    scrollBehavior() { // not working
+      return {
+        top: 30,
+        behavior: 'smooth'
+      }
+    },
   })
 
   // catchall route
