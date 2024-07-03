@@ -39,8 +39,9 @@ export interface IGlobalStore extends IAddonStore {
   getHomeSlug(code?: string): string
   isValidLang(code: string|undefined): boolean
   isCurrentLang(code: string): boolean
-  setLangFromDetected(): Promise<void>
-  setLangFromUrl(url?: string): Promise<void>
+  setLangFromDetected(): void
+  setLangFromUrl(url?: string): void
+  updateStores(): Promise<void>
 }
 
 export interface IApiAddon {

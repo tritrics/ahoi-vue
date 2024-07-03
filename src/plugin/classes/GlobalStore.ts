@@ -24,7 +24,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       direction: 'ltr',
       home: 'home',
       host: '',
-      lang: '',
+      lang: '', // selected lang in a multilang enviroment, empty on default!
       langDefault: '',
       languages: [],
       locale: 'en-EN',
@@ -113,9 +113,9 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   /**
    * Setting lang from detected lang.
    */
-  async setLangFromDetected(): Promise<void> {
+  setLangFromDetected(): void {
     if (this.isTrue('multilang')) {
-      await this._setLang(this.get('detected'))
+      this._setLang(this.get('detected'))
     }
   }
 
@@ -123,20 +123,42 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    * Detect and set language from url. Sets detected lang, if
    * url detection fails and no lang was set before.
    */
-  async setLangFromUrl(url?: string): Promise<void> {
+  setLangFromUrl(url?: string): void {
     if (this.isTrue('multilang')) {
       if (this.isTrue('langdetect')) {
         const code = this._getLangFromUrl(url ?? window.location.href)
         if (this.isValidLang(code) && this.isNot('lang', code)) {
-          ahoi.log('>', 'set lang', code)
-          await this._setLang(code)
-          ahoi.log('<', 'set lang', code)
+          this._setLang(code)
         }
       }
       if (!this.isValidLang(this.get('lang'))) {
-        await this.setLangFromDetected()
+        this.setLangFromDetected()
       }
     }
+  }
+
+  /**
+   * Update Stores with globalStore data in cases, where watch() doesn't work, because
+   * result must be awaited to continue with parent procedure.
+   */
+  async updateStores(): Promise<void> {
+    const promises: Promise<void>[] = []
+    const lang = this.get('lang')
+    ahoi.log('>', 'update stores', lang)
+    if (inject('site')) {
+      const siteStore = inject('site', 'store') as ISiteStore
+      promises.push(siteStore.load(lang))
+    }
+    if (inject('home')) {
+      const homeStore = inject('home', 'store') as IPageStore
+      promises.push(homeStore.load(`/${lang}/${this.get('home')}`, false, false))
+    }
+    if (inject('i18n')) {
+      const i18nStore = inject('i18n', 'store') as II18nStore
+      promises.push(i18nStore.load(lang))
+    }
+    await Promise.all(promises)
+    ahoi.log('<', 'update stores', lang)
   }
 
   /**
@@ -257,27 +279,13 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    * Can only be set in a multilang-enviroment. In a singlelang-enviroment the
    * lang code remains an empty string.
    */
-  async _setLang(val: any): Promise<void> {
+  _setLang(val: any): void {
     const lang = toKey(val)
-    const promises: Promise<void>[] = []
     if (this.isNot('lang', lang) && this.isTrue('multilang') && this.isValidLang(lang)) {
       this._setLocale(this.#langmap[lang].locale)
       this._setDirection(this.#langmap[lang].direction)
       super._set('lang', lang)
-      if (inject('site')) {
-        const siteStore = inject('site', 'store') as ISiteStore
-        promises.push(siteStore.load(lang))
-      }
-      if (inject('home')) {
-        const homeStore = inject('home', 'store') as IPageStore
-        promises.push(homeStore.load(`/${lang}/${this.get('home')}`, false, false))
-      }
-      if (inject('i18n')) {
-        const i18nStore = inject('i18n', 'store') as II18nStore
-        promises.push(i18nStore.load(lang))
-      }
     }
-    await Promise.all(promises)
   }
 
   /**

@@ -96,7 +96,8 @@ export function getComponent(routes: IRoutesNormalized, blueprint: string): IRou
 async function loadPage(path: string, success: string|boolean, error: string): Promise<string|boolean> {
   try {
     const url = new URL(path, window.location.href)
-    await globalStore.setLangFromUrl(url.href)
+    globalStore.setLangFromUrl(url.href)
+    await globalStore.updateStores()
     await pageStore.load(path, true)
     return success
   }

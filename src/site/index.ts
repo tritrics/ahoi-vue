@@ -36,19 +36,17 @@ async function init(): Promise<void> {
     .then((json) => {
       if (isObj(json) && json.ok) {
         globalStore.set('home', json.body.meta.home)
-
-        // set languages in a multilang installation
         if(json.body.meta.multilang) {
           globalStore.set('languages', json.body.languages ?? [])
           if (optionsStore.isTrue('langdetect')) {
-            return globalStore.setLangFromDetected()
+            globalStore.setLangFromDetected()
+            return globalStore.updateStores()
           }
+          // if langdetect is false, the language must be detected by router
+        } else {
+          return globalStore.updateStores()
         }
-
-        // siteStore und homeStore abfragen
-        //else {}
       }
-      return Promise.resolve()
     })
 }
 

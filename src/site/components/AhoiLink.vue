@@ -41,6 +41,9 @@ const link: Ref<ILinkA|ILinkRouter|undefined >  = ref()
 const attr = computed<Attributes>(() => {
   let res: Attributes = {}
   if (link.value) {
+    if (link.value.href) {
+      res.href = link.value.href
+    }
     res.class = `link ${link.value.type}`
     if (link.value.type === 'url') {
       res.target = '_blank'
