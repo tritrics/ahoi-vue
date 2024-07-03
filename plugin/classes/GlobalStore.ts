@@ -99,7 +99,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   getHomeSlug(code?: string): string {
     if (this.isFalse('multilang')) {
-      return ''
+      return '/'
     }
     if (isStr(code, 1)) {
       return this.isValidLang(code) ? this.#langmap[code].slug : ''
@@ -166,7 +166,6 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   async updateStores(): Promise<void> {
     const promises: Promise<void>[] = []
     const lang = this.get('lang')
-    ahoi.log('>', 'update stores', lang ?? '')
     if (inject('site')) {
       const siteStore = inject('site', 'store') as ISiteStore
       promises.push(siteStore.load(lang))
@@ -180,7 +179,6 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       promises.push(i18nStore.load(lang))
     }
     await Promise.all(promises)
-    ahoi.log('<', 'update stores', lang ?? '')
   }
 
   /**

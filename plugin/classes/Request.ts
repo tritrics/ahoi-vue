@@ -115,9 +115,7 @@ class Request {
       APIVERSION,
       'info'
     )
-    ahoi.log('>', 'request info')
     const res: JSONObject = await this.apiRequest(url)
-    ahoi.log('<', 'request info')
     return this.convertResponse(res)
   }
 
@@ -131,13 +129,11 @@ class Request {
       'language',
       lang
     )
-    ahoi.log('>', 'request language', lang)
     const data: IFormParams = {}
     if (this.id) {
       data.id = this.id
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
-    ahoi.log('<', 'request language', lang)
     return this.convertResponse(res)
   }
 
@@ -151,7 +147,6 @@ class Request {
       node,
       path
     )
-    ahoi.log('>', isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'start', path ?? '')
     const data: IFormParams = {}
     if (count(this.fields) > 0) {
       data.fields = this.fields
@@ -160,7 +155,6 @@ class Request {
       data.id = this.id
     }
     const res: JSONObject = await this.apiRequest(url, 'GET', data)
-    ahoi.log('<', isStr(path, 2, 2) ? 'request site' : 'request ' + node, 'ready', path ?? '')
     return this.convertResponse(res)
   }
 

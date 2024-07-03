@@ -2,45 +2,8 @@ import { createRouter as createVueRouter, createWebHashHistory, createWebHistory
 import { each, has, count, upperFirst, uuid, trim, isArr, isStr, toKey, toStr } from '../../fn'
 import { globalStore } from '../../plugin'
 import { pageStore } from '../index'
-import type { Router, RouteLocationNormalized } from 'vue-router'
+import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import type { IRoutes, IRoutesNormalized, IRouterOptions, IRouteComponents } from "../types"
-
-/**
- * Routine to add the dynamic routes. Routes are added as child to home.
- * If path has more slugs, a child route is added for each slug to enable the
- * routes link classes (router-link-active).
- */
-function addRoutes(router: Router, path: string, components: IRouteComponents, api: boolean): void {
-  const component = components.pop() as string
-
-  // adding root with template
-  router.addRoute({
-    path,
-    name: 'dynamic',
-    meta: { type: 'catchall', api, },
-    component: count(components) === 1 ? () => import(components[0]) : undefined,
-    children: [],
-  })
-
-  // adding child routes
-  const slugs: string[] = trim(path, '/').split('/')
-  let parent: string = 'dynamic'
-  for (let i = 0; i < slugs.length; i++) {
-
-    // Only last child is "dynamic", the parents are "catchall" –
-    // otherwise the component wont't be reloaded when navigating from /foo/bar to /foo.
-    const isLast: boolean = (i + 1 === slugs.length)
-    const name: string = `dynamic-${uuid()}`
-    router.addRoute(parent, {
-      path,
-      name,
-      meta: { type: isLast ? 'dynamic' : 'catchall', api, },
-      component: () => import(component),
-      children: [],
-    })
-    parent = name
-  }
-}
 
 /**
  * Get history mode.
@@ -57,6 +20,45 @@ export function getHistoryMode(mode: string|undefined) {
 }
 
 /**
+ * Home route definition
+ */
+function getHomeRoute(component?: string|null): RouteRecordRaw {
+  return {
+    path: '/',
+    name: 'home',
+    meta: { type: 'home' },
+    component: isStr(component) ? () => import(component) : null,
+    children: [],
+  }
+}
+
+/**
+ * Catch all route defintion
+ */
+function getCatchAllRoute(): RouteRecordRaw {
+  return {
+    path: '/:catchAll(.*)',
+    name: 'cachall',
+    meta: { type: 'catchall' },
+    component: null,
+    children: []
+  }
+}
+
+/**
+ * Dynmaic route definition
+ */
+function getDynamicRoute(path: string, component: string|null, meta: Object): RouteRecordRaw {
+  return {
+    path,
+    name: `dynamic-${uuid()}`,
+    meta: { ...meta }, // ts
+    component: isStr(component) ? () => import(component) : undefined,
+    children: [],
+  }
+}
+
+/**
  * Normalize user given routes
  */
 export function normalizeRoutes(routes: IRoutes): IRoutesNormalized {
@@ -65,9 +67,7 @@ export function normalizeRoutes(routes: IRoutes): IRoutesNormalized {
   }
   each(routes, (components: string|string[], key: string) => {
     key = toKey(key)
-    if (!isStr(key, 1)) {
-      return
-    }
+    if (!isStr(key, 1)) return
     if (isStr(components, 1)) {
       res[key] = [ components ]
     } else if (isArr(components) && count(components) > 0) {
@@ -110,6 +110,34 @@ async function loadPage(path: string, success: string|boolean, error: string): P
 }
 
 /**
+ * Routine to add the dynamic routes. Routes are added as child to home.
+ * If path has more slugs, a child route is added for each slug to enable the
+ * routes link classes (router-link-active).
+ */
+function addRoutes(router: Router, path: string, components: IRouteComponents, api: boolean): void {
+  const component = components.pop() as string
+
+  // adding home
+  router.addRoute(getHomeRoute(count(components) === 1 ? components[0] : null))
+
+  // adding dynamic routes
+  const slugs: string[] = trim(path, '/').split('/')
+  let parent: string = 'home'
+  for (let i = 0; i < slugs.length; i++) {
+
+    // Only last child is "dynamic", the parents are "catchall" –
+    // otherwise the component wont't be reloaded when navigating from /foo/bar to /foo.
+    const meta: Object = {
+      type: (i + 1 === slugs.length) ? 'dynamic' : 'catchall',
+      api,
+    }
+    const route = getDynamicRoute(slugs[i], component, meta)
+    router.addRoute(parent, route)
+    parent = route.name as string
+  }
+}
+
+/**
  * Create router plugin for dynamic routing in a multilanguage enviroment.
  * 
  * All routes, which are not given in staticRoutes are considered to be a
@@ -136,28 +164,24 @@ export function createRouter(
     history: getHistoryMode(options.history),
     routes: []
   })
-
-  // catchall route
-  router.addRoute({
-    path: '/:catchAll(.*)',
-    name: 'cachall',
-    meta: { type: 'catchall' },
-    component: null,
-    children: []
-  })
+  //router.addRoute(getHomeRoute())
+  router.addRoute(getCatchAllRoute())
 
   // beforeEach handles dynamic route creation and page request
   router.beforeEach(async (to: RouteLocationNormalized) => {
     switch(to.meta.type) {
 
+      // home '/', redirects or loads, holds also the children of nested routes
+      case 'home': {
+        const home = globalStore.getHomeSlug()
+        if (isStr(home, 1)) {
+          return home
+        }
+        return await loadPage(to.path, true, options.notfound)
+      }
+
       // dynamically by catchall added route
       case 'dynamic': {
-        if (to.path === '/') {
-          const home = globalStore.getHomeSlug()
-          if (isStr(home, 1) && home !== '/') {
-            return home
-          }
-        }
         if (to.meta.api) {
           return await loadPage(to.path, true, options.notfound)
         }
