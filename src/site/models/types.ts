@@ -196,6 +196,11 @@ export interface ITimeModel extends IBaseDateModel {
   isNow(): boolean
 }
 
+export interface ITranslationModel extends IBaseModel {
+  type: 'translation'
+  link: ILinkModel
+}
+
 export interface IUserModel extends IBaseFieldsModel {
   type: 'user'
   meta: Object
@@ -284,13 +289,6 @@ export interface IPageMeta {
   api?: Object
 }
 
-export interface ITranslation {
-  lang: string
-  slug: string
-  node: string
-  link: ILinkModel
-}
-
 /**
  * Types
  */
@@ -335,6 +333,6 @@ export type ModelTypes =
   | 'structure'
   | 'text'
   | 'time'
-  | 'translations'
+  | 'translation'
   | 'user'
   | 'users'

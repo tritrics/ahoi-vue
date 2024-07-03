@@ -44,6 +44,9 @@ async function init(): Promise<void> {
             return globalStore.setLangFromDetected()
           }
         }
+
+        // siteStore und homeStore abfragen
+        //else {}
       }
       return Promise.resolve()
     })

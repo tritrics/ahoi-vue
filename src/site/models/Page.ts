@@ -1,9 +1,10 @@
 import { has, each, isTrue } from '../../fn'
 import BaseFieldsModel from './BaseFields'
 import CollectionModel from './Collection'
+import TranslationModel from './Translation'
 import { parse } from '../index'
 import { createLinkByValues } from './Link'
-import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta, ITranslation } from './types'
+import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta, ITranslationModel } from './types'
 import type { Object, JSONObject } from '../../types'
 
 export default class PageModel extends BaseFieldsModel implements IPageModel {
@@ -13,7 +14,7 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
 
   link: ILinkModel
 
-  translations?: ITranslation[]
+  translations?: ITranslationModel[]
 
   collection?: ICollectionModel
 
@@ -27,12 +28,7 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
     if (has(obj, 'translations')) {
       this.translations = []
       each(obj.translations, (translation: Object) => {
-        this.translations!.push({
-          lang: translation.lang,
-          slug: translation.slug,
-          node: translation.node,
-          link: createLinkByValues('page', translation.title, translation.href)
-        })
+        this.translations!.push(new TranslationModel(translation))
       })
     }
     if (has(obj, 'collection')) {
