@@ -1,5 +1,5 @@
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { each, has, count, upperFirst, uuid, trim, isArr, isStr, toKey, toStr } from '../../fn'
+import { each, has, count, upperFirst, uuid, trim, isArr, isStr, isTrue, toKey, toStr } from '../../fn'
 import { globalStore } from '../../plugin'
 import { pageStore } from '../index'
 import type { Router, RouteLocationNormalized } from 'vue-router'
@@ -135,11 +135,8 @@ export function createRouter(
   const router = createVueRouter({
     history: getHistoryMode(options.history),
     routes: [],
-    scrollBehavior() { // not working
-      return {
-        top: 30,
-        behavior: 'smooth'
-      }
+    scrollBehavior() {
+      return isTrue(options.scroll) ? { left: 0, top: 0, behavior: 'smooth' } : false
     },
   })
 
@@ -164,8 +161,12 @@ export function createRouter(
             return home
           }
         }
+
+        // in normal cases the catchall route has already loaded the page
         if (to.meta.api) {
-          return await loadPage(to.path, true, options.notfound)
+          if (pageStore.get('meta.href') !== to.path) {
+            return await loadPage(to.path, true, options.notfound)
+          }
         }
         return true
       }
@@ -182,12 +183,11 @@ export function createRouter(
         // blueprint
         else {
           const redirect = await loadPage(to.path, to.fullPath, options.notfound)
-          addRoutes(router, to.path, getComponent(routesNormalized, pageStore.get('blueprint')), true)
+          addRoutes(router, to.path, getComponent(routesNormalized, pageStore.get('meta.blueprint')), true)
           return redirect
         }
       }
     }
   })
-
   return router
 }

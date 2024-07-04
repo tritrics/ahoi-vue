@@ -200,7 +200,7 @@ export function createRouter(
         // blueprint
         else {
           const redirect = await loadPage(to.path, to.fullPath, options.notfound)
-          addRoutes(router, to.path, getComponent(routesNormalized, pageStore.get('blueprint')), true)
+          addRoutes(router, to.path, getComponent(routesNormalized, pageStore.get('meta.blueprint')), true)
           return redirect
         }
       }

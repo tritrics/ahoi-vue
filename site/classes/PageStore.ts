@@ -17,7 +17,6 @@ class PageStore extends AddonStore implements IPageStore {
   constructor() {
     super({
       node: null,
-      blueprint: 'default',
       meta: {},
       link: {},
       translations: {},
@@ -44,7 +43,6 @@ class PageStore extends AddonStore implements IPageStore {
     }
     const res: Object = convertResponse(json)
     super._set('node', node)
-    super._set('blueprint', res.meta.blueprint ?? 'default')
     super._set('meta', res.meta)
     super._set('link', res.link)
     super._set('translations', res.translations ?? [])

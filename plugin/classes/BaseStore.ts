@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import { each, has, count, isStr, isTrue, isFalse, isEmpty, isObj, isFunc, upperFirst } from '../../fn'
+import { each, has, count, upperFirst, get, isStr, isTrue, isFalse, isEmpty, isObj, isFunc, toStr } from '../../fn'
 import type { Object, IBaseStore, IStoreData, IStoreDataValue } from '../../types'
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
 
@@ -30,10 +30,16 @@ class BaseStore implements IBaseStore {
   }
   /**
    * Getting a value.
+   * key can be path to nested value like foo.bar.name
    */
   get(key: string): any {
-    if (this.has(key)) {
-      return this.#data[key].ref.value
+    const keys: (string|number)[] = key.split('.')
+    const root: string|number = keys.shift() as string|number
+    if (has(this.#data, root)) {
+      if (keys.length > 0) {
+        return get(this.#data[root].ref.value, keys)
+      }
+      return this.#data[root].ref.value
     }
     return null
   }
@@ -42,7 +48,15 @@ class BaseStore implements IBaseStore {
    * Checking existance of a property.
    */
   has(key: string): boolean {
-    return has(this.#data, key)
+    const keys: (string|number)[] = key.split('.')
+    const root: string|number = keys.shift() as string|number
+    if (has(this.#data, root)) {
+      if (keys.length > 0) {
+        return has(this.#data[root].ref.value, keys)
+      }
+      return true
+    }
+    return false
   }
 
   /**
@@ -90,6 +104,7 @@ class BaseStore implements IBaseStore {
 
   /**
    * Getting a value as ref.
+   * nested values like get() are NOT possible here
    */
   ref(key: string): Ref {
     if (this.has(key)) {

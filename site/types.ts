@@ -104,5 +104,6 @@ export type IRouteComponents = [ string ] | [ string, string ]
 
 export interface IRouterOptions {
   history?: 'hash' | 'web' | 'memory',
+  scroll?: boolean
   notfound: string
 }
