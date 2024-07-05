@@ -64,7 +64,7 @@ class MetaStore extends UserStore implements IMetaStore {
   _setBrand(val: any): void {
     if (isStr(val) || isNull(val)) {
       val = toStr(val)
-      super._set('brand', val)
+      this._set('brand', val)
       this.#writeMeta('og:site_name', val)
       this.#writeTitle()
     }
@@ -76,7 +76,7 @@ class MetaStore extends UserStore implements IMetaStore {
   _setDescription(val: any): void {
     if (isStr(val) || isNull(val)) {
       val = toStr(val)
-      super._set('description', val)
+      this._set('description', val)
       this.#writeMeta('description', val)
       this.#writeMeta('og:description', val)
       this.#writeMeta('twitter:card', val)
@@ -89,7 +89,7 @@ class MetaStore extends UserStore implements IMetaStore {
   _setLang(val: any): void {
     if (isStr(val) || isNull(val)) {
       val = toStr(val)
-      super._set('lang', val)
+      this._set('lang', val)
       this.#writeLang()
     }
   }
@@ -100,7 +100,7 @@ class MetaStore extends UserStore implements IMetaStore {
   _setLocale(val: any): void {
     if (isStr(val) || isNull(val)) {
       val = toStr(val)
-      super._set('locale', val)
+      this._set('locale', val)
       this.#writeMeta('og:locale', val)
     }
   }
@@ -111,7 +111,7 @@ class MetaStore extends UserStore implements IMetaStore {
   _setImage(val: any): void {
     if (isUrl(val) || isNull(val)) {
       val = toStr(val)
-      super._set('image', val)
+      this._set('image', val)
       this.#writeMeta('og:image', val)
     }
   }
@@ -121,7 +121,7 @@ class MetaStore extends UserStore implements IMetaStore {
    */
   _setSeparator(val: any): void {
     if (isStr(val)) {
-      super._set('separator', val)
+      this._set('separator', val)
       this.#writeTitle()
     }
   }
@@ -132,7 +132,7 @@ class MetaStore extends UserStore implements IMetaStore {
   _setTitle(val: any): void {
     if (isStr(val) || isNull(val)) {
       val = toStr(val)
-      super._set('title', val)
+      this._set('title', val)
       this.#writeTitle()
     }
   }
@@ -142,7 +142,7 @@ class MetaStore extends UserStore implements IMetaStore {
    */
   //_setUrl(val: any): void {
   //  if (isUrl(val) || isEmpty(val)) {
-  //    super._set('url', val)
+  //    this._set('url', val)
   //    this.#writeMeta('og:url', val)
   //  }
   //}

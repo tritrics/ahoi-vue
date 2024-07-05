@@ -5,7 +5,7 @@ import UserStore from './classes/UserStore'
 import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
-import { activateLog } from './modules/debug'
+import debug from './modules/debug'
 import { call, getFieldsRef, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
@@ -31,8 +31,8 @@ let globalStore: IGlobalStore
  * Plugin factory
  */
 export async function createApi(options: IApiOptions) {
-  activateLog(isTrue(options.debug, false) && !import.meta.env.PROD)
-  ahoi.log(':: AHOI PLUGIN INSTALLED ::')
+  debug.activate(isTrue(options.debug, false) && !import.meta.env.PROD)
+  debug.log(':: AHOI PLUGIN INSTALLED ::')
   const addonFns: IApiAddon[] = options.addons ?? []
   unset(options, 'addons')
   optionsStore = new AddonStore(options)
@@ -86,6 +86,7 @@ export {
   globalStore,
   optionsStore,
   call,
+  debug,
   getFieldsRef,
   getFile,
   getFiles,

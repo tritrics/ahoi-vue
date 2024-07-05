@@ -49,7 +49,7 @@ class FormStore extends AddonStore implements IFormStore {
    */
   reset(): void {
     const options = this.get('options')
-    super._set('processing', false)
+    this._set('processing', false)
     this._setImmediate(false) // stop watching old fields
     this._setAction(options.action)
     this._setLang(options.lang)
@@ -62,7 +62,7 @@ class FormStore extends AddonStore implements IFormStore {
    */
   _setAction(val: any): void {
     if (isStr(val, 1)) {
-      super._set('action', val)
+      this._set('action', val)
     }
   }
 
@@ -81,7 +81,7 @@ class FormStore extends AddonStore implements IFormStore {
           fields[key] = new BaseModel(def)
         }
       })
-      super._set('fields', fields)
+      this._set('fields', fields)
     }
   }
 
@@ -90,7 +90,7 @@ class FormStore extends AddonStore implements IFormStore {
    */
   _setLang(val: any): void {
     if (isStr(val, 1)) {
-      super._set('lang', val)
+      this._set('lang', val)
     }
   }
 
@@ -100,7 +100,7 @@ class FormStore extends AddonStore implements IFormStore {
   _setImmediate(val: any): void {
     if (isBool(val, false)) {
       const immediate = toBool(val)
-      super._set('immediate', immediate)
+      this._set('immediate', immediate)
       each(this.get('fields'), (field: IBaseModel) => {
         field.watch(immediate) // watch on/off
       })
@@ -118,9 +118,9 @@ class FormStore extends AddonStore implements IFormStore {
       return Promise.resolve({} as JSONObject)
     }
     const options: Object = {}
-    super._set('processing', true)
+    this._set('processing', true)
     const res = await postCreate([ this.get('lang'), action], this.getFieldValues(), options)
-    super._set('processing', false)
+    this._set('processing', false)
     return res
   }
 

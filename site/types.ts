@@ -1,3 +1,4 @@
+import type { RouteRecordRaw } from 'vue-router'
 import type { Object, DateTimeFormat, IAddonStore } from "../types"
 
 /**
@@ -10,21 +11,6 @@ export interface IsiteOptions {
   fixed?: boolean
   date?:  DateTimeFormat 
   time?: DateTimeFormat
-}
-
-/**
- * Logging/Debuggin
- */
-declare global {
-  interface IGlobalFunctions {
-    log: Function
-    warn: Function
-    error: Function
-  }
-  interface Window {
-    ahoi: IGlobalFunctions
-  }
-  const ahoi: IGlobalFunctions
 }
 
 /**
@@ -74,7 +60,8 @@ export interface IHomeStore extends IAddonStore {
 }
 
 export interface IPageStore extends IAddonStore {
-  load(mixed: string, isPath?: boolean): Promise<void>
+  load(node: string): Promise<void>
+  loadByPath(path: string): Promise<void>
 }
 
 export type ThumbCropOptions =
@@ -91,19 +78,33 @@ export type ThumbCropOptions =
 /**
  * Router
  */
-export interface IRoutes {
-  [ key: string ]: string|string[]
-}
-
-export interface IRoutesNormalized {
-  [ key: string ]: IRouteComponents,
-  default: IRouteComponents
-}
-
-export type IRouteComponents = [ string ] | [ string, string ]
-
 export interface IRouterOptions {
   history?: 'hash' | 'web' | 'memory',
   scroll?: boolean
-  notfound: string
+  default: IRouteOptions
+  notfound?: IRouteOptions
+  blueprints?: {
+    [ key: string ]: IRouteOptions
+  }
+}
+
+export interface IRoutes {
+  get(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
+}
+
+export type IRouteOptions = string | IRouteOptionsComponent | IRouteOptionsComponents
+
+interface IRouteOptionsComponent extends Object {
+  component: string
+  [ key: string ]: any
+}
+
+interface IRouteOptionsComponents extends Object {
+  components: Object
+  [ key: string ]: any
+}
+
+export interface IRouteNormalized {
+  meta: Object
+  components: Object
 }

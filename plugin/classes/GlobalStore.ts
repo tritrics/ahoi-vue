@@ -18,7 +18,6 @@ import {
   isUndef,
   isTrue,
   toLocale,
-  toPath,
   toKey
 } from '../../fn'
 import AddonStore from './AddonStore'
@@ -214,7 +213,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setDate(val: any): void {
     if (isObj(val)) { // @TODO: check array entries
-      super._set('date', val)
+      this._set('date', val)
     }
   }
 
@@ -228,7 +227,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     // 1. from given (user-option)
     const userLang: string = toKey(val)
     if (this.isValidLang(userLang)) {
-      super._set('detected', userLang)
+      this._set('detected', userLang)
       return
     }
 
@@ -236,7 +235,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     for (let i = 0; i < navigator.languages.length; i++) {
       const navLang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
       if (!isUndef(navLang) && this.isValidLang(navLang)) {
-        super._set('detected', navLang)
+        this._set('detected', navLang)
         return
       }
     }
@@ -248,13 +247,13 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     // 3. default lang like defined in Kirby
     for(const lang in this.#langmap) {
       if (isTrue(this.#langmap[lang].default)) {
-        super._set('detected', lang)
+        this._set('detected', lang)
         return
       }
     }
 
     // 4. first lang
-    super._set('detected', Object.keys(this.#langmap).shift())
+    this._set('detected', Object.keys(this.#langmap).shift())
   }
 
   /**
@@ -266,7 +265,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   _setDirection(val: any): void {
     const direction = toKey(val)
     if (direction === 'ltr' || direction === 'rtl') {
-      super._set('direction', val)
+      this._set('direction', val)
     }
   }
 
@@ -278,7 +277,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setHome(val: any): void {
     if (isStr(val, 1)) {
-      super._set('home', trim(val, '/'))
+      this._set('home', trim(val, '/'))
     }
   }
 
@@ -290,7 +289,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setHost(val: any): void {
     if (isUrl(val)) {
-      super._set('host', val)
+      this._set('host', val)
     }
   }
 
@@ -304,7 +303,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     if (this.isNot('lang', lang) && this.isTrue('multilang') && this.isValidLang(lang)) {
       this._setLocale(this.#langmap[lang].locale)
       this._setDirection(this.#langmap[lang].direction)
-      super._set('lang', lang)
+      this._set('lang', lang)
     }
   }
 
@@ -318,8 +317,8 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   _setLanguages(val: any): void {
     const multilang: boolean = isArr(val) && count(val) > 0
     const languages: Object[] = multilang ? val : {}
-    super._set('languages', languages)
-    super._set('multilang', multilang)
+    this._set('languages', languages)
+    this._set('multilang', multilang)
     this.#langmap = {}
     const urls: string[] = []
     each(languages, (language: Object) => {
@@ -338,7 +337,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       // language detection.
       urls.push(`${language.meta.origin}${language.meta.slug}`)
     })
-    super._set('langdetect', count(urls) > 1 && count(urls) === count(unique(urls)))
+    this._set('langdetect', count(urls) > 1 && count(urls) === count(unique(urls)))
     this._setDetected(optionsStore.get('lang'))
   }
 
@@ -349,7 +348,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setLocale(val: any): void {
     if (isLocale(val, false)) {
-      super._set('locale', toLocale(val, '-'))
+      this._set('locale', toLocale(val, '-'))
     }
   }
 
@@ -359,7 +358,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setNl2br(val: any): void {
     if (isBool(val, false)) {
-      super._set('nl2br', toBool(val))
+      this._set('nl2br', toBool(val))
     }
   }
 
@@ -370,7 +369,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setRouter(val: any): void {
     if (isBool(val, false)) {
-      super._set('router', toBool(val))
+      this._set('router', toBool(val))
     }
   }
 
@@ -381,7 +380,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
    */
   _setTime(val: any): void {
     if (isArr(val)) { // @TODO: check array entries
-      super._set('time', val)
+      this._set('time', val)
     }
   }
 }

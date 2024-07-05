@@ -41,9 +41,9 @@ class SiteStore extends AddonStore implements ISiteStore {
       return Promise.resolve()
     }
     const res: Object = convertResponse(json)
-    super._set('lang', lang)
-    super._set('meta', res.meta)
-    super._set('fields', res.fields)
+    this._set('lang', lang)
+    this._set('meta', res.meta)
+    this._set('fields', res.fields)
     this.#pristine = false
   }
 

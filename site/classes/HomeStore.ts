@@ -37,9 +37,9 @@ class HomeStore extends AddonStore implements IPageStore {
       return Promise.resolve()
     }
     const res: Object = convertResponse(json)
-    super._set('node', node)
-    super._set('link', res.link)
-    super._set('translations', res.translations ?? [])
+    this._set('node', node)
+    this._set('link', res.link)
+    this._set('translations', res.translations ?? [])
   }
 
   /**

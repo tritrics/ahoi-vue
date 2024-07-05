@@ -16,6 +16,7 @@ class PageStore extends AddonStore implements IPageStore {
   /** */
   constructor() {
     super({
+      path: null,
       node: null,
       meta: {},
       link: {},
@@ -25,11 +26,9 @@ class PageStore extends AddonStore implements IPageStore {
   }
 
   /**
-   * Request page
-   * mixed can be node or path
+   * Request page by given node
    */
-  async load(mixed: string, isPath: boolean = false): Promise<void> {
-    const node = isPath ? globalStore.getNodeFromPath(mixed) : mixed
+  async load(node: string): Promise<void> {
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
@@ -42,11 +41,22 @@ class PageStore extends AddonStore implements IPageStore {
       stores('meta').set('title', json.body.fields.title.value)
     }
     const res: Object = convertResponse(json)
-    super._set('node', node)
-    super._set('meta', res.meta)
-    super._set('link', res.link)
-    super._set('translations', res.translations ?? [])
-    super._set('fields', res.fields ?? {})
+    this._set('node', node)
+    this._set('meta', res.meta)
+    this._set('link', res.link)
+    this._set('translations', res.translations ?? [])
+    this._set('fields', res.fields ?? {})
+  }
+
+  /**
+   * Request page by given path
+   */
+  async loadByPath(path: string): Promise<void> {
+    if (!isStr(path, 1)) {
+      return
+    }
+    this._set('path', path)
+    return await this.load(globalStore.getNodeFromPath(path))
   }
 
   /**

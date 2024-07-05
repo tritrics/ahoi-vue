@@ -8,7 +8,7 @@ export default function clone(val: Iterable): any {
   if (isArr(val)) {
     return val.slice(0)
   } else if (isObj(val)) {
-    return structuredClone(val)
+    return Object.assign({}, val)
   }
   return val
 }
