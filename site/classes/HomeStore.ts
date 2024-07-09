@@ -1,12 +1,12 @@
 import { uuid, isStr, toPath } from '../../fn'
 import { convertResponse } from '../index'
 import { getPage, globalStore, AddonStore } from '../../plugin'
-import type { Object, IPageStore } from '../../types'
+import type { Object, IHomeStore } from '../../types'
 
 /**
  * Store with link and translation values for homepage.
  */
-class HomeStore extends AddonStore implements IPageStore {
+class HomeStore extends AddonStore implements IHomeStore {
 
   /**
    * Avoid race conditions

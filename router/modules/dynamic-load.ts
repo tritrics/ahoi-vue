@@ -1,8 +1,7 @@
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
 import { isTrue, isStr, toKey } from '../../fn'
-import { store as routerStore } from '../index'
+import { routerStore, pageStore } from '../index'
 import { globalStore } from '../../plugin'
-import { pageStore } from '../../site'
 import type { Router, RouteLocationNormalized, RouterHistory } from 'vue-router'
 
 /**

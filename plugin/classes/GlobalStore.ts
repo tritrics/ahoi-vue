@@ -22,7 +22,7 @@ import {
 } from '../../fn'
 import AddonStore from './AddonStore'
 import { optionsStore, inject } from '../index'
-import type { Object, IGlobalStore, II18nStore, ISiteStore, IPageStore } from '../../types'
+import type { Object, IGlobalStore, II18nStore, ISiteStore, IHomeStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
@@ -170,7 +170,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       promises.push(siteStore.load(lang))
     }
     if (inject('home')) {
-      const homeStore = inject('home', 'store') as IPageStore
+      const homeStore = inject('home', 'store') as IHomeStore
       promises.push(homeStore.load(lang))
     }
     if (inject('i18n')) {

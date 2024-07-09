@@ -2,14 +2,13 @@ import { isObj } from '../fn'
 import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
 import HomeStore from './classes/HomeStore'
-import PageStore from './classes/PageStore'
 import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
-import type { IApiAddon, ISiteStore, IHomeStore, IPageStore } from '../types'
+import type { IApiAddon, ISiteStore, IHomeStore } from '../types'
 
 /**
  * Site store
@@ -20,11 +19,6 @@ const siteStore: ISiteStore = new SiteStore()
  * Home store
  */
 const homeStore: IHomeStore = new HomeStore()
-
-/**
- * Page store
- */
-const pageStore: IPageStore = new PageStore()
 
 /**
  * Setup
@@ -75,16 +69,10 @@ export function createSite(): IApiAddon[] {
     export: {
       store: homeStore,
     }
-  }, {
-    name: 'page',
-    store: pageStore,
-    export: {
-      store: pageStore,
-    }
   }]
 }
 
 /**
  * Export module
  */
-export { siteStore, pageStore, Thumb, parse, createThumb, convertResponse }
+export { siteStore, Thumb, parse, createThumb, convertResponse }

@@ -5,7 +5,7 @@ import type { IApiAddon } from '../types'
 /**
  * Module's store
  */
-const store: II18nStore = new I18nStore()
+const i18nStore: II18nStore = new I18nStore()
 
 /**
  * Addon factory
@@ -13,9 +13,9 @@ const store: II18nStore = new I18nStore()
 export function createI18n(): IApiAddon {
   return {
     name: 'i18n',
-    store,
+    store: i18nStore,
     export: {
-      store
+      store: i18nStore
     }
   }
 }
@@ -23,4 +23,4 @@ export function createI18n(): IApiAddon {
 /**
  * Export module
  */
-export { store }
+export { i18nStore }

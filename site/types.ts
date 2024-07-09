@@ -59,11 +59,6 @@ export interface IHomeStore extends IAddonStore {
   load(lang: string|null): Promise<void>
 }
 
-export interface IPageStore extends IAddonStore {
-  load(node: string): Promise<void>
-  loadByPath(path: string): Promise<void>
-}
-
 export type ThumbCropOptions =
   | 'top-left'
   | 'top'
