@@ -74,37 +74,3 @@ export type ThumbCropOptions =
   | 'bottom-left'
   | 'bottom'
   | 'bottom-right'
-
-/**
- * Router
- */
-export interface IRouterOptions {
-  history?: 'hash' | 'web' | 'memory',
-  scroll?: boolean
-  default: IRouteOptions
-  notfound?: IRouteOptions
-  blueprints?: {
-    [ key: string ]: IRouteOptions
-  }
-}
-
-export interface IRoutes {
-  get(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
-}
-
-export type IRouteOptions = string | IRouteOptionsComponent | IRouteOptionsComponents
-
-interface IRouteOptionsComponent extends Object {
-  component: string
-  [ key: string ]: any
-}
-
-interface IRouteOptionsComponents extends Object {
-  components: Object
-  [ key: string ]: any
-}
-
-export interface IRouteNormalized {
-  meta: Object
-  components: Object
-}

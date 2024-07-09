@@ -1,22 +1,21 @@
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
 import { isTrue, isStr, toKey } from '../../fn'
-import Routes from '../classes/Routes'
-import { globalStore, debug } from '../../plugin'
-import { pageStore } from '../index'
-import type { Router, RouteLocationNormalized } from 'vue-router'
-import type { IRoutes, IRouterOptions } from "../types"
+import { store as routerStore } from '../index'
+import { globalStore } from '../../plugin'
+import { pageStore } from '../../site'
+import type { Router, RouteLocationNormalized, RouterHistory } from 'vue-router'
 
 /**
  * Get history mode, hash is default
  */
-function getHistoryMode(mode: string|undefined) {
+function getHistoryMode(mode: string|undefined): RouterHistory {
   switch(toKey(mode)) {
     case 'web':
       return createWebHistory()
     case 'memory':
       return createMemoryHistory()
-    default:
-       return createWebHashHistory()
+    default: // 'hash'
+      return createWebHashHistory()
   }
 }
 
@@ -35,27 +34,20 @@ async function loadPage(path: string): Promise<string|false> {
     return pageStore.get('meta.blueprint') ?? 'default'
   }
   catch (err) {
-    debug.warn(`Error on loading path ${path}`, err)
+    console.warn(`Error on loading path ${path}`, err)
     return false
   }
 }
 
 /**
- * Creating the router
+ * Factory for router with dynamically added routes and
+ * automatically page loades in pageStore.
  */
-export function createRouter(options: IRouterOptions): Router|undefined {
-  let routeDef: IRoutes
-  try {
-    routeDef = new Routes(options)
-  } catch(e) {
-    debug.error(e)
-  }
-
-  // create router
-  const router = createVueRouter({
-    history: getHistoryMode(options.history),
+export function routerFactory(): Router|undefined {
+    const router = createVueRouter({
+    history: getHistoryMode(routerStore.get('history')),
     scrollBehavior() {
-      return isTrue(options.scroll) ? { left: 0, top: 0, behavior: 'smooth' } : false
+      return isTrue(routerStore.get('scroll')) ? { left: 0, top: 0, behavior: 'smooth' } : false
     },
     routes: [{
       path: '/:catchAll(.*)',
@@ -75,7 +67,7 @@ export function createRouter(options: IRouterOptions): Router|undefined {
       // catchall route is entered, dynamic route is added and redirected to
       case 'catchall': {
         const blueprint: string|false = await loadPage(to.path)
-        router.addRoute(routeDef.get(blueprint, to.path, { loaded: true }))
+        router.addRoute(routerStore.getRoute(blueprint, to.path, { loaded: true }))
         return to.fullPath
       }
 

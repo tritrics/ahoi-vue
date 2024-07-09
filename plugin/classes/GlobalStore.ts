@@ -365,11 +365,13 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   /**
    * Setter for router
    * Flag to determine, if component <router-link> should be used for
-   * intern links. Components itself check, if router is installed.
+   * intern links.
    */
   _setRouter(val: any): void {
     if (isBool(val, false)) {
       this._set('router', toBool(val))
+    } else if (isObj(val) && has(val, 'default')) {
+      this._set('router', true)
     }
   }
 

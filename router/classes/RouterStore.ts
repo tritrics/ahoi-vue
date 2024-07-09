@@ -1,53 +1,59 @@
-import { each, has, count, upperFirst, isStr, isObj } from '../../fn'
+import { each, has, count, upperFirst, inArr, isStr, isBool, isObj, toKey, toBool } from '../../fn'
+import { installedRouterTypes } from '../index'
+import { AddonStore, optionsStore } from '../../plugin'
 import type { RouteRecordRaw } from 'vue-router'
-import type { IRoutes, IRouterOptions, IRouteOptions, IRouteNormalized } from "../types"
+import type { IRouterStore, IRouteOptions, IRouteNormalized } from '../types'
 import type { Object } from '../../types'
 
-export default class Routes implements IRoutes {
-
-  /**
-   * Default route must always be defined.
-   * Default route is always used, if not specific route can be found.
-   * This route is not the same as a default-blueprint route in #blueprints.
-   */
-  #default: IRouteNormalized
-
-  /**
-   * Optional defined route for not-found pages.
-   */
-  #notfound: IRouteNormalized
-
-  /**
-   * Map with routes for special blueprints.
-   */
-  #blueprints: {
-    [ key: string ]: IRouteNormalized
-  } = {}
+/**
+ * Store width language terms.
+ */
+class RouterStore extends AddonStore implements IRouterStore {
 
   /** */
-  constructor (options: IRouterOptions) {
+  constructor() {
+    super({
+      type: 'dynamic-load',
+      history: 'hash',
+      scroll: false,
+      default: {},
+      notfound: {},
+      blueprints: {}
+    })
+  }
+  
+  /**
+   * Initialization
+   */
+  async init(): Promise<void> {
+
+    // get user-values from options
+    const def = optionsStore.get('router')
+    this._setType(def.type)
+    this._setHistory(def.history)
+    this._setScroll(def.scroll)
 
     // default route must always exist
-    const defaultRoute = this.#getRouteDefNormalized(options.default)
+    const defaultRoute = this.#getRouteDefNormalized(def.default)
     if (!defaultRoute) {
       throw new Error('Router configuration needs at least a default route')
     }
-    this.#default = defaultRoute
+    this._set('default', defaultRoute)
 
     // notfound route
-    const notfoundRoute = this.#getRouteDefNormalized(options.notfound)
-    this.#notfound = notfoundRoute ?? this.#default
+    const notfoundRoute = this.#getRouteDefNormalized(def.notfound)
+    this._set('notfound', notfoundRoute ?? defaultRoute)
 
     // optional mapping blueprints to routes
     const blueprints: Object = {}
-    if (isObj(options.blueprints)) {
-      each(options.blueprints, (def: IRouteOptions, blueprint: string) => {
+    if (isObj(def.blueprints)) {
+      each(def.blueprints, (def: IRouteOptions, blueprint: string) => {
         const record = this.#getRouteDefNormalized(def)
         if (record) {
           blueprints[blueprint] = record
         }
       })
-      this.#blueprints = blueprints
+      this._set('blueprints', blueprints)
     }
   }
 
@@ -56,19 +62,48 @@ export default class Routes implements IRoutes {
    * Returnes default-route, if no specific route for blueprint is defined or
    * notfound-route, if blueprint is false.
    */
-  get(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
+  getRoute(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
     if (blueprint === false || !isStr(blueprint, 1)) {
-      return this.#getRoute(this.#notfound, 'notfound', path, meta)
-    } else if (has(this.#blueprints, blueprint)) {
-      return this.#getRoute(this.#blueprints[blueprint], blueprint, path, meta)
+      return this.#getRouteHelper(this.get('notfound'), 'notfound', path, meta)
+    } else if (this.has(`blueprints.${blueprint}`)) {
+      return this.#getRouteHelper(this.get(`blueprints.${blueprint}`), blueprint, path, meta)
     }
-    return this.#getRoute(this.#default, blueprint, path, meta)
+    return this.#getRouteHelper(this.get('default'), blueprint, path, meta)
+  }
+
+  /**
+   * Setter for router-type
+   */
+  _setType(val: any): void {
+    val = toKey(val)
+    if (isStr(val) && inArr(val, installedRouterTypes)) {
+      this._set('type', val)
+    }
+  }
+
+  /**
+   * Setter history mode
+   */
+  _setHistory(val: any): void {
+    val = toKey(val)
+    if (isStr(val) && inArr(val, ['web', 'memory', 'hash' ])) {
+      this._set('history', val)
+    }
+  }
+
+  /**
+   * Setter router scroll
+   */
+  _setScroll(val: any): void {
+    if (isBool(val, false)) {
+      this._set('scroll', toBool(val))
+    }
   }
 
   /**
    * Creating the route for use in router.
    */
-  #getRoute(def: IRouteNormalized, blueprint: string, path: string, meta: Object): RouteRecordRaw {
+  #getRouteHelper(def: IRouteNormalized, blueprint: string, path: string, meta: Object): RouteRecordRaw {
     const res: RouteRecordRaw = {
       path,
       name: 'dynamic',
@@ -83,6 +118,8 @@ export default class Routes implements IRoutes {
     }
     return res
   }
+
+
 
   /**
    * Helper to transform the option given route to a normlized route.
@@ -140,3 +177,5 @@ export default class Routes implements IRoutes {
       .replace('%Blueprint%', upperFirst(blueprint))  
   }
 }
+
+export default RouterStore

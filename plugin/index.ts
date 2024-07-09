@@ -1,4 +1,4 @@
-import { unset, each, isTrue } from '../fn'
+import { each, isTrue } from '../fn'
 import AddonStore from './classes/AddonStore'
 import BaseStore from './classes/BaseStore'
 import UserStore from './classes/UserStore'
@@ -30,16 +30,25 @@ let globalStore: IGlobalStore
 /** 
  * Plugin factory
  */
-export async function createApi(options: IApiOptions) {
-  debug.activate(isTrue(options.debug, false) && !import.meta.env.PROD)
+export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
+  debug.activate(isTrue(options.debug, false))
   debug.log(':: AHOI PLUGIN INSTALLED ::')
-  const addonFns: IApiAddon[] = options.addons ?? []
-  unset(options, 'addons')
+
+  // init the stores
   optionsStore = new AddonStore(options)
   stores('options', optionsStore)
   globalStore = new GlobalStore()
   stores('global', globalStore)
-  const addons: IApiAddon[] = await loadAddons(addonFns)
+
+  // load addons
+  const addonsLoaded: IApiAddon[] = await loadAddons(addons)
+
+  // init the router
+  let Router: any
+  if (inject('router')) {
+    const getRouter = inject('router', 'getRouter') as Function
+    Router = await getRouter()
+  }
   
   // register plugin
   return {
@@ -61,14 +70,18 @@ export async function createApi(options: IApiOptions) {
         stores,
       }
       app.provide('api',  app.config.globalProperties['$api'])
-      // app.provide('api.app', app)
-      each(addons, (addon: IApiAddon) => {
+      each(addonsLoaded, (addon: IApiAddon) => {
         app.config.globalProperties['$api'][addon.name] = addon.export
         app.provide(`api.${addon.name}`, addon.export)
         each(addon?.components, (component: any, name: string) => {
           app.component(name, component)
         })
       })
+
+      // add router (last step!)
+      if (Router) {
+        app.use(Router)
+      }
     }
   }
 }
@@ -77,16 +90,12 @@ export async function createApi(options: IApiOptions) {
  * Export module
  */
 export {
-  AddonStore,
-  BaseStore,
-  UserStore,
-  Request,
   APIVERSION,
+  debug,
   VERSION,
   globalStore,
   optionsStore,
   call,
-  debug,
   getFieldsRef,
   getFile,
   getFiles,
@@ -97,4 +106,8 @@ export {
   inject,
   postCreate,
   stores,
+  AddonStore,
+  BaseStore,
+  UserStore,
+  Request,
 }
