@@ -39,7 +39,7 @@ class FormStore extends AddonStore implements IFormStore {
   getFieldValues(): IFormParams {
     const res: IFormParams = {}
     each(this.get('fields'), (field: IBaseModel, key: string) => {
-      res[key] = field.data()
+      res[key] = field.get()
     })
     return res
   }

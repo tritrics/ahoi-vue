@@ -3,13 +3,27 @@ import BaseModel from './Base'
 import type { IBaseDateModel } from '../types'
 import type { JSONObject } from '../../types'
 
+/**
+ * Base model for date models.
+ */
 export default class BaseDateModel extends BaseModel implements IBaseDateModel {
+
+  /**
+   * Value as utc string
+   */
   utc: string
 
+  /**
+   * Value as iso string
+   */
   iso: string
 
+  /**
+   * Timezone as string
+   */
   timezone: string
 
+  /** */
   constructor(obj: JSONObject) {
     let value: Date|null = null
     if (isDate(obj.value, null, null, false, 'yyyy-mm-dd')) {

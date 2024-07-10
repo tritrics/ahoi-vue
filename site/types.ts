@@ -234,8 +234,6 @@ export interface IPageModel extends IBaseFieldsModel {
   translations?: ITranslationModel[]
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
-  blueprint(): string
-  isHome(): boolean
 }
 
 export interface IPagesModel extends IBaseEntriesModel {
@@ -246,7 +244,6 @@ export interface ISiteModel extends IBaseFieldsModel {
   type: 'site'
   value: undefined
   meta: IPageMeta
-  blueprint(): string
 }
 
 export interface IStringModel extends IBaseModel {

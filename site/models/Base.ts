@@ -3,27 +3,46 @@ import type { JSONObject } from '../../types'
 import type { ModelTypes, IBaseModel } from '../types'
 import type { Object } from '../../types'
 
+/**
+ * Base model.
+ */
 export default class BaseModel implements IBaseModel {
+  
+  /**
+   * Type
+   */
   type: ModelTypes = 'base'
 
+  /**
+   * Value
+   */
   value: any = null
 
+  /** */
   constructor(value: any) {
     this.value = value
   }
 
+  /**
+   * Getter for (raw) value
+   */
   get(): any {
     return this.value
   }
-
+  
+  /**
+   * Getter for value as string
+   */
   str(): string {
     return toStr(this.value)
   }
   
+  /** */
   toString(): string {
     return this.str()
   }
 
+  /** */
   toJSON(): JSONObject {
     const json: Object = {}
     const props = Object.keys(this)

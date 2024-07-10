@@ -1,26 +1,55 @@
 import { watchEffect } from 'vue'
 import { toStr, isEmpty, uuid, has, isTrue } from '../../fn'
-import type { ModelTypes, IBaseModel, IListModel } from './types'
+import type { FormModelTypes, IFormBaseModel, IFormListModel } from '../types'
 import type { Object, FormPostValue } from "../../types"
 
-export default class BaseModel implements IBaseModel {
-  type: ModelTypes = 'base'
+/**
+ * Base model
+ */
+export default class BaseModel implements IFormBaseModel {
 
+  /**
+   * Type
+   */
+  type: FormModelTypes = 'base'
+
+  /**
+   * Unique id for every model
+   */
   id: string 
 
+  /**
+   * The raw (unvalidated) input value
+   */
   value: any
   
+  /**
+   * Flag to determine, if input is required
+   */
   required: boolean
 
+  /**
+   * Flag to check if value is valid
+   */
   valid: boolean = true
   
+  /**
+   * Error message in case of invalid value
+   */
   msg: string = ''
 
+  /**
+   * Stop function for validation watcher
+   */
   stop: Function|null = null
 
-  parent?: IListModel
+  /**
+   * Optional parent model for childs of list models
+   */
+  parent?: IFormListModel
   
-  constructor(def: Object, parent?: IListModel) {
+  /** */
+  constructor(def: Object, parent?: IFormListModel) {
     this.id = uuid()
     this.value = has(def, 'value') ? toStr(def.value) : ''
     this.required = has(def, 'required') && isTrue(def.required, false) ? true : false
@@ -29,17 +58,27 @@ export default class BaseModel implements IBaseModel {
     }
   }
   
-  // val important to kick off the watchEffect
+
+  /**
+   * Type- and required-validation
+   * val important to kick off the watchEffect
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(val?: any): void {
     return this.setValid()
   }
 
+  /**
+   * Setter for result of validation
+   */
   setValid(msg: string = ''): void {
     this.valid = isEmpty(msg)
     this.msg = msg
   }
 
+  /**
+   * Watcher to start validation
+   */
   watch(start: boolean = true): void {
     if (start) {
       if(this.stop === null) {
@@ -53,17 +92,24 @@ export default class BaseModel implements IBaseModel {
     }
   }
 
-  data(): FormPostValue {
+  /**
+   * Getter for value for use in post data
+   */
+  get(): FormPostValue {
     return toStr(this.value)
   }
 
+  /**
+   * Delete method for childs of list models 
+   */
   delete(): void {
     if (this.parent instanceof BaseModel && this.parent.type === 'list') {
       this.parent.delete(this.id)
     }
   }
 
+  /** */
   toString(): string {
-    return toStr(this.data())
+    return toStr(this.get())
   }
 }

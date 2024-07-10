@@ -1,4 +1,4 @@
-import { has, each, isTrue } from '../../fn'
+import { has, each } from '../../fn'
 import BaseFieldsModel from './BaseFields'
 import CollectionModel from './Collection'
 import TranslationModel from './Translation'
@@ -7,19 +7,42 @@ import { createLinkByValues } from './Link'
 import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta, ITranslationModel } from '../types'
 import type { Object, JSONObject } from '../../types'
 
+/**
+ * Model representing a page field or the page request.
+ */
 export default class PageModel extends BaseFieldsModel implements IPageModel {
+  
+  /**
+   * Type
+   */
   type: 'page' = 'page'
   
+  /**
+   * Meta values
+   */
   meta: IPageMeta
 
+  /**
+   * Link model
+   */
   link: ILinkModel
 
+  /**
+   * List with link models for each language
+   */
   translations?: ITranslationModel[]
 
+  /**
+   * Collection model with information about entries
+   */
   collection?: ICollectionModel
 
+  /**
+   * Optional child pages or files
+   */
   entries?: (IPageModel|IFileModel)[]
   
+  /** */
   constructor(obj: JSONObject) {
     super(obj)
     this.meta = obj.meta
@@ -39,14 +62,7 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
     }
   }
 
-  blueprint(): string {
-    return this.meta.blueprint
-  }
-
-  isHome(): boolean {
-    return isTrue(this.meta.home)
-  }
-
+  /** */
   toJSON() {
     return {
       type: this.type,

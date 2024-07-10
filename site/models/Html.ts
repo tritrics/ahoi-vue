@@ -5,17 +5,31 @@ import LinkModel from './Link'
 import type { IHtmlModel } from '../types'
 import type { JSONObject } from '../../types'
 
+/**
+ * Model representing a text field with html (writer...).
+ */
 export default class HtmlModel extends BaseModel implements IHtmlModel {
+  
+  /**
+   * Type
+   */
   type: 'html' = 'html'
 
+  /** */
   constructor(obj: JSONObject) {
     super(createNodesRec(isArr(obj.value) ? obj.value : [ obj.value ]))
   }
 
+  /**
+   * Getter for value as string
+   */
   str(): string {
     return 'html-nodes'
   }
   
+  /**
+   * Flag to check, if child nodes exist
+   */
   hasChildren(): boolean {
     return isArr(this.value)
   }

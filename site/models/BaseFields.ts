@@ -4,9 +4,17 @@ import { parse } from '../index'
 import type { IBaseFieldsModel, IModelList } from '../types'
 import type { JSONObject } from '../../types'
 
+/**
+ * Base model for models with fields.
+ */
 export default class BaseFieldsModel extends BaseModel implements IBaseFieldsModel {
+  
+  /**
+   * Arrary with fields
+   */
   fields?: IModelList
 
+  /** */
   constructor(obj: JSONObject) {
     super(undefined)
     if (has(obj, 'fields')) {
@@ -14,6 +22,9 @@ export default class BaseFieldsModel extends BaseModel implements IBaseFieldsMod
     }
   }
 
+  /**
+   * Helper to check if a field exists
+   */
   has(field: string): boolean {
     return this.fields !== undefined && has(this.fields, field)
   }

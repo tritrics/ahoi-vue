@@ -1,19 +1,39 @@
 import { has, isTrue, isInt, toInt, isArr, toStr, isEmpty, inArr } from '../../fn'
 import BaseModel from './Base'
-import type { ISelectModel } from './types'
+import type { IFormSelectModel } from '../types'
 import type { Object } from '../../types'
 
-export default class SelectModel extends BaseModel implements ISelectModel {
+ /**
+  * Model to represent a select input
+  */
+export default class SelectModel extends BaseModel implements IFormSelectModel {
+
+  /**
+   * Type
+   */
   type: 'select' = 'select'
 
+  /**
+   * Flag to enable multiple selection
+   */
   multiple: boolean
 
+  /**
+   * Minimum number of selected entries (on multiple selection)
+   */
   min?: number
 
+  /**
+   * Maxkum number of selected entries (on multiple selection)
+   */
   max?: number
 
+  /**
+   * Select options
+   */
   options: (string|number)[]
 
+  /** */
   constructor(def: Object) {
     super(def)
     this.multiple = has(def, 'multiple') && isTrue(def.multiple, false)
@@ -27,6 +47,9 @@ export default class SelectModel extends BaseModel implements ISelectModel {
     }
   }
 
+  /**
+   * Type- and required-validation
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(val: any) {
     if (isEmpty(this.value)) {
@@ -45,7 +68,10 @@ export default class SelectModel extends BaseModel implements ISelectModel {
     return this.setValid()
   }
 
-  data(): string|string[] {
+  /**
+   * Getter for value for use in post data
+   */
+  get(): string|string[] {
     if (this.multiple) {
       return this.value.map((entry: any) => toStr(entry))
     } else {
@@ -53,8 +79,9 @@ export default class SelectModel extends BaseModel implements ISelectModel {
     }
   }
 
+  /** */
   toString(): string {
-    const res = this.data()
+    const res = this.get()
     return isArr(res) ? res.toString() : toStr(res)
   }
 }

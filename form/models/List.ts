@@ -2,20 +2,40 @@ import { watchEffect } from 'vue'
 import { has, each, unset, isInt, isArr, toInt, isEmpty } from '../../fn'
 import BaseModel from './Base'
 import StringModel from './String'
-import type { IListModel, IStringModel } from './types'
+import type { IFormListModel, IFormStringModel } from '../types'
 import type { Object } from '../../types'
 
-export default class ListModel extends BaseModel implements IListModel {
+ /**
+  * Model to represent a list input (set of text inputs)
+  */
+export default class ListModel extends BaseModel implements IFormListModel {
+
+  /**
+   * Type
+   */
   type: 'list' = 'list'
 
+  /**
+   * Minimum number of entries
+   */
   min: number|null
 
+  /**
+   * Maximum number of entires
+   */
   max: number|null
 
+  /**
+   * Minimum length for text inputs (childs)
+   */
   minlength: number|null
 
+  /**
+   * Maximum length for text inputs (childs)
+   */
   maxlength: number|null
 
+  /** */
   constructor(def: Object) {
     super(def)
     this.min = has(def, 'min') && isInt(def.min, 1, null, false) ? toInt(def.min) : null
@@ -36,9 +56,12 @@ export default class ListModel extends BaseModel implements IListModel {
     })
   }
 
+  /**
+   * Type- and required-validation
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(val?: any): void {
-    each (this.value, (field: IStringModel) => {
+    each (this.value, (field: IFormStringModel) => {
       field.validate()
     })
     if (isEmpty(this.value)) {
@@ -68,6 +91,9 @@ export default class ListModel extends BaseModel implements IListModel {
     this.value.push(new StringModel(def, this))
   }
 
+  /**
+   * Delete a child
+   */
   delete(id?: string): void {
     for (let key = 0; key < this.value.length; key++) {
       if (this.value[key].id === id) {
@@ -78,10 +104,16 @@ export default class ListModel extends BaseModel implements IListModel {
     }
   }
 
-  data() {
-    return this.value.map((field: IStringModel) => field.data())
+  /**
+   * Getter for value for use in post data
+   */
+  get() {
+    return this.value.map((field: IFormStringModel) => field.get())
   }
 
+  /**
+   * Watcher to start validation
+   */
   watch(start = true): void {
     if (start) {
       if(this.stop === null) {
@@ -93,12 +125,13 @@ export default class ListModel extends BaseModel implements IListModel {
       this.stop()
       this.stop = null
     }
-    each(this.value, (field: IStringModel) => {
+    each(this.value, (field: IFormStringModel) => {
       field.watch(start)
     })
   }
 
+  /** */
   toString(): string {
-    return this.data().toString()
+    return this.get().toString()
   }
 }

@@ -1,22 +1,38 @@
 import { has, isNum, toNum, isEmpty} from '../../fn'
 import BaseModel from './Base'
-import type { INumberModel } from './types'
-import type { FormPostValue } from "../types"
+import type { IFormNumberModel, FormPostValue } from '../types'
 import type { Object } from '../../types'
 
-export default class NumberModel extends BaseModel implements INumberModel {
+ /**
+  * Model to represent a number input
+  */
+export default class NumberModel extends BaseModel implements IFormNumberModel {
+
+  /**
+   * Type
+   */
   type: 'number' = 'number'
 
+  /**
+   * Minium number
+   */
   min: number|null
 
+  /**
+   * Maximum number
+   */
   max: number|null
 
+  /** */
   constructor(def: Object) {
     super(def)
     this.min = has(def, 'min') && isNum(def.min, 1, null, false) ? toNum(def.min) : null
     this.max = has(def, 'max') && isNum(def.max, 1, null, false) ? toNum(def.max) : null
   }
 
+  /**
+   * Type- and required-validation
+   */
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {
@@ -32,7 +48,10 @@ export default class NumberModel extends BaseModel implements INumberModel {
     return this.setValid()
   }
 
-  data(): FormPostValue {
+  /**
+   * Getter for value for use in post data
+   */
+  get(): FormPostValue {
     return toNum(this.value) as number|string
   }
 }

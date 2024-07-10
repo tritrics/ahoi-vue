@@ -1,17 +1,34 @@
 import { has, isStr, dateRegExp, isEmpty, isDate, toDate } from '../../fn'
 import BaseModel from './Base'
-import type { IBaseDateModel } from './types'
+import type { IFormBaseDateModel } from '../types'
 import type { Object } from '../../types'
 
-export default class BaseDateModel extends BaseModel implements IBaseDateModel {
+/**
+ * Base model for date models
+ */
+export default class BaseDateModel extends BaseModel implements IFormBaseDateModel {
+
+  /**
+   * Date format of the user input
+   */
   format: string
 
+  /**
+   * Regular expression to convert the user input to date
+   */
   formatReg: RegExp
 
+  /**
+   * Minium (earliest) date
+   */
   min: Date|null
 
+  /**
+   * Maximum (latest) date
+   */
   max: Date|null
-
+  
+  /** */
   constructor(def: Object) {
     super(def)
     this.format = has(def, 'format') && isStr(def.format, 1) ? def.format : 'yyyy-mm-dd'
@@ -20,6 +37,9 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
     this.max = has(def, 'max') && isDate(def.max, null, null, false, this.format) ? toDate(def.max, this.formatReg) : null
   }
   
+  /**
+   * Type- and required-validation
+   */
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {

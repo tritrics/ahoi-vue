@@ -1,18 +1,32 @@
 import { has, isTrue, isEmpty, isDate, toDate, dateToStr } from '../../fn'
 import BaseDateModel from './BaseDate'
-import type { IDateModel } from './types'
+import type { IFormDateModel } from '../types'
 import type { Object } from '../../types'
 
-export default class DateModel extends BaseDateModel implements IDateModel {
+ /**
+  * Model to represent a date input
+  */
+export default class DateModel extends BaseDateModel implements IFormDateModel {
+
+  /**
+   * Type
+   */
   type: 'date' = 'date'
 
+  /**
+   * Addition time value
+   */
   time: boolean
 
+  /** */
   constructor(def: Object) {
     super(def)
     this.time = has(def, 'time') && isTrue(def.time)
   }
   
+  /**
+   * Type- and required-validation
+   */
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {
@@ -28,7 +42,10 @@ export default class DateModel extends BaseDateModel implements IDateModel {
     return this.setValid()
   }
 
-  data() {
+  /**
+   * Getter for value for use in post data
+   */
+  get() {
     const date = toDate(this.value, this.format)
     return date ? dateToStr(date, 'yyyy-mm-dd hh:ii') : ''
   }
