@@ -3,7 +3,7 @@ import { each, toKey, isBool, isObj, isStr, toBool } from '../../fn'
 import { AddonStore, postCreate } from '../../plugin'
 import BaseModel from '../models/Base'
 import * as models from '../models/models'
-import type { IBaseModel } from '../models/types'
+import type { IFormBaseModel } from '../types'
 import type { Object, IFormOptions, IFormParams, JSONObject, IFormStore } from '../../types'
 
 /**
@@ -38,7 +38,7 @@ class FormStore extends AddonStore implements IFormStore {
    */
   getFieldValues(): IFormParams {
     const res: IFormParams = {}
-    each(this.get('fields'), (field: IBaseModel, key: string) => {
+    each(this.get('fields'), (field: IFormBaseModel, key: string) => {
       res[key] = field.get()
     })
     return res
@@ -101,7 +101,7 @@ class FormStore extends AddonStore implements IFormStore {
     if (isBool(val, false)) {
       const immediate = toBool(val)
       this._set('immediate', immediate)
-      each(this.get('fields'), (field: IBaseModel) => {
+      each(this.get('fields'), (field: IFormBaseModel) => {
         field.watch(immediate) // watch on/off
       })
     }
@@ -130,7 +130,7 @@ class FormStore extends AddonStore implements IFormStore {
   valid = computed<boolean>(() => {
     let res: boolean = true
     const fields = this.ref('fields')
-    each(fields.value, (field: IBaseModel) => {
+    each(fields.value, (field: IFormBaseModel) => {
       if (!field.valid) {
         res = false
       }
@@ -142,7 +142,7 @@ class FormStore extends AddonStore implements IFormStore {
    * Validation of all fields and also switch the immediate setting
    */
   validate(immediate: boolean = false): void {
-    each(this.get('fields'), (field: IBaseModel) => {
+    each(this.get('fields'), (field: IFormBaseModel) => {
       field.validate()
     })
     this._setImmediate(immediate)
