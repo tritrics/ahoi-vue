@@ -57,28 +57,6 @@ export default class ListModel extends BaseModel implements IFormListModel {
   }
 
   /**
-   * Type- and required-validation
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  validate(val?: any): void {
-    each (this.value, (field: IFormStringModel) => {
-      field.validate()
-    })
-    if (isEmpty(this.value)) {
-      if (this.required) {
-        return this.setValid('required')
-      }
-    } else if (!isArr(this.value)) {
-      return this.setValid('type')
-    } else if (this.min && !isInt(this.value.length, this.min)) {
-      return this.setValid('min')
-    } else if (this.max && !isInt(this.value.length, null, this.max)) {
-      return this.setValid('max')
-    }
-    return this.setValid()
-  }
-
-  /**
    * Add a string value to list.
    */
   add(value: string = ''): void {
@@ -111,6 +89,33 @@ export default class ListModel extends BaseModel implements IFormListModel {
     return this.value.map((field: IFormStringModel) => field.get())
   }
 
+  /** */
+  toString(): string {
+    return this.get().toString()
+  }
+
+  /**
+   * Type- and required-validation
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  validate(val?: any): void {
+    each (this.value, (field: IFormStringModel) => {
+      field.validate()
+    })
+    if (isEmpty(this.value)) {
+      if (this.required) {
+        return this._setValid('required')
+      }
+    } else if (!isArr(this.value)) {
+      return this._setValid('type')
+    } else if (this.min && !isInt(this.value.length, this.min)) {
+      return this._setValid('min')
+    } else if (this.max && !isInt(this.value.length, null, this.max)) {
+      return this._setValid('max')
+    }
+    return this._setValid()
+  }
+
   /**
    * Watcher to start validation
    */
@@ -128,10 +133,5 @@ export default class ListModel extends BaseModel implements IFormListModel {
     each(this.value, (field: IFormStringModel) => {
       field.watch(start)
     })
-  }
-
-  /** */
-  toString(): string {
-    return this.get().toString()
   }
 }

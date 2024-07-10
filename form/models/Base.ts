@@ -57,7 +57,27 @@ export default class BaseModel implements IFormBaseModel {
       this.parent = parent
     }
   }
-  
+
+  /**
+   * Delete method for childs of list models 
+   */
+  delete(): void {
+    if (this.parent instanceof BaseModel && this.parent.type === 'list') {
+      this.parent.delete(this.id)
+    }
+  }
+
+  /**
+   * Getter for value for use in post data
+   */
+  get(): FormPostValue {
+    return toStr(this.value)
+  }
+
+  /** */
+  toString(): string {
+    return toStr(this.get())
+  }
 
   /**
    * Type- and required-validation
@@ -65,15 +85,7 @@ export default class BaseModel implements IFormBaseModel {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(val?: any): void {
-    return this.setValid()
-  }
-
-  /**
-   * Setter for result of validation
-   */
-  setValid(msg: string = ''): void {
-    this.valid = isEmpty(msg)
-    this.msg = msg
+    return this._setValid()
   }
 
   /**
@@ -93,23 +105,10 @@ export default class BaseModel implements IFormBaseModel {
   }
 
   /**
-   * Getter for value for use in post data
+   * Setter for result of validation
    */
-  get(): FormPostValue {
-    return toStr(this.value)
-  }
-
-  /**
-   * Delete method for childs of list models 
-   */
-  delete(): void {
-    if (this.parent instanceof BaseModel && this.parent.type === 'list') {
-      this.parent.delete(this.id)
-    }
-  }
-
-  /** */
-  toString(): string {
-    return toStr(this.get())
+  _setValid(msg: string = ''): void {
+    this.valid = isEmpty(msg)
+    this.msg = msg
   }
 }

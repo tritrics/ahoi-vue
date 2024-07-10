@@ -31,27 +31,27 @@ export default class NumberModel extends BaseModel implements IFormNumberModel {
   }
 
   /**
+   * Getter for value for use in post data
+   */
+  get(): FormPostValue {
+    return toNum(this.value) as number|string
+  }
+
+  /**
    * Type- and required-validation
    */
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {
-        return this.setValid('required')
+        return this._setValid('required')
       }
     } else if(!isNum(this.value, null, null, false)) {
-      return this.setValid('type')
+      return this._setValid('type')
     } else if(this.min && !isNum(this.value, this.min, null, false)) {
-      return this.setValid('min')
+      return this._setValid('min')
     } else if(this.max && !isNum(this.value, null, this.max, false)) {
-      return this.setValid('max')
+      return this._setValid('max')
     }
-    return this.setValid()
-  }
-
-  /**
-   * Getter for value for use in post data
-   */
-  get(): FormPostValue {
-    return toNum(this.value) as number|string
+    return this._setValid()
   }
 }

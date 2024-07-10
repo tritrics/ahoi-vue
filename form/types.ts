@@ -39,7 +39,6 @@ export interface IFormBaseModel {
   parent?: IFormListModel
   stop: Function|null
   validate(val?: any): void
-  setValid(msg: string): void
   watch(start: boolean): void
   get(): FormPostValue
   delete(id?: string): void

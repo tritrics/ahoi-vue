@@ -23,24 +23,6 @@ export default class DateModel extends BaseDateModel implements IFormDateModel {
     super(def)
     this.time = has(def, 'time') && isTrue(def.time)
   }
-  
-  /**
-   * Type- and required-validation
-   */
-  validate() {
-    if (isEmpty(this.value)) {
-      if (this.required) {
-        return this.setValid('required')
-      }
-    } else if(!isDate(this.value, null, null, false, this.format)) {
-      return this.setValid('type')
-    } else if(this.min && !isDate(this.value, this.min, null, false, this.format)) {
-      return this.setValid('min')
-    } else if(this.max && !isDate(this.value, null, this.max, false, this.format)) {
-      return this.setValid('max')
-    }
-    return this.setValid()
-  }
 
   /**
    * Getter for value for use in post data
@@ -48,5 +30,23 @@ export default class DateModel extends BaseDateModel implements IFormDateModel {
   get() {
     const date = toDate(this.value, this.format)
     return date ? dateToStr(date, 'yyyy-mm-dd hh:ii') : ''
+  }
+  
+  /**
+   * Type- and required-validation
+   */
+  validate() {
+    if (isEmpty(this.value)) {
+      if (this.required) {
+        return this._setValid('required')
+      }
+    } else if(!isDate(this.value, null, null, false, this.format)) {
+      return this._setValid('type')
+    } else if(this.min && !isDate(this.value, this.min, null, false, this.format)) {
+      return this._setValid('min')
+    } else if(this.max && !isDate(this.value, null, this.max, false, this.format)) {
+      return this._setValid('max')
+    }
+    return this._setValid()
   }
 }

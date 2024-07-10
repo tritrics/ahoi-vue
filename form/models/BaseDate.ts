@@ -43,15 +43,15 @@ export default class BaseDateModel extends BaseModel implements IFormBaseDateMod
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {
-        return this.setValid('required')
+        return this._setValid('required')
       }
     } else if(!isDate(this.value, null, null, false, this.format)) {
-      return this.setValid('type')
+      return this._setValid('type')
     } else if(this.min && !isDate(this.value, this.min, null, false, this.format)) {
-      return this.setValid('min')
+      return this._setValid('min')
     } else if(this.max && !isDate(this.value, null, this.max, false, this.format)) {
-      return this.setValid('max')
+      return this._setValid('max')
     }
-    return this.setValid()
+    return this._setValid()
   }
 }

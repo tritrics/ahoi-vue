@@ -36,15 +36,15 @@ export default class BaseStringModel extends BaseModel implements IFormBaseStrin
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {
-        return this.setValid('required')
+        return this._setValid('required')
       }
     } else if(!isStr(this.value, null, null, this.linebreaks)) {
-      return this.setValid('type')
+      return this._setValid('type')
     } else if(this.minlength && !isStr(this.value, this.minlength)) {
-      return this.setValid('minlength')
+      return this._setValid('minlength')
     } else if(this.maxlength && !isStr(this.value, null, this.maxlength)) {
-      return this.setValid('maxlength')
+      return this._setValid('maxlength')
     }
-    return this.setValid()
+    return this._setValid()
   }
 }

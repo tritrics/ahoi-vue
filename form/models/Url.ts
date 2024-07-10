@@ -24,11 +24,11 @@ export default class UrlModel extends BaseModel implements IFormUrlModel {
   validate() {
     if (isEmpty(this.value)) {
       if (this.required) {
-        return this.setValid('required')
+        return this._setValid('required')
       }
     } else if(!isUrl(this.value)) {
-      return this.setValid('type')
+      return this._setValid('type')
     }
-    return this.setValid()
+    return this._setValid()
   }
 }

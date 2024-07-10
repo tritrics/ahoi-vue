@@ -48,27 +48,6 @@ export default class SelectModel extends BaseModel implements IFormSelectModel {
   }
 
   /**
-   * Type- and required-validation
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  validate(val: any) {
-    if (isEmpty(this.value)) {
-      if (this.required) {
-        return this.setValid('required')
-      }
-    } else if (!inArr(this.value, this.options)) {
-      return this.setValid('type')
-    } else if (this.multiple) {
-      if (this.min && !isInt(this.value.length, this.min)) {
-        return this.setValid('min')
-      } else if (this.max && !isInt(this.value.length, null, this.max)) {
-        return this.setValid('max')
-      }
-    }
-    return this.setValid()
-  }
-
-  /**
    * Getter for value for use in post data
    */
   get(): string|string[] {
@@ -83,5 +62,26 @@ export default class SelectModel extends BaseModel implements IFormSelectModel {
   toString(): string {
     const res = this.get()
     return isArr(res) ? res.toString() : toStr(res)
+  }
+
+  /**
+   * Type- and required-validation
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  validate(val: any) {
+    if (isEmpty(this.value)) {
+      if (this.required) {
+        return this._setValid('required')
+      }
+    } else if (!inArr(this.value, this.options)) {
+      return this._setValid('type')
+    } else if (this.multiple) {
+      if (this.min && !isInt(this.value.length, this.min)) {
+        return this._setValid('min')
+      } else if (this.max && !isInt(this.value.length, null, this.max)) {
+        return this._setValid('max')
+      }
+    }
+    return this._setValid()
   }
 }
