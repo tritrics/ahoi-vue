@@ -1,5 +1,5 @@
 import BaseFieldsModel from './BaseFields'
-import type { IUserModel } from './types'
+import type { IUserModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class UserModel extends BaseFieldsModel implements IUserModel {

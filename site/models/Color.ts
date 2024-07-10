@@ -1,6 +1,6 @@
 import { toStr, toBool } from '../../fn'
 import BaseModel from './Base'
-import type { IColorModel } from './types'
+import type { IColorModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class ColorModel extends BaseModel implements IColorModel {

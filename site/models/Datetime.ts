@@ -1,8 +1,7 @@
 import { now } from '../../fn'
 import DateBaseModel from './BaseDate'
 import { globalStore } from '../../plugin'
-import type { IDatetimeModel } from './types'
-import type { IsiteOptions } from '../types'
+import type { ISiteOptions, IDatetimeModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class DatetimeModel extends DateBaseModel implements IDatetimeModel {
@@ -12,7 +11,7 @@ export default class DatetimeModel extends DateBaseModel implements IDatetimeMod
     super(obj)
   }
 
-  str(options: IsiteOptions = {}): string {
+  str(options: ISiteOptions = {}): string {
     return this.value.toLocaleString(
       options?.locale ?? globalStore.get('locale'),
       { ...(options?.date ?? globalStore.get('date')), ...(options?.time ?? globalStore.get('time')) }

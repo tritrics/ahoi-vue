@@ -1,5 +1,5 @@
-import { has, uuid, isStr } from '../../fn'
-import { inject, getPage, stores, globalStore, AddonStore } from '../../plugin'
+import { uuid, isStr } from '../../fn'
+import { inject, getPage, globalStore, AddonStore } from '../../plugin'
 import type { IPageStore } from '../types'
 import type { Object } from '../../types'
 
@@ -16,6 +16,7 @@ class PageStore extends AddonStore implements IPageStore {
   /** */
   constructor() {
     super({
+      changed: 0,
       path: null,
       node: null,
       meta: {},
@@ -37,24 +38,14 @@ class PageStore extends AddonStore implements IPageStore {
     if (json.id !== this.#requestid) {
       return Promise.resolve()
     }
-    if (inject('meta') && has(json.body.fields, 'title')) {
-      stores('meta').set('title', json.body.fields.title.value)
-    }
     this._set('node', node)
-    if (inject('site')) {
-      const convertResponse = inject('site', 'convertResponse') as Function
-      const res: Object = convertResponse(json)
-      this._set('meta', res.meta)
-      this._set('link', res.link)
-      this._set('translations', res.translations ?? [])
-      this._set('fields', res.fields ?? {})
-    } else {
-      this._set('meta', json.body.meta)
-      this._set('link', {})
-      this._set('translations', json.body.translations ?? [])
-      this._set('fields', json.body.fields ?? {})
-    }
-    
+    const convertResponse = inject('site', 'convertResponse') as Function
+    const res: Object = convertResponse(json)
+    this._set('meta', res.meta)
+    this._set('link', res.link)
+    this._set('translations', res.translations ?? [])
+    this._set('fields', res.fields ?? {})
+    this._set('changed', this.get('changed') + 1)
   }
 
   /**

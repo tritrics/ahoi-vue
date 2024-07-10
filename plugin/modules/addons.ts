@@ -50,6 +50,13 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
     }
   }
 
+  // check dependencies
+  for (let i = 0; i < registered.length; i++) {
+    if (isFunc(registered[i].dependencies)) {
+      registered[i].dependencies!(registeredAddons)
+    }
+  }
+
   // register stores 
   for (let i = 0; i < registered.length; i++) {
     if (has(registered[i], 'store')) {

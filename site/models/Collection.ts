@@ -1,5 +1,5 @@
 import { toInt } from '../../fn'
-import type { ICollectionModel } from './types'
+import type { ICollectionModel } from '../types'
 import type { Object } from '../../types'
 
 export default class CollectionModel implements ICollectionModel {

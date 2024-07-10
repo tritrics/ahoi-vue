@@ -1,7 +1,7 @@
 import { has } from '../../fn'
 import BaseModel from './Base'
 import { parse } from '../index'
-import type { IBaseFieldsModel, IModelList } from './types'
+import type { IBaseFieldsModel, IModelList } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class BaseFieldsModel extends BaseModel implements IBaseFieldsModel {

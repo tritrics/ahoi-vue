@@ -22,6 +22,7 @@ class SiteStore extends AddonStore implements ISiteStore {
   /** */
   constructor() {
     super({
+      changed: 0,
       lang: null,
       meta: {},
       fields: {}
@@ -44,6 +45,7 @@ class SiteStore extends AddonStore implements ISiteStore {
     this._set('lang', lang)
     this._set('meta', res.meta)
     this._set('fields', res.fields)
+    this._set('changed', this.get('changed') + 1)
     this.#pristine = false
   }
 

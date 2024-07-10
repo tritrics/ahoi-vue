@@ -1,6 +1,6 @@
 import { toStr, isDate, toDate } from '../../fn'
 import BaseModel from './Base'
-import type { IBaseDateModel } from './types'
+import type { IBaseDateModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class BaseDateModel extends BaseModel implements IBaseDateModel {

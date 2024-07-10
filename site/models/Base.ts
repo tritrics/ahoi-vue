@@ -1,6 +1,6 @@
 import { toStr, each, ltrim } from '../../fn'
 import type { JSONObject } from '../../types'
-import type { ModelTypes, IBaseModel } from './types'
+import type { ModelTypes, IBaseModel } from '../types'
 import type { Object } from '../../types'
 
 export default class BaseModel implements IBaseModel {

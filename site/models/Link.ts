@@ -1,6 +1,6 @@
 import { toStr } from '../../fn'
 import BaseModel from './Base'
-import type { LinkTypes, ILinkModel } from './types'
+import type { LinkTypes, ILinkModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class LinkModel extends BaseModel implements ILinkModel {

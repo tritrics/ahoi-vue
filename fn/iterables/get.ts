@@ -11,6 +11,8 @@ export default function get(obj: Iterable, ...keys: (string|number|(string|numbe
       .flat()
       .map((val: any) => isStr(val) ? val.split('.') : val)
       .flat()
-    return nodes.reduce((node: any, key: string|number) => node[key], obj)
+    return nodes.reduce((next: any, key: string|number) => {
+      return next !== undefined ? next[key] : undefined
+    }, obj)
   }
 }

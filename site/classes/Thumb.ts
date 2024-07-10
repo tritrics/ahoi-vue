@@ -102,29 +102,17 @@ class Thumb implements IThumbModel { // name Image is reservated by JS
   }
 
   /**
-   * Chaining function to set dimension
+   * Getter for thumb-tag attributes, optionally as object or string.
    */
-  dim(width?: number|null, height?: number|null): this {
-    if (isInt(width, 1) || isInt(height, 1)) { // one of two must be given
-      this._width = isInt(width, 1, this._orig.width) ? width : null
-      this._height = isInt(height, 1, this._orig.height) ? height : null
+  attr(asString: boolean = false): string|Object {
+    if (!isObj(this._orig)) {
+      return isTrue(asString) ? '' : []
     }
-    return this
-  }
-
-  /**
-   * Chaining function to set crop
-   */
-  crop(crop?: ThumbCropOptions|boolean): this {
-    if (isBool(crop)) {
-      this._crop = isTrue(crop) ? 'center' : false
-    } else if (isStr(crop)) {
-      const val = toKey(crop)
-      if (inArr(val, this._croppingOptions)) {
-        this._crop = crop as ThumbCropOptions
-      }
+    const attr: Object = this._calculate()
+    if (isStr(this._title, 1)) {
+      attr.alt = this._title
     }
-    return this
+    return isTrue(asString) ? objToAttr(attr) : attr
   }
 
   /**
@@ -146,11 +134,27 @@ class Thumb implements IThumbModel { // name Image is reservated by JS
   }
 
   /**
-   * Chaining function to set JPEG quality (between 1 and 100).
+   * Chaining function to set crop
    */
-  quality(quality?: number|null): this {
-    if (isInt(quality, 1, 100)) {
-      this._quality = quality
+  crop(crop?: ThumbCropOptions|boolean): this {
+    if (isBool(crop)) {
+      this._crop = isTrue(crop) ? 'center' : false
+    } else if (isStr(crop)) {
+      const val = toKey(crop)
+      if (inArr(val, this._croppingOptions)) {
+        this._crop = crop as ThumbCropOptions
+      }
+    }
+    return this
+  }
+
+  /**
+   * Chaining function to set dimension
+   */
+  dim(width?: number|null, height?: number|null): this {
+    if (isInt(width, 1) || isInt(height, 1)) { // one of two must be given
+      this._width = isInt(width, 1, this._orig.width) ? width : null
+      this._height = isInt(height, 1, this._orig.height) ? height : null
     }
     return this
   }
@@ -177,20 +181,6 @@ class Thumb implements IThumbModel { // name Image is reservated by JS
   }
 
   /**
-   * Getter for thumb-tag attributes, optionally as object or string.
-   */
-  attr(asString: boolean = false): string|Object {
-    if (!isObj(this._orig)) {
-      return isTrue(asString) ? '' : []
-    }
-    const attr: Object = this._calculate()
-    if (isStr(this._title, 1)) {
-      attr.alt = this._title
-    }
-    return isTrue(asString) ? objToAttr(attr) : attr
-  }
-
-  /**
    * Preload the image.
    */
   async preload(): Promise<any> {
@@ -204,6 +194,31 @@ class Thumb implements IThumbModel { // name Image is reservated by JS
       Preload.onerror = reject
       Preload.src = attr.src
     })
+  }
+
+  /**
+   * Chaining function to set JPEG quality (between 1 and 100).
+   */
+  quality(quality?: number|null): this {
+    if (isInt(quality, 1, 100)) {
+      this._quality = quality
+    }
+    return this
+  }
+
+  /**
+   * Getter for scr/href
+   */
+  src(): string {
+    if (!isObj(this._orig)) {
+      return ''
+    }
+    const attr: Object = this._calculate()
+    return attr.src
+  }
+
+  toString(): string {
+    return 'Instance of class Thumb'
   }
 
   /**
@@ -302,10 +317,6 @@ class Thumb implements IThumbModel { // name Image is reservated by JS
       res.height *= 2
     }
     return res
-  }
-
-  toString(): string {
-    return 'Instance of class Thumb'
   }
 }
 

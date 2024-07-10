@@ -1,3 +1,4 @@
+import { inArr } from '../fn'
 import I18nStore from './classes/I18nStore'
 import type { II18nStore } from './types'
 import type { IApiAddon } from '../types'
@@ -16,6 +17,11 @@ export function createI18n(): IApiAddon {
     store: i18nStore,
     export: {
       store: i18nStore
+    },
+    dependencies(addons: string[]): void {
+      if(!inArr('site', addons)) {
+        throw new Error('AHOI Plugin: Addon i18n requires addon site.')
+      }
     }
   }
 }

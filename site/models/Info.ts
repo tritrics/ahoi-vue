@@ -1,7 +1,7 @@
 import { has, isTrue, isArr } from '../../fn'
 import BaseModel from './Base'
 import { parse } from '../index'
-import type { IInfoModel, ILanguageModel, IInfoMeta } from './types'
+import type { IInfoModel, ILanguageModel, IInfoMeta } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class InfoModel extends BaseModel implements IInfoModel {

@@ -33,13 +33,9 @@ class I18nStore extends AddonStore implements II18nStore {
       return Promise.resolve()
     }
     this._set('lang', lang)
-    if (inject('site')) {
-      const convertResponse = inject('site', 'convertResponse') as Function
-      const res = convertResponse(json)
-      this._set('terms', res.fields)
-    } else {
-      this._set('terms', json.body.fields)
-    }
+    const convertResponse = inject('site', 'convertResponse') as Function
+    const res = convertResponse(json)
+    this._set('terms', res.fields)
   }
 
   /**

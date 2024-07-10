@@ -1,6 +1,6 @@
 import { has, toStr, toKey, isArr, count } from '../../fn'
 import BaseModel from './Base'
-import type { NodeModelTypes, INodeModel } from './types'
+import type { NodeModelTypes, INodeModel } from '../types'
 import type { Object, JSONObject } from '../../types'
 
 export default class NodeModel extends BaseModel implements INodeModel {

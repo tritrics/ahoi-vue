@@ -1,3 +1,4 @@
+import { inArr } from '../fn'
 import RouterStore from './classes/RouterStore'
 import PageStore from './classes/PageStore'
 import type { IRouterStore, IPageStore } from './types'
@@ -29,7 +30,7 @@ async function getRouter(): Promise<Router|undefined> {
       return mod.routerFactory()
     },
     () => {
-      throw new Error(`Router factory ${routerStore.get('type')} not found`)
+      throw new Error(`AHOI Plugin: Router factory ${routerStore.get('type')} not found`)
     })
 }
 
@@ -43,12 +44,22 @@ export function createRouter(): IApiAddon[] {
     export: {
       store: routerStore,
       getRouter
+    },
+    dependencies(addons: string[]): void {
+      if(!inArr('site', addons)) {
+        throw new Error('AHOI Plugin: Addon router requires addon site.')
+      }
     }
   }, {
     name: 'page',
     store: pageStore,
     export: {
       store: pageStore,
+    },
+    dependencies(addons: string[]): void {
+      if(!inArr('site', addons)) {
+        throw new Error('AHOI Plugin: Addon page of router requires addon site.')
+      }
     }
   }]
 }

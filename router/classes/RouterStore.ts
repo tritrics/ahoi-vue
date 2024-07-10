@@ -1,4 +1,4 @@
-import { each, has, count, upperFirst, inArr, isStr, isBool, isObj, toKey, toBool } from '../../fn'
+import { each, has, count, upperFirst, inArr, isStr, isBool, isObj, isUrl, isEmpty, toKey, toBool } from '../../fn'
 import { installedRouterTypes } from '../index'
 import { AddonStore, optionsStore } from '../../plugin'
 import type { RouteRecordRaw } from 'vue-router'
@@ -13,12 +13,18 @@ class RouterStore extends AddonStore implements IRouterStore {
   /** */
   constructor() {
     super({
+
+      // router configuration
       type: 'dynamic-load',
       history: 'hash',
       scroll: false,
       default: {},
       notfound: {},
-      blueprints: {}
+      blueprints: {},
+
+      // router status
+      url: null,
+      //... add more if required
     })
   }
   
@@ -36,7 +42,7 @@ class RouterStore extends AddonStore implements IRouterStore {
     // default route must always exist
     const defaultRoute = this.#getRouteDefNormalized(def.default)
     if (!defaultRoute) {
-      throw new Error('Router configuration needs at least a default route')
+      throw new Error('AHOI Plugin: Router configuration needs at least a default route')
     }
     this._set('default', defaultRoute)
 
@@ -72,16 +78,6 @@ class RouterStore extends AddonStore implements IRouterStore {
   }
 
   /**
-   * Setter for router-type
-   */
-  _setType(val: any): void {
-    val = toKey(val)
-    if (isStr(val) && inArr(val, installedRouterTypes)) {
-      this._set('type', val)
-    }
-  }
-
-  /**
    * Setter history mode
    */
   _setHistory(val: any): void {
@@ -97,6 +93,25 @@ class RouterStore extends AddonStore implements IRouterStore {
   _setScroll(val: any): void {
     if (isBool(val, false)) {
       this._set('scroll', toBool(val))
+    }
+  }
+
+  /**
+   * Setter for router-type
+   */
+  _setType(val: any): void {
+    val = toKey(val)
+    if (isStr(val) && inArr(val, installedRouterTypes)) {
+      this._set('type', val)
+    }
+  }
+
+  /**
+   * Setter for router-type
+   */
+  _setUrl(val: any): void {
+    if (isUrl(val) || isEmpty(val)) {
+      this._set('url', val)
     }
   }
 

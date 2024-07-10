@@ -45,8 +45,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       direction: 'ltr',
       home: 'home',
       host: null,
-      lang: null, // selected lang in a multilang enviroment, null on default!
-      langDefault: null,
+      lang: null, // selected lang in a multilang enviroment, null on default and in nolang enviroments!
       languages: [],
       locale: 'en-EN',
       multilang: false, // autoset with languages

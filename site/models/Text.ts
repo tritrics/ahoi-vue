@@ -1,8 +1,7 @@
 import { isTrue } from '../../fn'
 import BaseModel from './Base'
 import { globalStore } from '../../plugin'
-import type { ITextModel } from './types'
-import type { IsiteOptions } from '../types'
+import type { ITextModel, ISiteOptions } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class TextModel extends BaseModel implements ITextModel {
@@ -12,7 +11,7 @@ export default class TextModel extends BaseModel implements ITextModel {
     super(obj.value)
   }
   
-  str(options: IsiteOptions = {}): string {
+  str(options: ISiteOptions = {}): string {
     let str: string = this.value
     if(isTrue(options?.nl2br ?? globalStore.get('nl2br'))) {
       str = str.replace(/\n/mg, '<br />')

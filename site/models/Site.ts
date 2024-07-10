@@ -1,5 +1,5 @@
 import BaseFieldsModel from './BaseFields'
-import type { IPageMeta, ISiteModel } from './types'
+import type { IPageMeta, ISiteModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class SiteModel extends BaseFieldsModel implements ISiteModel {

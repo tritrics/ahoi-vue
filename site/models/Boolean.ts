@@ -1,6 +1,6 @@
 import { toBool } from '../../fn'
 import BaseModel from './Base'
-import type { IBooleanModel } from './types'
+import type { IBooleanModel } from '../types'
 
 export default class BooleanModel extends BaseModel implements IBooleanModel {
   type: 'boolean' = 'boolean'

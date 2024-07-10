@@ -1,6 +1,6 @@
 import { toKey } from '../../fn'
 import BaseFieldsModel from './BaseFields'
-import type { IBlockModel } from './types'
+import type { IBlockModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class BlockModel extends BaseFieldsModel implements IBlockModel {

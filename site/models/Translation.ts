@@ -1,7 +1,7 @@
 import { toStr } from '../../fn'
 import BaseModel from './Base'
-import type { ILinkModel, ITranslationModel } from './types'
 import { createLinkByValues } from './Link'
+import type { ILinkModel, ITranslationModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class TranslationModel extends BaseModel implements ITranslationModel {

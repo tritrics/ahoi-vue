@@ -4,7 +4,7 @@ import CollectionModel from './Collection'
 import TranslationModel from './Translation'
 import { parse } from '../index'
 import { createLinkByValues } from './Link'
-import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta, ITranslationModel } from './types'
+import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta, ITranslationModel } from '../types'
 import type { Object, JSONObject } from '../../types'
 
 export default class PageModel extends BaseFieldsModel implements IPageModel {

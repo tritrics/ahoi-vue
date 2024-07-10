@@ -86,6 +86,10 @@ export function routerFactory(): Router|undefined {
         if (pageStore.get('path') !== to.path) {
           await loadPage(to.path)
         }
+
+        // update router status
+        const url = new URL(to.path, window.location.href)
+        routerStore.set('url', url.href)
         return true
       }
     }

@@ -2,7 +2,7 @@ import { each, has, isArr } from '../../fn'
 import BaseModel from './Base'
 import NodeModel from './Node'
 import LinkModel from './Link'
-import type { IHtmlModel } from './types'
+import type { IHtmlModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class HtmlModel extends BaseModel implements IHtmlModel {

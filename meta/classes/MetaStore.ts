@@ -1,22 +1,37 @@
-import { escape, upperFirst, isStr, isUrl, isEmpty, isNull, toStr, isFunc } from '../../fn'
-import { UserStore, optionsStore, globalStore } from '../../plugin'
-import type { IMetaStore } from '../../types'
+import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFunc } from '../../fn'
+import { UserStore, optionsStore, globalStore, inject, stores } from '../../plugin'
+import { createThumb } from '../../site'
+import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
+import type { Object, IBaseStore, IFilesModel, IFileModel } from '../../types'
 
 /**
  * Meta value store, extends user store, because user can add more properties.
  */
 class MetaStore extends UserStore implements IMetaStore {
 
+  /**
+   * Map of metafields, which can be
+   */
+  #metaFields: IMetaConfigFields = {
+    brand: {},
+    description: {},
+    keywords: {},
+    image: {},
+    separator: {},
+    title: {}
+  }
+
   constructor() {
     super({
       brand: '',
       description: '',
+      keywords: '',
       lang: '',
       locale: '',
       image: '',
       separator: ' - ',
       title: '',
-      //url: ''
+      url: '' // todo
     })
   }
   
@@ -25,20 +40,37 @@ class MetaStore extends UserStore implements IMetaStore {
    */
   async init(): Promise<void> {
 
-    // get user-values from options
-    this._setBrand(optionsStore.get('brand'))
-    this._setDescription(optionsStore.get('description'))
-    this._setImage(optionsStore.get('image'))
-    this._setSeparator(optionsStore.get('separator'))
-    this._setTitle(optionsStore.get('title'))
+    // fields defined in config, taken from config, siteStore or pageStore
+    const watch = this.#setMetaFields(optionsStore.get('meta'))
+    if (watch.site) {
+      stores('site').watch('changed', () => this.#updateMeta())
+    }
+    if (watch.page) {
+      stores('page').watch('changed', () => this.#updateMeta())
+    }
 
-    // watcher
-    globalStore.watch('lang', (newVal: string) => {
-      this._setLang(newVal)
-    }, { immediate: true })
+    // lang from globalStore
+    if (globalStore.isTrue('multilang')) {
+      globalStore.watch('lang', (newVal: string) => {
+        this._setLang(newVal)
+      }, { immediate: true })
+    } else {
+      globalStore.watch('detected', (newVal: string) => {
+        this._setLang(newVal)
+      }, { immediate: true })
+    }
+
+    // locale from globalStore
     globalStore.watch('locale', (newVal: string) => {
       this._setLocale(newVal)
     }, { immediate: true })
+
+    // url from routerStore
+    if (inject('router')) {
+      stores('router').watch('url', (newVal: string) => {
+        this._setUrl(newVal)
+      }, { immediate: true })
+    }
     return Promise.resolve()
   }
 
@@ -80,6 +112,17 @@ class MetaStore extends UserStore implements IMetaStore {
       this.#writeMeta('description', val)
       this.#writeMeta('og:description', val)
       this.#writeMeta('twitter:card', val)
+    }
+  }
+
+  /**
+   * Setter for keywords meta value
+   */
+  _setKeywords(val: any): void {
+    if (isStr(val) || isNull(val)) {
+      val = toStr(val)
+      this._set('keywords', val)
+      this.#writeMeta('keywords', val)
     }
   }
 
@@ -140,12 +183,83 @@ class MetaStore extends UserStore implements IMetaStore {
   /**
    * Setter for url meta value
    */
-  //_setUrl(val: any): void {
-  //  if (isUrl(val) || isEmpty(val)) {
-  //    this._set('url', val)
-  //    this.#writeMeta('og:url', val)
-  //  }
-  //}
+  _setUrl(val: any): void {
+    if (isUrl(val) || isEmpty(val)) {
+      this._set('url', val)
+      this.#writeMeta('og:url', val)
+    }
+  }
+
+  /**
+   * Set a meta value from a given field from a model.
+   */
+  #setFromModel(model: IFilesModel|undefined, field: string): boolean {
+    if (!model) {
+      return false
+    }
+    switch(field) {
+      case 'image': {
+        const file = model.first() as IFileModel
+        if (file && file.isImage()) {
+          const thumb = createThumb(file, 1440, 1440)
+          if (thumb) {
+            this._setImage(thumb.src())
+            return true
+          }
+        }
+        break
+      }
+      default: {
+        const value = model.str()
+        if (isStr(value, 1)) {
+          this.set(field, value)
+          return true
+        }
+      }
+    }
+    return false
+  }
+
+  /**
+   * Helper for init().
+   * Set #metaFields from user options.
+   */
+  #setMetaFields(config: Object): { page: boolean, site: boolean } {
+    const res = { page: false, site: false }
+    const hasPage: boolean = inject('page') as boolean
+    each(this.#metaFields, (def: IMetaConfigField, field: string) => {
+      if (has(config, field)) {
+        this.set(field, config[field]?.default ?? config[field])
+        if (isStr(config[field]?.site, 1)) {
+          this.#metaFields[field].site = config[field].site
+          res.site = true
+        }
+        if (hasPage && isStr(config[field]?.page, 1)) {
+           this.#metaFields[field].page = config[field].page
+           res.page = true
+        }
+      }
+    })
+    return res
+  }
+
+  /**
+   * Batch-update meta fields, which are taken from siteStore or pageStore.
+   * Try to get content field 1st from page and 2nd from site.
+   */
+  #updateMeta(): void {
+    const pageStore: IBaseStore = stores('page') // possibly undefined
+    const siteStore: IBaseStore = stores('site')
+    each(this.#metaFields, (def: IMetaConfigField, field: string) => {
+      let res
+      if (pageStore && def.page) {
+        res = this.#setFromModel(pageStore.get(`fields.${def.page}`), field)
+      }
+      if (!res && def.site) {
+        this.#setFromModel(siteStore.get(`fields.${def.site}`), field)
+      }
+    })
+  }
 
   /**
    * setting lang in <html>

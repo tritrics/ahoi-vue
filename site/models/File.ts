@@ -1,7 +1,7 @@
 import { toInt } from '../../fn'
 import BaseFieldsModel from './BaseFields'
 import { createLinkByValues } from './Link'
-import type { IFileModel, ILinkModel, IFileMeta, IImageMeta } from './types'
+import type { IFileModel, ILinkModel, IFileMeta, IImageMeta } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class FileModel extends BaseFieldsModel implements IFileModel {

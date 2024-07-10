@@ -50,6 +50,7 @@ export interface IApiAddon {
   export?: Object
   components?: Object
   init?: Function
+  dependencies?: Function
 }
 
 export interface IApiOptions {

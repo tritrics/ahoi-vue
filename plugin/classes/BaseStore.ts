@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import { each, has, count, upperFirst, get, isStr, isTrue, isFalse, isEmpty, isObj, isFunc, toStr } from '../../fn'
+import { each, has, count, upperFirst, get as getByPath, isStr, isTrue, isFalse, isEmpty, isObj, isFunc } from '../../fn'
 import type { Object, IBaseStore, IStoreData, IStoreDataValue } from '../../types'
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
 
@@ -37,7 +37,7 @@ class BaseStore implements IBaseStore {
     const root: string|number = keys.shift() as string|number
     if (has(this.#data, root)) {
       if (keys.length > 0) {
-        return get(this.#data[root].ref.value, keys)
+        return getByPath(this.#data[root].ref.value, keys)
       }
       return this.#data[root].ref.value
     }
@@ -163,7 +163,7 @@ class BaseStore implements IBaseStore {
 
   /**
    * Intern Setter
-   * Always creates the property if it's not existing.
+   * Creates the property if it's not existing.
    */
   _set(key: string, val?: any): void {
     if (this.has(key)) {

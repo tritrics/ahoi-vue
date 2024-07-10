@@ -1,8 +1,7 @@
 import { toNum, isInt, isNum, toInt } from '../../fn'
 import BaseModel from './Base'
 import { globalStore } from '../../plugin'
-import type { INumberModel } from './types'
-import type { IsiteOptions } from '../types'
+import type { INumberModel, ISiteOptions } from '../types'
 import type { Object } from '../../types'
 
 export default class NumberModel extends BaseModel implements INumberModel {
@@ -12,7 +11,7 @@ export default class NumberModel extends BaseModel implements INumberModel {
     super(toNum(mixed.value ?? mixed))
   }
 
-  str(options: IsiteOptions = {}) {
+  str(options: ISiteOptions = {}) {
     const fixed: number|undefined = isInt(options.fixed, 1) ? toInt(options.fixed) : undefined
     const stringOptions: Object = {}
     if (isInt(fixed, 1)) {

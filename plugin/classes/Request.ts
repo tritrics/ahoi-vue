@@ -235,7 +235,7 @@ class Request {
   getUrl(...args: (string|string[]|null)[]): string {
     const res = toPath(args)
     if (!isUrl(res)) {
-      throw new Error('No host defined for Api request')
+      throw new Error('AHOI Plugin: No host defined for Api request')
     }
     return res
   }
@@ -284,9 +284,7 @@ class Request {
     if (!response.ok || !json.ok) {
       const msg = json.msg || response.status
       const status = json.status || response.statusText
-      const out = `API reports an error while requesting ${url}: ${msg} (Error ${status})`
-      console.error(out)
-      throw new Error(out)
+      throw new Error(`AHOI Plugin: API reports an error while requesting ${url}: ${msg} (Error ${status})`)
     }
     return json
   }

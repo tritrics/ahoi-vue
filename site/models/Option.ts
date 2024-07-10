@@ -1,6 +1,6 @@
 import { toStr, isStr, isNum, has } from '../../fn'
 import BaseModel from './Base'
-import type { IOptionModel } from './types'
+import type { IOptionModel } from '../types'
 import type { JSONObject } from '../../types'
 
 export default class OptionModel extends BaseModel implements IOptionModel {
