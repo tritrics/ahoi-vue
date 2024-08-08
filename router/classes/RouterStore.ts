@@ -47,14 +47,14 @@ class RouterStore extends AddonStore implements IRouterStore {
     this._set('default', defaultRoute)
 
     // notfound route
-    const notfoundRoute = this.#getRouteDefNormalized(def.notfound)
+    const notfoundRoute = this.#getRouteDefNormalized(def.notfound, defaultRoute.meta)
     this._set('notfound', notfoundRoute ?? defaultRoute)
 
     // optional mapping blueprints to routes
     const blueprints: Object = {}
     if (isObj(def.blueprints)) {
       each(def.blueprints, (def: IRouteOptions, blueprint: string) => {
-        const record = this.#getRouteDefNormalized(def)
+        const record = this.#getRouteDefNormalized(def, defaultRoute.meta)
         if (record) {
           blueprints[blueprint] = record
         }
@@ -134,14 +134,12 @@ class RouterStore extends AddonStore implements IRouterStore {
     return res
   }
 
-
-
   /**
    * Helper to transform the option given route to a normlized route.
    */
-  #getRouteDefNormalized(def: IRouteOptions|undefined): IRouteNormalized|undefined {
+  #getRouteDefNormalized(def: IRouteOptions|undefined, defaultMeta: Object = {}): IRouteNormalized|undefined {
     const res: Object = {
-      meta: {},
+      meta: { ...defaultMeta },
       components: {}
     }
 
@@ -173,7 +171,7 @@ class RouterStore extends AddonStore implements IRouterStore {
         return // incorrect def
       }
 
-      // add meta values
+      // add meta values, overwrite defaultMeta
       each(def, (val: any, key: string) => {
         if (key !== 'component' && key !== 'components') {
           res.meta[key] = val

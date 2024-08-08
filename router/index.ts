@@ -1,6 +1,8 @@
 import { inArr } from '../fn'
 import RouterStore from './classes/RouterStore'
 import PageStore from './classes/PageStore'
+import AhoiRouterView from './components/AhoiRouterView.vue'
+import AhoiRouterViewLayout from './components/AhoiRouterViewLayout.vue'
 import type { IRouterStore, IPageStore } from './types'
 import type { Object, IApiAddon } from "../types"
 import type { Router } from 'vue-router'
@@ -53,6 +55,10 @@ export function createRouter(): IApiAddon[] {
   }, {
     name: 'page',
     store: pageStore,
+    components: {
+      'AhoiRouterView': AhoiRouterView,
+      'AhoiRouterViewLayout': AhoiRouterViewLayout,
+    },
     export: {
       store: pageStore,
     },

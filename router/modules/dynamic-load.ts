@@ -46,7 +46,11 @@ export function routerFactory(): Router|undefined {
     const router = createVueRouter({
     history: getHistoryMode(routerStore.get('history')),
     scrollBehavior() {
-      return isTrue(routerStore.get('scroll')) ? { left: 0, top: 0, behavior: 'smooth' } : false
+      return isTrue(routerStore.get('scroll')) ? {
+        left: 0,
+        top: 0,
+        behavior: 'smooth'
+      } : false
     },
     routes: [{
       path: '/:catchAll(.*)',
