@@ -42,7 +42,7 @@ async function loadPage(path: string): Promise<string|false> {
  * Factory for router with dynamically added routes and
  * automatically page loades in pageStore.
  */
-export function routerFactory(): Router|undefined {
+export function routerFactory(): Router {
     const router = createVueRouter({
     history: getHistoryMode(routerStore.get('history')),
     scrollBehavior() {

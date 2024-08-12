@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { computed, defineAsyncComponent } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
 
@@ -6,7 +6,7 @@ const route = useRoute()
 
 const layout = computed(() => {
   const path = route.meta.layout
-  return defineAsyncComponent(() => import(path as string))
+  return defineAsyncComponent(() => import(/* @vite-ignore */path))
 })
 
 const isLoaded = computed(() => {

@@ -47,7 +47,7 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
   let Router: any
   if (inject('router')) {
     const getRouter = inject('router', 'getRouter') as Function
-    Router = await getRouter()
+    Router = getRouter()
   }
   
   // register plugin

@@ -3,8 +3,9 @@ import RouterStore from './classes/RouterStore'
 import PageStore from './classes/PageStore'
 import AhoiRouterView from './components/AhoiRouterView.vue'
 import AhoiRouterViewLayout from './components/AhoiRouterViewLayout.vue'
+import { routerFactory as dynamicLoadRouter } from './modules/dynamic-load'
 import type { IRouterStore, IPageStore } from './types'
-import type { Object, IApiAddon } from "../types"
+import type { IApiAddon } from "../types"
 import type { Router } from 'vue-router'
 
 /**
@@ -24,16 +25,13 @@ const installedRouterTypes: string[] = [ 'dynamic-load' ]
 
 /**
  * Router factory
- * @TODO: add a router without autom. load of page, don't export pageStore
+ * currently only one router type available
  */
-async function getRouter(): Promise<Router|undefined> {
-  return import(`./modules/${routerStore.get('type')}`).then(
-    (mod: Object) => {
-      return mod.routerFactory()
-    },
-    () => {
-      throw new Error(`AHOI Plugin: Router factory ${routerStore.get('type')} not found`)
-    })
+function getRouter(): Router {
+  switch(routerStore.get('type')) {
+    default:
+      return dynamicLoadRouter()
+  }
 }
 
  /**
