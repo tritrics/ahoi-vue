@@ -1,7 +1,7 @@
 import { isObj } from '../../fn'
 import { Thumb } from '../index'
 import FileModel from '../models/File'
-import type { IFileModel } from '../models/types'
+import type { IFileModel } from '../types'
 import type { IThumbOptions, IThumbImage } from '../../types'
 
 /**
