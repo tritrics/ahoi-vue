@@ -1,7 +1,8 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, RouterHistory } from 'vue-router'
 import type { IAddonStore } from "../types"
 
 export interface IRouterStore extends IAddonStore {
+  getHistoryMode(): RouterHistory
   getRoute(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
 }
 

@@ -1,22 +1,8 @@
-import { createRouter as createVueRouter, createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { isTrue, isStr, toKey } from '../../fn'
+import { createRouter as createVueRouter } from 'vue-router'
+import { isTrue, isStr } from '../../fn'
 import { routerStore, pageStore } from '../index'
 import { globalStore } from '../../plugin'
-import type { Router, RouteLocationNormalized, RouterHistory } from 'vue-router'
-
-/**
- * Get history mode, hash is default
- */
-function getHistoryMode(mode: string|undefined): RouterHistory {
-  switch(toKey(mode)) {
-    case 'web':
-      return createWebHistory()
-    case 'memory':
-      return createMemoryHistory()
-    default: // 'hash'
-      return createWebHashHistory()
-  }
-}
+import type { Router, RouteLocationNormalized } from 'vue-router'
 
 /**
  * Loading a page from a path, select language and return blueprint.
@@ -44,7 +30,7 @@ async function loadPage(path: string): Promise<string|false> {
  */
 export function routerFactory(): Router {
     const router = createVueRouter({
-    history: getHistoryMode(routerStore.get('history')),
+    history: routerStore.getHistoryMode(),
     scrollBehavior() {
       return isTrue(routerStore.get('scroll')) ? {
         left: 0,

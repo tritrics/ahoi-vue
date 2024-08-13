@@ -6,7 +6,7 @@ const route = useRoute()
 
 const layout = computed(() => {
   const path = route.meta.layout
-  return defineAsyncComponent(() => import(/* @vite-ignore */path))
+  return defineAsyncComponent(() => import(path))
 })
 
 const isLoaded = computed(() => {

@@ -1,7 +1,8 @@
+import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
 import { each, has, count, upperFirst, inArr, isStr, isBool, isObj, isUrl, isEmpty, toKey, toBool } from '../../fn'
 import { installedRouterTypes } from '../index'
 import { AddonStore, optionsStore } from '../../plugin'
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, RouterHistory } from 'vue-router'
 import type { IRouterStore, IRouteOptions, IRouteNormalized } from '../types'
 import type { Object } from '../../types'
 
@@ -60,6 +61,20 @@ class RouterStore extends AddonStore implements IRouterStore {
         }
       })
       this._set('blueprints', blueprints)
+    }
+  }
+  
+  /**
+   * Get history mode
+   */
+  getHistoryMode(): RouterHistory {
+    switch(this.get('history')) {
+      case 'web':
+        return createWebHistory()
+      case 'memory':
+        return createMemoryHistory()
+      default: // 'hash'
+        return createWebHashHistory()
     }
   }
 
