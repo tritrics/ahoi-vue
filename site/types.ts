@@ -75,8 +75,9 @@ export type ThumbCropOptions =
  * Models
  */
 export interface IBaseModel {
-  type: ModelTypes,
-  value: any,
+  type: ModelTypes
+  value: any
+  get(): any
   str(options?: Object): string
   toString(): string
 }
