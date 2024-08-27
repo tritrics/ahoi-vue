@@ -201,7 +201,7 @@ class MetaStore extends UserStore implements IMetaStore {
       case 'image': {
         const file = model.first() as IFileModel
         if (file && file.isImage()) {
-          const thumb = createThumb(file, 1440, 1440)
+          const thumb = createThumb(file, 1200, 630) // make definable by user
           if (thumb) {
             this._setImage(thumb.src())
             return true
