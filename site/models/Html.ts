@@ -27,7 +27,7 @@ export default class HtmlModel extends BaseModel implements IHtmlModel {
     if (this.hasChildren()) {
       let html: string = ''
       each (this.value, (node: INodeModel) => {
-        html += node.str()
+        html += node.html()
       })
       return html
     }

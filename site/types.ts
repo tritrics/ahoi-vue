@@ -194,10 +194,12 @@ export interface ILanguageModel extends IBaseModel {
 export interface ILinkModel extends IBaseModel {
   type: 'link'
   value: string
-  meta: {
-    type: LinkTypes
+  attr: {
+    'data-type': LinkTypes
     href: string
   }
+  attrToStr(addLeadingSpace: boolean): string
+  html(): string
 }
 
 export interface IMarkdownModel extends IBaseModel {
@@ -220,6 +222,7 @@ export interface INodeModel extends IBaseModel {
   elem: string
   attr: Object
   attrToStr(addLeadingSpace: boolean): string
+  html(): string
 }
 
 export interface IOptionModel extends IBaseModel {

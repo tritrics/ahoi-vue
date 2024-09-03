@@ -65,16 +65,16 @@ watchEffect(() => {
 
   // to is instance of LinkModel
   if (props.to instanceof LinkModel) {
-    res.type = props.to.meta.type
+    res.type = props.to.attr['data-type']
     res.title = props.to.str()
     if (res.type === 'page' && useRouter.value) {
       res.elem = 'router-link'
       res.to = {
-        path: props.to.meta.href
+        path: props.to.attr.href
       }
     } else {
       res.elem = 'a'
-      res.href = props.to.meta.href
+      res.href = props.to.attr.href
     }
   }
 

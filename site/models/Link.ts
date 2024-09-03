@@ -1,4 +1,4 @@
-import { each, htmlentities, toStr } from '../../fn'
+import { each, trim, toStr } from '../../fn'
 import BaseModel from './Base'
 import type { LinkTypes, ILinkModel } from '../types'
 import type { JSONObject } from '../../types'
@@ -16,25 +16,36 @@ export default class LinkModel extends BaseModel implements ILinkModel {
   /**
    * The link-meta for html element generation
    */
-  meta: {
-    type: LinkTypes
+  attr: {
+    'data-type': LinkTypes
     href: string
   }
 
   /** */
   constructor(obj: JSONObject) {
     super(toStr(obj.meta?.title ?? obj.value))
-    this.meta = {
-      type: obj.meta.type as LinkTypes,
+    this.attr = {
+      'data-type': obj.meta.type as LinkTypes,
       href: obj.meta.href as string
     }
   }
 
   /**
-   * Getter for value as string
+   * Get attributes as a string to be used in html-element
    */
-  str(): string {
-    return `<a href="${this.meta.href}" data-type="${this.meta.type}">${toStr(this.value)}</a>`
+  attrToStr(addLeadingSpace: boolean = false): string {
+    let str: string = ''
+    each(this.attr, (value: string, key: string) => {
+      str += ` ${key}="${value}"`
+    })
+    return addLeadingSpace ? str : trim(str)
+  }
+
+  /**
+   * Get html
+   */
+  html(): string {
+    return `<a${this.attrToStr(true)}>${toStr(this.value)}</a>`
   }
 }
 

@@ -9,7 +9,6 @@ const props = defineProps<Props>()
   <component
     :is="props.model.elem"
     v-bind="props.model.attr"
-    class="ahoi-node"
   >
     <AhoiHtml v-if="props.model.hasChildren()" :model="props.model" :classes="props.classes"/>
     <template v-else>{{ props.model.value }}</template>

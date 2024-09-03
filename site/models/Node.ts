@@ -50,9 +50,9 @@ export default class NodeModel extends BaseModel implements INodeModel {
   }
 
   /**
-   * Getter for value as string
+   * Get html, recoursive
    */
-  str(): string {
+  html(): string {
     switch(this.type) {
       case 'node-text':
         return toStr(this.value)
@@ -62,7 +62,7 @@ export default class NodeModel extends BaseModel implements INodeModel {
         let html: string = `<${this.elem}${this.attrToStr(true)}>`
         if (this.hasChildren()) {
           each(this.value, (node: INodeModel) => {
-            html += node.str()
+            html += node.html()
           })
         } else {
           html += toStr(this.value)
