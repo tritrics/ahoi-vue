@@ -1,4 +1,4 @@
-import { toStr } from '../../fn'
+import { each, htmlentities, toStr } from '../../fn'
 import BaseModel from './Base'
 import type { LinkTypes, ILinkModel } from '../types'
 import type { JSONObject } from '../../types'
@@ -28,6 +28,13 @@ export default class LinkModel extends BaseModel implements ILinkModel {
       type: obj.meta.type as LinkTypes,
       href: obj.meta.href as string
     }
+  }
+
+  /**
+   * Getter for value as string
+   */
+  str(): string {
+    return `<a href="${this.meta.href}" data-type="${this.meta.type}">${toStr(this.value)}</a>`
   }
 }
 

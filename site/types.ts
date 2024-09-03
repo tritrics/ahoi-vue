@@ -219,6 +219,7 @@ export interface INodeModel extends IBaseModel {
   type: NodeModelTypes
   elem: string
   attr: Object
+  attrToStr(addLeadingSpace: boolean): string
 }
 
 export interface IOptionModel extends IBaseModel {

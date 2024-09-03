@@ -1,4 +1,4 @@
-import { has, toStr, toKey, isArr, count } from '../../fn'
+import { has, each, count, trim, htmlentities, toStr, toKey, isArr } from '../../fn'
 import BaseModel from './Base'
 import type { NodeModelTypes, INodeModel } from '../types'
 import type { Object, JSONObject } from '../../types'
@@ -32,6 +32,17 @@ export default class NodeModel extends BaseModel implements INodeModel {
   }
 
   /**
+   * Get attributes as a string to be used in html-element
+   */
+  attrToStr(addLeadingSpace: boolean = false): string {
+    let str: string = ''
+    each(this.attr, (value: string, key: string) => {
+      str += ` ${key}="${htmlentities(value, 'quotes')}"`
+    })
+    return addLeadingSpace ? str : trim(str)
+  }
+
+  /**
    * Check, if node has nodes as child
    */
   hasChildren() {
@@ -42,10 +53,24 @@ export default class NodeModel extends BaseModel implements INodeModel {
    * Getter for value as string
    */
   str(): string {
-    if (this.hasChildren()) {
-      return `html-node ${this.elem}`
+    switch(this.type) {
+      case 'node-text':
+        return toStr(this.value)
+      case 'node-self-closing':
+        return `<${this.elem}${this.attrToStr(true)} />`
+      default: {
+        let html: string = `<${this.elem}${this.attrToStr(true)}>`
+        if (this.hasChildren()) {
+          each(this.value, (node: INodeModel) => {
+            html += node.str()
+          })
+        } else {
+          html += toStr(this.value)
+        }
+        html += `</${this.elem}>`
+        return html
+      }
     }
-    return toStr(this.value)
   }
 
   /** */
