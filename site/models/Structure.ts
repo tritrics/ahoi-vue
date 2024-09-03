@@ -1,13 +1,13 @@
-import { parse } from '../index'
-import type { JSONObject } from '../../types'
+import BaseEntriesModel from './BaseEntries'
+import type { IStructureModel } from '../types'
 
 /**
  * Model representing a structure field.
  */
-export default class StructureModel {
+export default class StructureModel extends BaseEntriesModel implements IStructureModel {
   
-  /** */
-  constructor(obj: JSONObject) {
-    return parse(obj.entries)
-  }
+  /**
+   * Type
+   */
+  type: 'structure' = 'structure'
 }

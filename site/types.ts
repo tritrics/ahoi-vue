@@ -110,6 +110,10 @@ export interface IBlockModel extends IBaseModel {
   is(val: string): boolean
 }
 
+export interface IBlocksModel extends IBaseEntriesModel {
+  type: 'blocks'
+}
+
 export interface IBooleanModel extends IBaseModel {
   type: 'boolean'
   value: boolean
@@ -382,6 +386,7 @@ export type ModelTypes =
   | NodeModelTypes
   | 'base'
   | 'block'
+  | 'blocks'
   | 'boolean'
   | 'color'
   | 'date'

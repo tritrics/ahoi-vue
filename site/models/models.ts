@@ -1,5 +1,6 @@
 export { default as base } from './Base'
 export { default as block } from './Block'
+export { default as blocks } from './Blocks'
 export { default as boolean } from './Boolean'
 export { default as color } from './Color'
 export { default as date } from './Date'
