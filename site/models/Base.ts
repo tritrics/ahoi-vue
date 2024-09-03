@@ -29,6 +29,13 @@ export default class BaseModel implements IBaseModel {
   get(): any {
     return this.value
   }
+
+  /**
+   * Compare value
+   */
+  is(compare: any): boolean {
+    return this.value === compare
+  }
   
   /**
    * Getter for value as string

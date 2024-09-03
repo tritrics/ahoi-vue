@@ -78,6 +78,7 @@ export interface IBaseModel {
   type: ModelTypes
   value: any
   get(): any
+  is(compare: any): boolean
   str(options?: Object): string
   toString(): string
 }
