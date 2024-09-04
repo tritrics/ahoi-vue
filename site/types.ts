@@ -92,7 +92,9 @@ export interface IBaseDateModel extends IBaseModel {
 
 export interface IBaseEntriesModel extends IBaseModel {
   entries: IBaseModel[]
+  count(): number
   first(): IBaseModel|undefined
+  has(count: number): boolean
 }
 
 export interface IBaseFieldsModel extends IBaseModel {
