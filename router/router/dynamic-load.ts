@@ -15,8 +15,10 @@ async function loadPage(path: string): Promise<string|false> {
       globalStore.setLangFromUrl(url.href)
       await globalStore.updateStores()
     }
-    await pageStore.loadByPath(path)
-    return pageStore.get('meta.blueprint') ?? 'default'
+
+    // Request, but don't commit. Committed by Layout.vue.
+    await pageStore.loadByPath(path, false)
+    return pageStore.getBlueprint() ?? 'default'
   }
   catch (err) {
     console.warn(`Error on loading path ${path}`, err)

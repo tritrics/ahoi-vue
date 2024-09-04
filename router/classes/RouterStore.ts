@@ -79,7 +79,7 @@ class RouterStore extends AddonStore implements IRouterStore {
   }
 
   /**
-   * Getting a route for a given blueprint.
+   * Getting a route-defintion (for router) for a given blueprint.
    * Returnes default-route, if no specific route for blueprint is defined or
    * notfound-route, if blueprint is false.
    */

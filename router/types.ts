@@ -7,8 +7,10 @@ export interface IRouterStore extends IAddonStore {
 }
 
 export interface IPageStore extends IAddonStore {
-  load(node: string): Promise<void>
-  loadByPath(path: string): Promise<void>
+  commit(): void
+  getBlueprint(): string|undefined
+  load(node: string, commit: boolean): Promise<void>
+  loadByPath(path: string, commit: boolean): Promise<void>
 }
 
 export type IRouteOptions = string | IRouteOptionsComponent | IRouteOptionsComponents
