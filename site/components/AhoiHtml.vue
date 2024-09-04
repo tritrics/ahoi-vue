@@ -3,20 +3,25 @@ import { has } from '../../fn'
 import AhoiNode from './AhoiNode.vue'
 import AhoiLink from './AhoiLink.vue'
 import type { Props } from './AhoiHtml'
+import type { Object } from '../../types'
 
 const props = defineProps<Props>()
 
-function getClass(elem: string): any {
+function getAttr(elem: string, attr: Object): any {
+  const res: Object = { ...attr }
   if (props.classes) {
-    let res: any[] = []
-    if(has(props.classes, elem)) {
-      res = res.concat(props.classes[elem])
-    }
+    let classes: any[] = []
     if(has(props.classes, '*')) {
-      res = res.concat(props.classes['*'])
+      classes = classes.concat(props.classes['*'])
     }
-    return res
+    if(has(props.classes, elem)) {
+      classes = classes.concat(props.classes[elem])
+    }
+    if (classes.length > 0) {
+      res.class = classes.join(' ')
+    }
   }
+  return res
 }
 </script>
 
@@ -25,19 +30,18 @@ function getClass(elem: string): any {
     <AhoiNode
       v-if="child.type === 'node'"
       :model="child"
-      :class="getClass(child.elem)"
       :classes="props.classes"
+      v-bind="getAttr(child.elem, {})"
     />
     <AhoiLink
       v-else-if="child.type === 'link'"
       :to="child"
-      :class="getClass('a')"
+      v-bind="getAttr('a', {})"
     />
     <component
       v-else-if="child.type === 'node-self-closing'"
       :is="child.elem"
-      v-bind="child.attr"
-      :class="getClass(child.elem)"
+      v-bind="getAttr(child.elem, child.attr ?? {})"
     />
     <template
       v-else-if="child.type === 'node-text'">
