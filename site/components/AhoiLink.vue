@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
 import LinkModel from '../models/Link'
+import PageModel from '../models/Page'
+import FileModel from '../models/File'
+import TranslationModel from '../models/Translation'
 import { isStr, isObj, has } from '../../fn'
 import { globalStore } from '../../plugin'
 import type { Ref } from 'vue'
@@ -63,58 +66,66 @@ watchEffect(() => {
 
   const res: Object = {}
 
+  // to
+  // extract link, if props.to is instance of PageModel, FileModel or TranslationModel
+  // otherwise use props.to as it is
+  const to =
+    (props.to instanceof PageModel || props.to instanceof FileModel || props.to instanceof TranslationModel)
+    ? props.to.link
+    : props.to
+
   // to is instance of LinkModel
-  if (props.to instanceof LinkModel) {
-    res.type = props.to.attr['data-type']
-    res.title = props.to.str()
+  if (to instanceof LinkModel) {
+    res.type = to.attr['data-type']
+    res.title = to.str()
     if (res.type === 'page' && useRouter.value) {
       res.elem = 'router-link'
       res.to = {
-        path: props.to.attr.href
+        path: to.attr.href
       }
     } else {
       res.elem = 'a'
-      res.href = props.to.attr.href
+      res.href = to.attr.href
     }
   }
 
   // to is vue-router params
-  else if (isObj(props.to) && (has(props.to, 'path') || has(props.to, 'name'))) {
+  else if (isObj(to) && (has(to, 'path') || has(to, 'name'))) {
     res.type = 'page'
     res.title = ''
     if (useRouter.value) {
       res.elem = 'router-link'
-      res.to = props.to as ILinkRouterName|ILinkRouterPath
+      res.to = to as ILinkRouterName|ILinkRouterPath
     } else {
       res.elem = 'a'
-      res.href = props.to.path ?? props.to.name
+      res.href = to.path ?? to.name
     }
   }
   
   // to is string
-  else if (isStr(props.to, 1)) {
+  else if (isStr(to, 1)) {
     res.type = 'page'
     res.title = ''
-    if (props.to.substring(0, 1) === '/') {
+    if (to.substring(0, 1) === '/') {
       if (res.type === 'page' && useRouter.value) {
         res.elem = 'router-link'
         res.to = {
-          path: props.to
+          path: to
         }
       } else {
         res.elem = 'a'
-        res.href = props.to
+        res.href = to
       }
     } else {
       res.elem = 'a'
-      res.href = props.to
-      if(props.to.substring(0, 7) === 'http://' || props.to.substring(0, 8) === 'https://') {
+      res.href = to
+      if(to.substring(0, 7) === 'http://' || to.substring(0, 8) === 'https://') {
         res.type = 'url' // file is url here, because it's not possible to distinguish
-      }  else if(props.to.substring(0, 7) === 'mailto:') {
+      }  else if(to.substring(0, 7) === 'mailto:') {
         res.type = 'email'
-      } else if(props.to.substring(0, 4) === 'tel:') {
+      } else if(to.substring(0, 4) === 'tel:') {
         res.type = 'tel'
-      } else if (props.to.substring(0, 1) === '#') {
+      } else if (to.substring(0, 1) === '#') {
         res.type = 'anchor'
       } else {
         res.type = 'custom'
