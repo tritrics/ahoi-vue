@@ -1,4 +1,4 @@
-import { each, trim, toStr } from '../../fn'
+import { each, trim, toStr, ltrim } from '../../fn'
 import BaseModel from './Base'
 import type { LinkTypes, ILinkModel } from '../types'
 import type { JSONObject } from '../../types'
@@ -46,6 +46,19 @@ export default class LinkModel extends BaseModel implements ILinkModel {
    */
   html(): string {
     return `<a${this.attrToStr(true)}>${toStr(this.value)}</a>`
+  }
+
+  /**
+   * Get href of link-type url as relative path (strip host),
+   * because Kirby doesn't allow relative paths in url-field
+   */
+  relPath(): string {
+    if (this.attr['data-type'] === 'url') {
+      const url = new URL(this.attr.href)
+      const reg = new RegExp(String.raw`^(${url.origin})`, 'g')
+      return '/' + ltrim(this.attr.href.replace(reg, ''), '/')
+    }
+    return ''
   }
 }
 

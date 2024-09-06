@@ -203,6 +203,7 @@ export interface ILinkModel extends IBaseModel {
   }
   attrToStr(addLeadingSpace: boolean): string
   html(): string
+  relPath(): string
 }
 
 export interface IMarkdownModel extends IBaseModel {
