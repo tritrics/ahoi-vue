@@ -26,7 +26,9 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
   /** */
   constructor(obj: JSONObject) {
     let value: Date|null = null
-    if (isDate(obj.value, null, null, false, 'yyyy-mm-dd')) {
+    if (isDate(obj.value, null, null, false, 'yyyy-mm-dd hh:ii:ss')) {
+      value = toDate(obj.value, 'yyyy-mm-dd hh:ii:ss') as Date
+    } else if (isDate(obj.value, null, null, false, 'yyyy-mm-dd')) {
       value = toDate(obj.value, 'yyyy-mm-dd') as Date
     } else if (isDate(obj.value, null, null, false, 'hh:ii:ss')) {
       value = toDate(obj.value, 'hh:ii:ss') as Date

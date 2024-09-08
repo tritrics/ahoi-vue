@@ -123,17 +123,9 @@ export interface IBooleanModel extends IBaseModel {
 }
 
 export interface ICollectionModel {
-  set: number
-  limit: number
-  count: number
-  start: number
-  end: number
-  sets: number
   total: number
-  hasPrev(count: number): boolean
-  hasNext(count: number): boolean
-  prev(count: number): number
-  next(count: number): number
+  limit: number
+  offset: number
   toString(): string
 }
 

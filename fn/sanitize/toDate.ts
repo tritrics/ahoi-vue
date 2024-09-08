@@ -34,12 +34,21 @@ export default function toDate(val: string|Date, format: RegExp|string = 'yyyy-m
   }
   if (res.groups.h) {
     date.setUTCHours(toInt(res.groups.h))
-  }
-  if (res.groups.i) {
-    date.setUTCMinutes(toInt(res.groups.i))
-  }
-  if (res.groups.s) {
-    date.setUTCSeconds(toInt(res.groups.s))
+    if (res.groups.i) {
+      date.setUTCMinutes(toInt(res.groups.i))
+      if (res.groups.s) {
+        date.setUTCSeconds(toInt(res.groups.s))
+      } else {
+        date.setUTCSeconds(0)
+      }
+    } else {
+      date.setUTCMinutes(0)
+      date.setUTCSeconds(0)
+    }
+  } else {
+    date.setUTCHours(0)
+    date.setUTCMinutes(0)
+    date.setUTCSeconds(0)
   }
   date.setUTCMilliseconds(0)
   if (

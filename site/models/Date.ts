@@ -25,7 +25,10 @@ export default class DateModel extends DateBaseModel implements IDateModel {
   str(options: ISiteOptions = {}): string {
     return this.value.toLocaleDateString(
       options?.locale ?? globalStore.get('locale'),
-      options?.time ?? globalStore.get('time')
+      {
+        ...(options?.date ?? globalStore.get('date')),
+        timeZone: 'UTC'
+      }
     )
   }
 
