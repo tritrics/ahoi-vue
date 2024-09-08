@@ -58,7 +58,7 @@ export interface IApiOptions {
   lang?: string
   langdetect?: boolean
   locale?: string
-  debug?: boolean
+  debug?: number
   direction?: 'ltr' | 'rtl'
   nl2br?: boolean
   router?: boolean
@@ -73,14 +73,15 @@ export interface IApiOptions {
 }
 
 export interface IApiRequestOptions {
-  host?: string|null
-  lang?: string|null
   fields?: string[]
-  limit?: number
-  set?: number
-  order?: ApiOrder
-  raw?: boolean
+  filter?: any[]
+  host?: string|null
   id?: string
+  limit?: number
+  offset?: number
+  raw?: boolean
+  sort?: any[]
+  status?: ApiPagesStatus
 }
 
 export type ApiMethods =
@@ -89,6 +90,7 @@ export type ApiMethods =
   'PUT' |
   'DELETE'
 
-export type ApiOrder =
-  'asc' |
-  'desc'
+export type ApiPagesStatus =
+  'listed' |
+  'unlisted' |
+  'published'

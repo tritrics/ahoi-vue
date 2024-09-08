@@ -1,19 +1,6 @@
 import { ref } from 'vue'
 import { Request } from '../index'
-import type { IFormParams, IApiRequestOptions, ApiMethods, JSONObject } from '../../types'
-
-/**
- * Generic API-request
- */
-export async function call(
-  path: string,
-  method: ApiMethods = 'GET',
-  data: IFormParams = {},
-  options: IApiRequestOptions = {}
-): Promise<JSONObject>
-{
-  return await createRequest(options).call(path, method, data)
-}
+import type { IFormParams, IApiRequestOptions, JSONObject } from '../../types'
 
 /**
  * Create a request object for use with chainging-functions.

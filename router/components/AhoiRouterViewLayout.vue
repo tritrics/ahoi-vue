@@ -5,18 +5,13 @@ import { useRoute, RouterView } from 'vue-router'
 const route = useRoute()
 const { stores } = inject('api')
 
-function commitPage() {
-  stores('page').commit()
-}
-
 const layout = computed(() => {
   const path = route.meta.layout
   return defineAsyncComponent(() => import(path))
 })
 
-// not needed, because onUpdated is always invoked.
-// onMounted(() => commitPage())
-onUpdated(() => commitPage())
+// onMounted() not needed, because onUpdated is always invoked.
+onUpdated(() => stores('page').commit())
 
 </script>
 

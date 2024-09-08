@@ -5,13 +5,8 @@ import { useRoute, RouterView } from 'vue-router'
 const route = useRoute()
 const { stores } = inject('api')
 
-function commitPage() {
-  stores('page').commit()
-}
-
-// not needed, because onUpdated is always invoked.
-// onMounted(() => commitPage())
-onUpdated(() => commitPage())
+// onMounted() not needed, because onUpdated is always invoked.
+onUpdated(() => stores('page').commit())
 </script>
 
 <template>

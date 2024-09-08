@@ -1,25 +1,4 @@
-import {
-  each,
-  count,
-  has,
-  trim,
-  lower,
-  regEsc,
-  rtrim,
-  unique,
-  isUrl,
-  isArr,
-  isBool,
-  isStr,
-  isObj,
-  isEmpty,
-  isLocale,
-  toBool,
-  isUndef,
-  isTrue,
-  toLocale,
-  toKey
-} from '../../fn'
+import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../fn'
 import AddonStore from './AddonStore'
 import { optionsStore, inject } from '../index'
 import type { Object, IGlobalStore, II18nStore, ISiteStore, IHomeStore } from '../../types'

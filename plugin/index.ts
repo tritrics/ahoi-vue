@@ -1,4 +1,4 @@
-import { each, isTrue } from '../fn'
+import { each } from '../fn'
 import AddonStore from './classes/AddonStore'
 import BaseStore from './classes/BaseStore'
 import UserStore from './classes/UserStore'
@@ -6,7 +6,7 @@ import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
 import debug from './modules/debug'
-import { call, getFieldsRef, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
+import { getFieldsRef, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
 import type { IApiOptions, IApiAddon, IGlobalStore, IAddonStore } from '../types'
@@ -31,7 +31,7 @@ let globalStore: IGlobalStore
  * Plugin factory
  */
 export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
-  debug.activate(isTrue(options.debug, false))
+  debug.level(options.debug)
   debug.log(':: AHOI PLUGIN INSTALLED ::')
 
   // init the stores
@@ -58,7 +58,6 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
         VERSION,
         store: globalStore,
         options: optionsStore,
-        call,
         getFieldsRef,
         getFile,
         getFiles,
@@ -95,7 +94,6 @@ export {
   VERSION,
   globalStore,
   optionsStore,
-  call,
   getFieldsRef,
   getFile,
   getFiles,

@@ -1,40 +1,64 @@
+import { isInt } from '../../fn'
+
 /**
  * Provide a simple logging function to display async start/stop overview.
  * Disabled in production.
  */
 
+/**
+ * 0: off
+ * 1: error
+ * 2: warn
+ * 3: log
+ * 4: verbose
+ */
 let level = 0
+
+let indent = 0
 
 /**
  * Helper to get the log row
  */
 function getLogRow(args: any[]): any[] {
-  const add: number = args[0] === '>' ? 1 : 0
+  let add: number = 0
+  if (args[0] === '>') {
+    add = 1
+    args.shift()
+    args[0] = '%c' + args[0] + '%c'
+    args.push('font-weight: bold')
+    args.push('font-weight: normal')
+    console.log(args)
+  }
   if (args[0] === '<') {
-    level = level > 0 ? level - 1 : level
+    indent = indent > 0 ? indent - 1 : indent
+    args.shift()
   }
-  if (level > 0) {
-    args.unshift('|' + ' |'.repeat(level-1))
+  if (indent > 0) {
+    args[0] = '|' + ' |'.repeat(indent-1) + ' ' + args[0]
   }
-  level = level + add
+  indent = indent + add
   return args
 }
 
 const debug = {
+  verbose(...args: any): void {
+    if (level < 4) return
+    console.log(...getLogRow(args))
+  },
   log(...args: any): void {
-    if (level < 0) return
+    if (level < 3) return
     console.log(...getLogRow(args))
   },
   warn(...args: any): void {
-    if (level < 0) return
+    if (level < 2) return
     console.warn(...getLogRow(args))
   },
   error(...args: any): void {
-    if (level < 0) return
+    if (level < 1) return
     console.error(...getLogRow(args))
   },
-  activate(activate: boolean = true): void {
-    level = activate ? 0 : -1
+  level(set: number|undefined): void {
+    level = isInt(set, 0, 4) ? set : 0
   }
 }
 
