@@ -28,18 +28,39 @@ export default class BaseEntriesModel extends BaseModel implements IBaseEntriesM
   }
 
   /**
-   * Get the first element
+   * No entries
    */
-  first(): IBaseModel|undefined {
-    if (has(this.entries, 0)) {
-      return this.entries[0]
-    }
+  empty(): boolean {
+    return this.count() === 0
   }
 
   /**
-   * Check min. number of entries
+   * Get the first element
    */
-  has(count: number = 1): boolean {
-    return this.count() >= count
+  first(): IBaseModel|undefined {
+    return this.nth(0)
+  }
+
+  /**
+   * Check entry by index
+   */
+  has(index: number = 0): boolean {
+    return has(this.entries, index)
+  }
+
+  /**
+   * Get the last element
+   */
+  last(): IBaseModel|undefined {
+    return this.nth(this.count() - 1)
+  }
+
+  /**
+   * Get any element by index
+   */
+  nth(index: number = 0): IBaseModel|undefined {
+    if (has(this.entries, index)) {
+      return this.entries[index]
+    }
   }
 }

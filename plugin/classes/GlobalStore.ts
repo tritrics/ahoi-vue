@@ -29,7 +29,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
       locale: 'en-EN',
       multilang: false, // autoset with languages
       nl2br: false,
-      router: true,
+      router: false,
       time: { hour: '2-digit', minute: '2-digit' }
     })
 
@@ -93,7 +93,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   }
 
   /**
-   * Check, if the given language is valid.
+   * Check, if the given language is valid in multilang-enviroment
    */
   isValidLang(code: string|null|undefined): boolean {
     if (this.isFalse('multilang')) {
@@ -204,17 +204,18 @@ class GlobalStore extends AddonStore implements IGlobalStore {
 
     // 1. from given (user-option)
     const userLang: string = toKey(val)
-    if (this.isValidLang(userLang)) {
-      this._set('detected', userLang)
-      return
+    if (
+      (this.isFalse('multilang') && isStr(userLang, 2, 2)) ||
+      this.isValidLang(userLang)
+    ) {
+      return this._set('detected', userLang)
     }
 
     // 2. from browser
     for (let i = 0; i < navigator.languages.length; i++) {
       const navLang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
       if (!isUndef(navLang) && this.isValidLang(navLang)) {
-        this._set('detected', navLang)
-        return
+        return this._set('detected', navLang)
       }
     }
     
@@ -225,8 +226,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
     // 3. default lang like defined in Kirby
     for(const lang in this.#langmap) {
       if (isTrue(this.#langmap[lang].default)) {
-        this._set('detected', lang)
-        return
+        return this._set('detected', lang)
       }
     }
 
@@ -348,7 +348,7 @@ class GlobalStore extends AddonStore implements IGlobalStore {
   _setRouter(val: any): void {
     if (isBool(val, false)) {
       this._set('router', toBool(val))
-    } else if (isObj(val) && has(val, 'default')) {
+    } else if (isObj(val) && has(val, 'type')) {
       this._set('router', true)
     }
   }

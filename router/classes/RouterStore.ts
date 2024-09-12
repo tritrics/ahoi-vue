@@ -20,7 +20,7 @@ class RouterStore extends AddonStore implements IRouterStore {
       history: 'hash',
       scroll: false,
       default: {},
-      notfound: {},
+      catchall: {},
       blueprints: {},
 
       // router status
@@ -47,9 +47,9 @@ class RouterStore extends AddonStore implements IRouterStore {
     }
     this._set('default', defaultRoute)
 
-    // notfound route
-    const notfoundRoute = this.#getRouteDefNormalized(def.notfound, defaultRoute.meta)
-    this._set('notfound', notfoundRoute ?? defaultRoute)
+    // catchall route
+    const catchallRoute = this.#getRouteDefNormalized(def.catchall, defaultRoute.meta)
+    this._set('catchall', catchallRoute ?? defaultRoute)
 
     // optional mapping blueprints to routes
     const blueprints: Object = {}
@@ -81,11 +81,11 @@ class RouterStore extends AddonStore implements IRouterStore {
   /**
    * Getting a route-defintion (for router) for a given blueprint.
    * Returnes default-route, if no specific route for blueprint is defined or
-   * notfound-route, if blueprint is false.
+   * catchall-route, if blueprint is false.
    */
   getRoute(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
     if (blueprint === false || !isStr(blueprint, 1)) {
-      return this.#getRouteHelper(this.get('notfound'), 'notfound', path, meta)
+      return this.#getRouteHelper(this.get('catchall'), 'catchall', path, meta)
     } else if (this.has(`blueprints.${blueprint}`)) {
       return this.#getRouteHelper(this.get(`blueprints.${blueprint}`), blueprint, path, meta)
     }

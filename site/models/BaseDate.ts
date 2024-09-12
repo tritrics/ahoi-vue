@@ -38,4 +38,54 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
     this.iso = toStr(obj.iso)
     this.timezone = toStr(obj.timezone)
   }
+
+  /**
+   * Get the day in the month
+   */
+  day(): number|null {
+    if (this.value) {
+      return this.value.getUTCDate()
+    }
+    return null
+  }
+  
+  /**
+   * Get hours
+   */
+  hours(): number|null {
+    if (this.value) {
+      return this.value.getUTCHours()
+    }
+    return null
+  }
+  
+  /**
+   * Get minutes
+   */
+  minutes(): number|null {
+    if (this.value) {
+      return this.value.getUTCMinutes()
+    }
+    return null
+  }
+
+  /**
+   * Get (the real) number of the month
+   */
+  month(): number|null {
+    if (this.value) {
+      return this.value.getUTCMonth() + 1
+    }
+    return null
+  }
+
+  /**
+   * Get full year
+   */
+  year(): number|null {
+    if (this.value) {
+      return this.value.getUTCFullYear()
+    }
+    return null
+  }
 }

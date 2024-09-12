@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
-import LinkModel from '../models/Link'
 import PageModel from '../models/Page'
 import FileModel from '../models/File'
 import TranslationModel from '../models/Translation'
-import { isStr, isObj, has } from '../../fn'
+import { isStr, isObj, toStr, has } from '../../fn'
 import { globalStore } from '../../plugin'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
@@ -47,7 +46,7 @@ const attr = computed<Attributes>(() => {
     if (link.value.href) {
       res.href = link.value.href
     }
-    res.class = `link ${link.value.type}`
+    res.class = `ahoi-link ${link.value.type}`
     if (link.value.type === 'url') {
       res.target = '_blank'
     }
@@ -75,9 +74,9 @@ watchEffect(() => {
     : props.to
 
   // to is instance of LinkModel
-  if (to instanceof LinkModel) {
+  if (isObj(to) && (has(to, 'attr') && has(to.attr, 'data-type') && has(to.attr, 'href'))) {
     res.type = to.attr['data-type']
-    res.title = to.str()
+    res.title = toStr(to.value) || to.attr.href
     if (res.type === 'page' && useRouter.value) {
       res.elem = 'router-link'
       res.to = {
@@ -132,6 +131,13 @@ watchEffect(() => {
       }
     }
   }
+
+  // rewrite disabled links (easier here)
+  if(props.disabled) {
+    res.elem = 'a'
+    delete res.href
+    delete res.to
+  }
   if (res.elem) {
     link.value = res as ILinkA|ILinkRouter
   }
@@ -154,7 +160,6 @@ function onClick(e: Event) {
     :to="link.to"
     v-bind="attr"
     @click="onClick($event)"
-    class="ahoi-link"
   >
     <slot>{{ link.title }}</slot>
   </component>

@@ -21,7 +21,9 @@ async function loadPage(path: string): Promise<string|false> {
     return pageStore.getBlueprint() ?? 'default'
   }
   catch (err) {
-    console.warn(`Error on loading path ${path}`, err)
+
+    // @TODO: set path to Kirbys notfound-page in config and request that here
+    // or do this in PageModel
     return false
   }
 }
@@ -42,7 +44,7 @@ export function routerFactory(): Router {
     },
     routes: [{
       path: '/:catchAll(.*)',
-      name: 'catchall',
+      name: 'new',
       meta: {
         loaded: false
       },
@@ -55,8 +57,8 @@ export function routerFactory(): Router {
     switch(to.name) {
 
       // step 1.
-      // catchall route is entered, dynamic route is added and redirected to
-      case 'catchall': {
+      // unknown route is entered, dynamic route is added and redirected to
+      case 'new': {
         const blueprint: string|false = await loadPage(to.path)
         router.addRoute(routerStore.getRoute(blueprint, to.path, { loaded: true }))
         return to.fullPath

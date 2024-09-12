@@ -88,13 +88,21 @@ export interface IBaseDateModel extends IBaseModel {
   utc: string
   iso: string
   timezone: string
+  day(): number|null
+  hours(): number|null
+  minutes(): number|null
+  month(): number|null
+  year(): number|null
 }
 
 export interface IBaseEntriesModel extends IBaseModel {
   entries: IBaseModel[]
   count(): number
+  empty(): boolean
   first(): IBaseModel|undefined
-  has(count: number): boolean
+  has(index: number): boolean
+  last(): IBaseModel|undefined
+  nth(index: number): IBaseModel|undefined
 }
 
 export interface IBaseFieldsModel extends IBaseModel {
@@ -239,6 +247,7 @@ export interface IPageModel extends IBaseFieldsModel {
   translations?: ITranslationModel[]
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
+  blueprint(test?: string): string|boolean
 }
 
 export interface IPagesModel extends IBaseEntriesModel {

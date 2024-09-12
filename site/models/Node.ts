@@ -1,4 +1,4 @@
-import { has, each, count, trim, htmlentities, toStr, toKey, isArr } from '../../fn'
+import { has, each, count, trim, htmlentities, toStr, isStr, toKey, isArr } from '../../fn'
 import BaseModel from './Base'
 import type { NodeModelTypes, INodeModel } from '../types'
 import type { Object, JSONObject } from '../../types'
@@ -71,6 +71,17 @@ export default class NodeModel extends BaseModel implements INodeModel {
         return html
       }
     }
+  }
+
+  /**
+   * Getter for value as string
+   */
+  str(options: Object = {}): string {
+    // not working @TODO
+    if (isStr(options?.shy, 1)) {
+      return toStr(this.value).replace(options.shy, '&shy;')
+    }
+    return toStr(this.value)
   }
 
   /** */

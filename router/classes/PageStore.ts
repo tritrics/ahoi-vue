@@ -9,11 +9,11 @@ import type { Object } from '../../types'
 class PageStore extends AddonStore implements IPageStore {
 
   /**
-   * The last loaded page data, before it's commited and therewith saved in store.
+   * The last loaded page data (pageModel), before it's commited and therewith saved in store.
    */
-  #dataLoaded: Object = {
+  #response: Object = {
     node: null,
-    response: {}
+    model: {}
   }
 
   /**
@@ -38,11 +38,11 @@ class PageStore extends AddonStore implements IPageStore {
    * Save the last loaded data in store.
    */
   commit(): void {
-    this._set('node', this.#dataLoaded.node)
-    this._set('meta', this.#dataLoaded.response.meta)
-    this._set('link', this.#dataLoaded.response.link)
-    this._set('translations', this.#dataLoaded.response.translations ?? [])
-    this._set('fields', this.#dataLoaded.response.fields ?? {})
+    this._set('node', this.#response.node)
+    this._set('meta', this.#response.model.meta ?? {})
+    this._set('link', this.#response.model.link ?? {})
+    this._set('translations', this.#response.model.translations ?? [])
+    this._set('fields', this.#response.model.fields ?? {})
     this._set('changed', this.get('changed') + 1)
   }
 
@@ -50,7 +50,15 @@ class PageStore extends AddonStore implements IPageStore {
    * Helper to get the blueprint from last loaded data (not from store).
    */
   getBlueprint(): string|undefined {
-    return this.#dataLoaded.response.meta?.blueprint
+    return this.#response.model.meta?.blueprint
+  }
+
+  /**
+   * Temp. solution in case the object is needed
+   * solution: rebuild stores to be PageModels?
+   */
+  getModel(): Object {
+    return this.#response.model
   }
 
   /**
@@ -66,8 +74,8 @@ class PageStore extends AddonStore implements IPageStore {
       return Promise.resolve()
     }
     const convertResponse = inject('site', 'convertResponse') as Function
-    this.#dataLoaded.node = node
-    this.#dataLoaded.response = convertResponse(json)
+    this.#response.node = node
+    this.#response.model = convertResponse(json)
     if (isTrue(commit)) {
       this.commit()
     }

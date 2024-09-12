@@ -1,4 +1,4 @@
-import { has, each } from '../../fn'
+import { has, each, isStr, toKey } from '../../fn'
 import BaseFieldsModel from './BaseFields'
 import CollectionModel from './Collection'
 import TranslationModel from './Translation'
@@ -46,6 +46,7 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
   constructor(obj: JSONObject) {
     super(obj)
     this.meta = obj.meta
+    this.meta.blueprint = toKey(this.meta.blueprint)
     this.meta.modified = new Date(this.meta.modified)
     this.link = createLinkByValues('page', obj.meta.title, obj.meta.href)
     if (has(obj, 'translations')) {
@@ -60,6 +61,16 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
     if (has(obj, 'entries')) {
       this.entries = parse(obj.entries) as (IPageModel|IFileModel)[]
     }
+  }
+
+  /**
+   * Get blueprint or optionally test against given string.
+   */
+  blueprint(test?: string): string|boolean {
+    if (isStr(test, 1)) {
+      return this.meta.blueprint === toKey(test)
+    }
+    return this.meta.blueprint
   }
 
   /** */

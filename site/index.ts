@@ -75,4 +75,10 @@ export function createSite(): IApiAddon[] {
 /**
  * Export module
  */
-export { siteStore, Thumb, parse, createThumb, convertResponse }
+export {
+  siteStore,
+  Thumb,
+  parse,
+  createThumb,
+  convertResponse
+}

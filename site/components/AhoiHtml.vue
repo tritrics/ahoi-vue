@@ -45,7 +45,7 @@ function getAttr(elem: string, attr: Object): any {
     />
     <template
       v-else-if="child.type === 'node-text'">
-        {{ child }}
+        {{ child.str({ shy: '|' }) }}
     </template>
   </template>
 </template>
