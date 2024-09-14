@@ -1,4 +1,4 @@
-import type { RouteRecordRaw, RouterHistory } from 'vue-router'
+import type { RouteRecordRaw, RouterHistory, RouteComponent } from 'vue-router'
 import type { IAddonStore } from "../types"
 
 export interface IRouterStore extends IAddonStore {
@@ -25,9 +25,13 @@ interface IRouteOptionsComponents extends Object {
   [ key: string ]: any
 }
 
+/**
+ * From vue-router, not exported
+ */
+declare type Lazy<T> = () => Promise<T>
+declare type RawRouteComponent = RouteComponent | Lazy<RouteComponent>
+
 export interface IRouteNormalized {
   meta: Object
-  components: {
-    [ key: string ]: string
-  }
+  components:  Record<string, RawRouteComponent>
 }

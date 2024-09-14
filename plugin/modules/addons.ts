@@ -1,4 +1,4 @@
-import { has, isFunc, inArr, isObj, isStr } from '../../fn'
+import { has, isFn, inArr, isObj, isStr } from '../../fn'
 import { stores } from './stores'
 import type { Object, IApiAddon, IBaseStore } from '../../types'
 
@@ -52,7 +52,7 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
 
   // check dependencies
   for (let i = 0; i < registered.length; i++) {
-    if (isFunc(registered[i].dependencies)) {
+    if (isFn(registered[i].dependencies)) {
       registered[i].dependencies!(registeredAddons)
     }
   }
@@ -69,7 +69,7 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
     .then(() => {
       const promises: Promise<void>[] = []
       for (let i = 0; i < registered.length; i++) {
-        if (isFunc(registered[i].init)) {
+        if (isFn(registered[i].init)) {
           promises.push(registered[i].init!())
         }
       }

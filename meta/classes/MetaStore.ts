@@ -1,4 +1,4 @@
-import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFunc } from '../../fn'
+import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../fn'
 import { UserStore, optionsStore, globalStore, inject, stores } from '../../plugin'
 import { createThumb } from '../../site'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
@@ -81,7 +81,7 @@ class MetaStore extends UserStore implements IMetaStore {
   set(key: string, val?: any): void {
     if (isStr(key, 1)) {
       const setter: string = `_set${upperFirst(key)}`
-      if (isFunc((<any>this)[setter])) {
+      if (isFn((<any>this)[setter])) {
         (<any>this)[setter](val)
       } else {
         this._set(key, val)

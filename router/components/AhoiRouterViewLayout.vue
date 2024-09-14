@@ -6,8 +6,7 @@ const route = useRoute()
 const { stores } = inject('api')
 
 const layout = computed(() => {
-  const path = route.meta.layout
-  return defineAsyncComponent(() => import(path))
+  return defineAsyncComponent(route.meta.layout)
 })
 
 // onMounted() not needed, because onUpdated is always invoked.

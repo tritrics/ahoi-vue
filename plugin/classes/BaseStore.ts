@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import { each, has, count, upperFirst, get as getByPath, isStr, isTrue, isFalse, isEmpty, isObj, isFunc } from '../../fn'
+import { each, has, count, upperFirst, get as getByPath, isStr, isTrue, isFalse, isEmpty, isObj, isFn } from '../../fn'
 import type { Object, IBaseStore, IStoreData, IStoreDataValue } from '../../types'
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
 
@@ -121,7 +121,7 @@ class BaseStore implements IBaseStore {
   set(key: string, val?: any): void {
     if (isStr(key, 1)) {
       const setter: string = `_set${upperFirst(key)}`
-      if (isFunc((<any>this)[setter])) {
+      if (isFn((<any>this)[setter])) {
         (<any>this)[setter](val)
       } else if (this.has(key) || this.ADD_PROPERTIES) {
         this._set(key, val)

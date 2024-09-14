@@ -1,8 +1,8 @@
 import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { each, has, count, upperFirst, inArr, isStr, isBool, isObj, isUrl, isEmpty, toKey, toBool } from '../../fn'
+import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, toKey, toBool } from '../../fn'
 import { installedRouterTypes } from '../index'
 import { AddonStore, optionsStore } from '../../plugin'
-import type { RouteRecordRaw, RouterHistory } from 'vue-router'
+import type { RouteRecordRaw, RouterHistory  } from 'vue-router'
 import type { IRouterStore, IRouteOptions, IRouteNormalized } from '../types'
 import type { Object } from '../../types'
 
@@ -85,11 +85,11 @@ class RouterStore extends AddonStore implements IRouterStore {
    */
   getRoute(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
     if (blueprint === false || !isStr(blueprint, 1)) {
-      return this.#getRouteHelper(this.get('catchall'), 'catchall', path, meta)
+      return this.#getRouteHelper(this.get('catchall'), path, meta)
     } else if (this.has(`blueprints.${blueprint}`)) {
-      return this.#getRouteHelper(this.get(`blueprints.${blueprint}`), blueprint, path, meta)
+      return this.#getRouteHelper(this.get(`blueprints.${blueprint}`), path, meta)
     }
-    return this.#getRouteHelper(this.get('default'), blueprint, path, meta)
+    return this.#getRouteHelper(this.get('default'), path, meta)
   }
 
   /**
@@ -133,18 +133,12 @@ class RouterStore extends AddonStore implements IRouterStore {
   /**
    * Creating the route for use in router.
    */
-  #getRouteHelper(def: IRouteNormalized, blueprint: string, path: string, meta: Object): RouteRecordRaw {
+  #getRouteHelper(def: IRouteNormalized, path: string, meta: Object): RouteRecordRaw {
     const res: RouteRecordRaw = {
       path,
       name: 'dynamic',
       meta: { ...def.meta, ...meta },
-      components: {}
-    }
-
-    // convert components to imports, parse blueprint-name
-    for(const key in def.components) {
-      const parsed = this.#parseBlueprint(def.components[key], blueprint)
-      res.components[key] = () => import(parsed)
+      components: def.components
     }
     return res
   }
@@ -158,8 +152,8 @@ class RouterStore extends AddonStore implements IRouterStore {
       components: {}
     }
 
-    // route defintion is a string
-    if (isStr(def, 1)) {
+    // route defintion is a function
+    if (isFn(def, 1)) {
       res.components.default = def
       return res as IRouteNormalized
     }
@@ -168,15 +162,15 @@ class RouterStore extends AddonStore implements IRouterStore {
     if (isObj(def)) {
 
       // route has component
-      if (has(def, 'component') && isStr(def.component, 1)) {
+      if (has(def, 'component') && isFn(def.component, 1)) {
         res.components.default = def.component
       }
       
       // OR route has components
       else if (has(def, 'components')) {
-        each (def.components, (path: string, name: string) => {
-          if (isStr(name, 1) && isStr(path, 1)) {
-            res.components[name] = path
+        each (def.components, (importFn: any, name: string) => {
+          if (isStr(name, 1) && isFn(importFn, 1)) {
+            res.components[name] = importFn
           }
         })
         if (count(res.components) === 0) {
@@ -194,15 +188,6 @@ class RouterStore extends AddonStore implements IRouterStore {
       })
       return res as IRouteNormalized
     }
-  }
-
-  /**
-   * Enables placeholer %blueprint% or %Blueprint% in components.
-   */
-  #parseBlueprint(path: string, blueprint: string): string {
-    return path
-      .replace('%blueprint%', blueprint)
-      .replace('%Blueprint%', upperFirst(blueprint))  
   }
 }
 
