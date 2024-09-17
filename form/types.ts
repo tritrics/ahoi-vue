@@ -4,6 +4,7 @@ import type { Object, IAddonStore, JSONObject } from '../types'
 export interface IFormStore extends IAddonStore {
   valid: ComputedRef<boolean>
   getFieldValues(): IFormParams
+  isValid(compare: boolean): boolean
   submit(): Promise<JSONObject>
   reset(): void
   validate(onInput: boolean): void

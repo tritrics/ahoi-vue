@@ -11,6 +11,11 @@ import type { Object } from '../../types'
  */
 class RouterStore extends AddonStore implements IRouterStore {
 
+  /** variables containing functions and MUST NOT be reactive */
+  default: IRouteNormalized|null = null
+  catchall: IRouteNormalized|null = null
+  blueprints: Object = {}
+
   /** */
   constructor() {
     super({
@@ -19,9 +24,6 @@ class RouterStore extends AddonStore implements IRouterStore {
       type: 'dynamic-load',
       history: 'hash',
       scroll: false,
-      default: {},
-      catchall: {},
-      blueprints: {},
 
       // router status
       url: null,
@@ -45,11 +47,11 @@ class RouterStore extends AddonStore implements IRouterStore {
     if (!defaultRoute) {
       throw new Error('AHOI Plugin: Router configuration needs at least a default route')
     }
-    this._set('default', defaultRoute)
+    this.default = defaultRoute
 
     // catchall route
     const catchallRoute = this.#getRouteDefNormalized(def.catchall, defaultRoute.meta)
-    this._set('catchall', catchallRoute ?? defaultRoute)
+    this.catchall = catchallRoute ?? defaultRoute
 
     // optional mapping blueprints to routes
     const blueprints: Object = {}
@@ -60,7 +62,7 @@ class RouterStore extends AddonStore implements IRouterStore {
           blueprints[blueprint] = record
         }
       })
-      this._set('blueprints', blueprints)
+      this.blueprints = blueprints
     }
   }
   
@@ -85,11 +87,11 @@ class RouterStore extends AddonStore implements IRouterStore {
    */
   getRoute(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
     if (blueprint === false || !isStr(blueprint, 1)) {
-      return this.#getRouteHelper(this.get('catchall'), path, meta)
-    } else if (this.has(`blueprints.${blueprint}`)) {
-      return this.#getRouteHelper(this.get(`blueprints.${blueprint}`), path, meta)
+      return this.#getRouteHelper(this.catchall as IRouteNormalized, path, meta)
+    } else if (has(this.blueprints, blueprint)) {
+      return this.#getRouteHelper(this.blueprints[blueprint], path, meta)
     }
-    return this.#getRouteHelper(this.get('default'), path, meta)
+    return this.#getRouteHelper(this.default as IRouteNormalized, path, meta)
   }
 
   /**
@@ -134,13 +136,12 @@ class RouterStore extends AddonStore implements IRouterStore {
    * Creating the route for use in router.
    */
   #getRouteHelper(def: IRouteNormalized, path: string, meta: Object): RouteRecordRaw {
-    const res: RouteRecordRaw = {
+    return {
       path,
       name: 'dynamic',
       meta: { ...def.meta, ...meta },
       components: def.components
     }
-    return res
   }
 
   /**
@@ -153,7 +154,7 @@ class RouterStore extends AddonStore implements IRouterStore {
     }
 
     // route defintion is a function
-    if (isFn(def, 1)) {
+    if (isFn(def)) {
       res.components.default = def
       return res as IRouteNormalized
     }
@@ -162,14 +163,14 @@ class RouterStore extends AddonStore implements IRouterStore {
     if (isObj(def)) {
 
       // route has component
-      if (has(def, 'component') && isFn(def.component, 1)) {
+      if (has(def, 'component') && isFn(def.component)) {
         res.components.default = def.component
       }
       
       // OR route has components
       else if (has(def, 'components')) {
         each (def.components, (importFn: any, name: string) => {
-          if (isStr(name, 1) && isFn(importFn, 1)) {
+          if (isStr(name, 1) && isFn(importFn)) {
             res.components[name] = importFn
           }
         })

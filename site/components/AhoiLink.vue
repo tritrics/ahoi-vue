@@ -52,7 +52,7 @@ const attr = computed<Attributes>(() => {
     }
     if (props.disabled) {
       res.disabled = "disabled"
-      res.class = `${res.class} disabled`
+      res.class = `${res.class} is-disabled`
     }
   }
   return res

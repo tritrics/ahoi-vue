@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { each, toKey, isBool, isObj, isStr, toBool } from '../../fn'
+import { each, toKey, isBool, isObj, isStr, toBool, toInt, isTrue } from '../../fn'
 import { AddonStore, postCreate } from '../../plugin'
 import BaseModel from '../models/Base'
 import * as models from '../models/models'
@@ -26,6 +26,7 @@ class FormStore extends AddonStore implements IFormStore {
       lang: '',
       immediate: false,
       processing: false,
+      errno: 0, // error code of LAST submit(), 0 = OK
     })
     this._setAction(options.action)
     this._setLang(options.lang)
@@ -45,6 +46,13 @@ class FormStore extends AddonStore implements IFormStore {
   }
 
   /**
+   * Wrapper/Alternative for valid.value
+   */
+  isValid(compare: boolean = true): boolean {
+    return this.valid.value === toBool(compare)
+  }
+
+  /**
    * Reset form
    */
   reset(): void {
@@ -55,6 +63,58 @@ class FormStore extends AddonStore implements IFormStore {
     this._setLang(options.lang)
     this._setFields(options.fields)
     this._setImmediate(options.immediate)
+  }
+
+  /**
+   * Send the field values to API
+   */
+  async submit(resetOnSuccess: boolean = true): Promise<JSONObject> {
+
+    // Form without action is not submittable, but may be useful for other frondend use.
+    const action = this.get('action')
+    if (!isStr(action, 1)) {
+      return Promise.resolve({} as JSONObject)
+    }
+    const options: Object = {}
+    this._set('processing', true)
+    const res = await postCreate([ this.get('lang'), action], this.getFieldValues(), options)
+    this._set('processing', false)
+
+    /**
+     * @see: ActionService.php
+     * Fatal errors: 1 - 99
+     * Non-fatal errors: >= 100
+     */
+    const errno = toInt(res?.body?.errno) ?? 1
+    this._set('errno', errno)
+    if (errno === 0 && isTrue(resetOnSuccess)) {
+      this.reset()
+    }
+    return res
+  }
+
+  /**
+   * Overall valid flag
+   */
+  valid = computed<boolean>(() => {
+    let res: boolean = true
+    const fields = this.ref('fields')
+    each(fields.value, (field: IFormBaseModel) => {
+      if (!field.valid) {
+        res = false
+      }
+    })
+    return res
+  })
+
+  /**
+   * Validation of all fields and also switch the immediate setting
+   */
+  validate(immediate: boolean = false): void {
+    each(this.get('fields'), (field: IFormBaseModel) => {
+      field.validate()
+    })
+    this._setImmediate(immediate)
   }
 
   /**
@@ -105,47 +165,6 @@ class FormStore extends AddonStore implements IFormStore {
         field.watch(immediate) // watch on/off
       })
     }
-  }
-
-  /**
-   * Send the field values to API
-   */
-  async submit(): Promise<JSONObject> {
-
-    // Form without action is not submittable, but may be useful for other frondend use.
-    const action = this.get('action')
-    if (!isStr(action, 1)) {
-      return Promise.resolve({} as JSONObject)
-    }
-    const options: Object = {}
-    this._set('processing', true)
-    const res = await postCreate([ this.get('lang'), action], this.getFieldValues(), options)
-    this._set('processing', false)
-    return res
-  }
-
-  /**
-   * Overall valid flag
-   */
-  valid = computed<boolean>(() => {
-    let res: boolean = true
-    const fields = this.ref('fields')
-    each(fields.value, (field: IFormBaseModel) => {
-      if (!field.valid) {
-        res = false
-      }
-    })
-    return res
-  })
-
-  /**
-   * Validation of all fields and also switch the immediate setting
-   */
-  validate(immediate: boolean = false): void {
-    each(this.get('fields'), (field: IFormBaseModel) => {
-      field.validate()
-    })
-    this._setImmediate(immediate)
   }
 }
 
