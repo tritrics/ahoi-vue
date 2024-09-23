@@ -45,7 +45,7 @@ export default class NodeModel extends BaseModel implements INodeModel {
   /**
    * Check, if node has nodes as child
    */
-  hasChildren() {
+  has() {
     return this.type === 'node' && isArr(this.value)
   }
 
@@ -60,7 +60,7 @@ export default class NodeModel extends BaseModel implements INodeModel {
         return `<${this.elem}${this.attrToStr(true)} />`
       default: {
         let html: string = `<${this.elem}${this.attrToStr(true)}>`
-        if (this.hasChildren()) {
+        if (this.has()) {
           each(this.value, (node: INodeModel) => {
             html += node.html()
           })

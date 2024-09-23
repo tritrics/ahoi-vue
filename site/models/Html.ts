@@ -24,7 +24,7 @@ export default class HtmlModel extends BaseModel implements IHtmlModel {
    * Getter for value as string
    */
   str(): string {
-    if (this.hasChildren()) {
+    if (this.has()) {
       let html: string = ''
       each (this.value, (node: INodeModel) => {
         html += node.html()
@@ -37,7 +37,7 @@ export default class HtmlModel extends BaseModel implements IHtmlModel {
   /**
    * Flag to check, if child nodes exist
    */
-  hasChildren(): boolean {
+  has(): boolean {
     return isArr(this.value)
   }
 }

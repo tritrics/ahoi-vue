@@ -32,6 +32,13 @@ export default class BooleanModel extends BaseModel implements IBooleanModel {
   }
 
   /**
+   * Helper to compare value
+   */
+  not(val: any): boolean {
+    return toBool(val) !== this.value
+  }
+
+  /**
    * Helper to check if value is true
    */
   isTrue(): boolean {

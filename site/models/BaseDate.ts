@@ -1,6 +1,7 @@
-import { toStr, isDate, toDate } from '../../fn'
+import { toStr, isDate, toDate, dateToStr, now } from '../../fn'
 import BaseModel from './Base'
-import type { IBaseDateModel } from '../types'
+import { globalStore } from '../../plugin'
+import type { ISiteOptions, IBaseDateModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
@@ -22,6 +23,11 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
    * Timezone as string
    */
   timezone: string
+
+  /**
+   * Default dateformat for getter format()
+   */
+  defaultFormat: string = 'yyyy-mm-dd hh:ii:ss'
 
   /** */
   constructor(obj: JSONObject) {
@@ -48,6 +54,13 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
     }
     return null
   }
+
+  /**
+   * Get Date as string in a given format
+   */
+  format(format: string = this.defaultFormat): string {
+    return dateToStr(this.value, format)
+  }
   
   /**
    * Get hours
@@ -57,6 +70,27 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
       return this.value.getUTCHours()
     }
     return null
+  }
+
+  /**
+   * Flag to check, if datetime is in the future
+   */
+  isComing(): boolean {
+    return now() < this.value
+  }
+  
+  /**
+   * Flag to check, if datetime is now
+   */
+  isNow(): boolean {
+    return now() === this.value
+  }
+
+  /**
+   * Flag to check, if datetime is over
+   */
+  isOver(): boolean {
+    return now() > this.value
   }
   
   /**
@@ -77,6 +111,20 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
       return this.value.getUTCMonth() + 1
     }
     return null
+  }
+
+  /**
+   * Getter for value as string
+   */
+  str(options: ISiteOptions = {}): string {
+    return this.value.toLocaleString(
+      options?.locale ?? globalStore.get('locale'),
+      {
+        ...(options?.date ?? globalStore.get('date')),
+        ...(options?.time ?? globalStore.get('time')),
+        timeZone: 'UTC'
+      }
+    )
   }
 
   /**

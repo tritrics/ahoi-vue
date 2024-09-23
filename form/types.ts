@@ -42,6 +42,7 @@ export interface IFormBaseModel {
   validate(val?: any): void
   watch(start: boolean): void
   get(): FormPostValue
+  set(value: any): void
   delete(id?: string): void
   toString(): string
 }

@@ -14,6 +14,11 @@ export default class DateModel extends DateBaseModel implements IDateModel {
    */
   type: 'date' = 'date'
 
+  /**
+   * Default dateformat for getter format()
+   */
+  defaultFormat: string = 'yyyy-mm-dd'
+
   /** */
   constructor(obj: JSONObject) {
     super(obj)
@@ -33,13 +38,6 @@ export default class DateModel extends DateBaseModel implements IDateModel {
   }
 
   /**
-   * Flag to check, if date is over
-   */
-  isOver(includeToday = false): boolean {
-    return includeToday ? today() >= this.value : today() > this.value
-  }
-
-  /**
    * Flag to check, if date is in the future
    */
   isComing(includeToday = false): boolean {
@@ -51,5 +49,12 @@ export default class DateModel extends DateBaseModel implements IDateModel {
    */
   isNow(): boolean {
     return +today() === +this.value
+  }
+
+  /**
+   * Flag to check, if date is over
+   */
+  isOver(includeToday = false): boolean {
+    return includeToday ? today() >= this.value : today() > this.value
   }
 }

@@ -30,4 +30,8 @@ export default class BlockModel extends BaseFieldsModel implements IBlockModel {
   is(block: string): boolean {
     return this.block === block
   }
+
+  not(block: string): boolean {
+    return this.block !== block
+  }
 }

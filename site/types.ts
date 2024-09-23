@@ -79,6 +79,7 @@ export interface IBaseModel {
   value: any
   get(): any
   is(compare: any): boolean
+  not(compare: any): boolean
   str(options?: Object): string
   toString(): string
 }
@@ -88,8 +89,13 @@ export interface IBaseDateModel extends IBaseModel {
   utc: string
   iso: string
   timezone: string
+  defaultFormat: string
   day(): number|null
+  format(format: string): string
   hours(): number|null
+  isComing(): boolean
+  isNow(): boolean
+  isOver(): boolean
   minutes(): number|null
   month(): number|null
   year(): number|null
@@ -145,16 +151,10 @@ export interface IColorModel extends IBaseModel {
 
 export interface IDateModel extends IBaseDateModel {
   type: 'date'
-  isOver(): boolean
-  isComing(): boolean
-  isNow(): boolean
 }
 
 export interface IDatetimeModel extends IBaseDateModel {
   type: 'datetime'
-  isOver(): boolean
-  isComing(): boolean
-  isNow(): boolean
 }
 
 export interface IFileModel extends IBaseFieldsModel {
@@ -172,7 +172,7 @@ export interface IFilesModel extends IBaseEntriesModel {
 export interface IHtmlModel extends IBaseModel {
   type: 'html'
   value: Object
-  hasChildren(): boolean
+  has(): boolean
 }
 
 export interface IInfoModel extends IBaseModel {
@@ -226,6 +226,7 @@ export interface INodeModel extends IBaseModel {
   elem: string
   attr: Object
   attrToStr(addLeadingSpace: boolean): string
+  has(): boolean
   html(): string
 }
 
@@ -276,9 +277,6 @@ export interface ITextModel extends IBaseModel {
 
 export interface ITimeModel extends IBaseDateModel {
   type: 'time'
-  isOver(): boolean
-  isComing(): boolean
-  isNow(): boolean
 }
 
 export interface ITranslationModel extends IBaseModel {

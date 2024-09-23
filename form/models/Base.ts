@@ -74,6 +74,13 @@ export default class BaseModel implements IFormBaseModel {
     return toStr(this.value)
   }
 
+  /**
+   * Setter for value
+   */
+  set(value: any): void {
+    this.value = value
+  }
+
   /** */
   toString(): string {
     return toStr(this.get())

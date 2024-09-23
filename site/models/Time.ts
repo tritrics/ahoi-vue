@@ -14,6 +14,11 @@ export default class TimeModel extends DateBaseModel implements ITimeModel {
    */
   type: 'time' = 'time'
 
+  /**
+   * Default dateformat for getter format()
+   */
+  defaultFormat: string = 'hh:ii:ss'
+
   /** */
   constructor(obj: JSONObject) {
     super(obj)
@@ -33,13 +38,6 @@ export default class TimeModel extends DateBaseModel implements ITimeModel {
   }
 
   /**
-   * Flag to determine, if time is over
-   */
-  isOver(): boolean {
-    return now(this.value) > this.value
-  }
-
-  /**
    * Flag to check, if time is in the future
    */
   isComing(): boolean {
@@ -51,5 +49,12 @@ export default class TimeModel extends DateBaseModel implements ITimeModel {
    */
   isNow(): boolean {
     return now(this.value) === this.value
+  }
+
+  /**
+   * Flag to determine, if time is over
+   */
+  isOver(): boolean {
+    return now(this.value) > this.value
   }
 }

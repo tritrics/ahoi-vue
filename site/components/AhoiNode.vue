@@ -11,7 +11,7 @@ const props = defineProps<Props>()
     v-bind="props.model.attr"
   >
     <AhoiHtml
-      v-if="props.model.hasChildren()"
+      v-if="props.model.has()"
       :model="props.model"
       :classes="props.classes"
     />
