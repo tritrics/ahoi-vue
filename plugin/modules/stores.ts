@@ -10,22 +10,22 @@ export const storesMap: Object = {}
 /**
  * Get, register or implicitely create a store.
  */
-export function stores(mixed: string|Object, data?: Object|IBaseStore): IBaseStore {
+export function stores(name?: string, data?: Object|IBaseStore): IBaseStore|Object {
 
-  // no name given, data in mixed, don't register store
-  if (!isStr(mixed, 1)) {
-    return new BaseStore(isObj(mixed) ? mixed : {})
+  // no name given, return all stores
+  if (!isStr(name, 1)) {
+    return storesMap
   }
   
   // create store
-  if (!has(storesMap, mixed)) {
+  if (!has(storesMap, name)) {
     if (data instanceof BaseStore) {
-      storesMap[mixed] = data
+      storesMap[name] = data
     } else {
-      storesMap[mixed] = new BaseStore(isObj(data) ? data : {})
+      storesMap[name] = new BaseStore(isObj(data) ? data : {})
     }
   }
 
   // return store
-  return storesMap[mixed]
+  return storesMap[name]
 }

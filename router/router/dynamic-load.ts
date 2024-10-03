@@ -1,6 +1,7 @@
 import { createRouter as createVueRouter } from 'vue-router'
 import { isTrue, isStr } from '../../utils'
-import { routerStore, pageStore } from '../index'
+import { routerStore } from '../index'
+import { siteStore } from '../../site'
 import { globalStore } from '../../plugin'
 import type { Router, RouteLocationNormalized } from 'vue-router'
 
@@ -17,8 +18,8 @@ async function loadPage(path: string): Promise<string|false> {
     }
 
     // Request, but don't commit. Committed by Layout.vue.
-    await pageStore.loadByPath(path, false)
-    return pageStore.getBlueprint() ?? 'default'
+    await siteStore.loadPageByPath(path, false)
+    return siteStore.getPageBlueprint() ?? 'default'
   }
   catch (err) {
 
@@ -30,7 +31,7 @@ async function loadPage(path: string): Promise<string|false> {
 
 /**
  * Factory for router with dynamically added routes and
- * automatically page loades in pageStore.
+ * automatically page loades in siteStore.
  */
 export function routerFactory(): Router {
     const router = createVueRouter({
@@ -77,7 +78,7 @@ export function routerFactory(): Router {
         }
 
         // in normal cases catchall has already loaded page.
-        if (pageStore.get('path') !== to.path) {
+        if (siteStore.get('path') !== to.path) {
           await loadPage(to.path)
         }
 

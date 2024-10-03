@@ -1,3 +1,4 @@
+import type { Ref } from 'vue'
 import type { Object, DateTimeFormat, IImmutableStore } from "../types"
 
 /**
@@ -10,6 +11,18 @@ export interface ISiteOptions {
   fixed?: boolean
   date?:  DateTimeFormat 
   time?: DateTimeFormat
+}
+
+export interface IFieldRefs {
+  site: Object
+  page: Object
+  home: Object
+}
+
+export interface ISiteRefs {
+  site: Ref<ISiteModel>
+  page: Ref<IPageModel|null>
+  home: Ref<IPageModel>
 }
 
 /**
@@ -53,11 +66,13 @@ export interface IThumbDimensions {
 }
 
 export interface ISiteStore extends IImmutableStore {
-  load(lang: string|null): Promise<void>
-}
-
-export interface IHomeStore extends IImmutableStore {
-  load(lang: string|null): Promise<void>
+  commitPage(): void
+  getPageBlueprint(): string|undefined
+  loadHome(lang: string|null): Promise<void>
+  loadPage(node: string, commit: boolean): Promise<void>
+  loadPageByPath(path: string, commit: boolean): Promise<void>
+  loadSite(lang: string|null): Promise<void>
+  set(): void
 }
 
 export type ThumbCropOptions =

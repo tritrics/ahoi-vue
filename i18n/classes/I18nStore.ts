@@ -9,13 +9,17 @@ import type { JSONObject } from '../../types'
 class I18nStore extends ImmutableStore implements II18nStore {
 
   /**
+   * Language of requested site for intern checks
+   */
+  #lang: string|null = null
+
+  /**
    * Avoid race conditions
    */
   #requestid: string = ''
 
   constructor() {
     super({
-      lang: null,
       terms: {}
     })
   }
@@ -24,7 +28,7 @@ class I18nStore extends ImmutableStore implements II18nStore {
    * Request terms
    */
   async load(lang: string): Promise<void> {
-    if (!isStr(lang, 1) || !globalStore.isValidLang(lang) ||this.is('lang', lang)) {
+    if (!isStr(lang, 1) || !globalStore.isValidLang(lang) || this.#lang === lang) {
       return
     }
     this.#requestid = uuid()
@@ -32,7 +36,7 @@ class I18nStore extends ImmutableStore implements II18nStore {
     if (json.id !== this.#requestid) {
       return Promise.resolve()
     }
-    this._set('lang', lang)
+    this.#lang = lang
     const convertResponse = inject('site', 'convertResponse') as Function
     const res = convertResponse(json)
     this._set('terms', res.fields)

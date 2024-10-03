@@ -1,7 +1,7 @@
 import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../utils'
 import ImmutableStore from './ImmutableStore'
 import { optionsStore, inject } from '../index'
-import type { Object, IGlobalStore, II18nStore, ISiteStore, IHomeStore } from '../../types'
+import type { Object, IGlobalStore, II18nStore, ISiteStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
@@ -145,11 +145,8 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
     const lang = this.get('lang')
     if (inject('site')) {
       const siteStore = inject('site', 'store') as ISiteStore
-      promises.push(siteStore.load(lang))
-    }
-    if (inject('home')) {
-      const homeStore = inject('home', 'store') as IHomeStore
-      promises.push(homeStore.load(lang))
+      promises.push(siteStore.loadSite(lang))
+      promises.push(siteStore.loadHome(lang))
     }
     if (inject('i18n')) {
       const i18nStore = inject('i18n', 'store') as II18nStore

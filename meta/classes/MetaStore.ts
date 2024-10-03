@@ -2,7 +2,7 @@ import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, is
 import { BaseStore, optionsStore, globalStore, inject, stores } from '../../plugin'
 import { createThumb } from '../../site'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
-import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel } from '../../types'
+import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel, IPageModel, ISiteModel } from '../../types'
 
 /**
  * Meta value store, extends user store, because user can add more properties.
@@ -40,13 +40,13 @@ class MetaStore extends BaseStore implements IMetaStore {
    */
   async init(): Promise<void> {
 
-    // fields defined in config, taken from config, siteStore or pageStore
+    // fields defined in config, taken from config, site or page
     const watch = this.#setMetaFields(optionsStore.get('meta'))
     if (watch.site) {
-      stores('site').watch('changed', () => this.#updateMeta())
+      stores('site').watch('site', () => this.#updateMeta())
     }
     if (watch.page) {
-      stores('page').watch('changed', () => this.#updateMeta())
+      stores('site').watch('page', () => this.#updateMeta())
     }
 
     // lang from globalStore
@@ -246,19 +246,20 @@ class MetaStore extends BaseStore implements IMetaStore {
   }
 
   /**
-   * Batch-update meta fields, which are taken from siteStore or pageStore.
+   * Batch-update meta fields, which are taken from siteStore.
    * Try to get content field 1st from page and 2nd from site.
    */
   #updateMeta(): void {
-    const pageStore: IBaseStore = stores('page') // possibly undefined
     const siteStore: IBaseStore = stores('site')
+    const site: ISiteModel = siteStore.get('site')
+    const page: IPageModel|null = siteStore.get('page')
     each(this.#metaFields, (def: IMetaConfigField, metaField: string) => {
       let res
-      if (pageStore && def.page) {
-        res = this.#setFromModel(pageStore.get(`fields.${def.page}`), metaField)
+      if (page && def.page && page.fields && page.fields[def.page]) {
+        res = this.#setFromModel(page.fields[def.page].str(), metaField)
       }
-      if (!res && def.site) {
-        this.#setFromModel(siteStore.get(`fields.${def.site}`), metaField)
+      if (!res && def.site && site.fields && site.fields[def.site]) {
+        this.#setFromModel(site.fields[def.site].str(), metaField)
       }
     })
   }

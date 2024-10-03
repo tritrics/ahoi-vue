@@ -6,7 +6,7 @@ const route = useRoute()
 const { stores } = inject('api')
 
 // onMounted() not needed, because onUpdated is always invoked.
-onUpdated(() => stores('page').commit())
+onUpdated(() => stores('site').commitPage())
 </script>
 
 <template>

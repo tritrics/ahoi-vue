@@ -10,7 +10,7 @@ const layout = computed(() => {
 })
 
 // onMounted() not needed, because onUpdated is always invoked.
-onUpdated(() => stores('page').commit())
+onUpdated(() => stores('site').commitPage())
 
 </script>
 

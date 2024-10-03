@@ -1,24 +1,19 @@
 import { isObj } from '../utils'
 import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
-import HomeStore from './classes/HomeStore'
 import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
 import AhoiThumb from './components/AhoiThumb.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
-import type { IApiAddon, ISiteStore, IHomeStore } from '../types'
+import type { Ref } from 'vue'
+import type { IApiAddon, ISiteStore, ISiteModel, IPageModel, ISiteRefs } from '../types'
 
 /**
- * Site store
+ * Site, Page and Home store
  */
 const siteStore: ISiteStore = new SiteStore()
-
-/**
- * Home store
- */
-const homeStore: IHomeStore = new HomeStore()
 
 /**
  * Setup
@@ -46,6 +41,29 @@ async function init(): Promise<void> {
 }
 
 /**
+ * get model's fields
+ */
+function fieldRefs() {
+  const models = siteRefs()
+  return {
+    site: models.site.value.fields ?? {},
+    home: models.home.value.fields ?? {},
+    page: models.page.value?.fields ?? {},
+  }
+}
+
+/**
+ * get models
+ */
+function siteRefs(): ISiteRefs {
+  return {
+    site: siteStore.ref('site') as Ref<ISiteModel>,
+    home: siteStore.ref('home') as Ref<IPageModel>,
+    page: siteStore.ref('page') as Ref<IPageModel|null>,
+  }
+}
+
+/**
  * Addon factory, returns site and page
  */
 export function createSite(): IApiAddon[] {
@@ -60,15 +78,11 @@ export function createSite(): IApiAddon[] {
     export: {
       store: siteStore,
       createThumb,
-      convertResponse
+      convertResponse,
+      fieldRefs,
+      siteRefs
     },
     init
-  }, {
-    name: 'home',
-    store: homeStore,
-    export: {
-      store: homeStore,
-    }
   }]
 }
 
@@ -80,5 +94,7 @@ export {
   Thumb,
   parse,
   createThumb,
-  convertResponse
+  convertResponse,
+  fieldRefs,
+  siteRefs
 }
