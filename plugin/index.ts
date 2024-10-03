@@ -4,7 +4,7 @@ import BaseStore from './classes/BaseStore'
 import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
-import { getFieldsRef, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
+import { getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
 import type { IApiOptions, IApiAddon, IGlobalStore, IImmutableStore, Object } from '../types'
@@ -54,7 +54,6 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]): P
         VERSION,
         store: globalStore,
         options: optionsStore,
-        getFieldsRef,
         getFile,
         getFiles,
         getInfo,
@@ -90,7 +89,6 @@ export {
   VERSION,
   globalStore,
   optionsStore,
-  getFieldsRef,
   getFile,
   getFiles,
   getInfo,
