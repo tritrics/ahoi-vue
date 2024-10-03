@@ -75,17 +75,10 @@ class BaseStore implements IBaseStore {
   }
 
   /**
-   * Checking non-equality.
+   * Checking empty value.
    */
-  isNot(key: string, val: any): boolean {
-    return !this.is(key, val)
-  }
-
-  /**
-   * Checking a boolean value.
-   */
-  isTrue(key: string): boolean {
-    return isTrue(this.get(key))
+  isEmpty(key: string): boolean {
+    return isEmpty(this.get(key))
   }
 
   /**
@@ -96,10 +89,24 @@ class BaseStore implements IBaseStore {
   }
 
   /**
-   * Checking empty value.
+   * Checking non-equality.
    */
-  isEmpty(key: string): boolean {
-    return isEmpty(this.get(key))
+  isNot(key: string, val: any): boolean {
+    return !this.is(key, val)
+  }
+
+  /**
+   * Checking non-empty value.
+   */
+  isNotEmpty(key: string): boolean {
+    return !this.isEmpty(key)
+  }
+
+  /**
+   * Checking a boolean value.
+   */
+  isTrue(key: string): boolean {
+    return isTrue(this.get(key))
   }
 
   /**

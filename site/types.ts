@@ -93,8 +93,10 @@ export interface IBaseModel {
   type: ModelTypes
   value: any
   get(): any
-  is(compare: any): boolean
-  not(compare: any): boolean
+  is(val: any): boolean
+  isEmpty(): boolean
+  isNot(val: any): boolean
+  isNotEmpty(): boolean
   str(options?: Object): string
   toString(): string
 }
@@ -119,7 +121,6 @@ export interface IBaseDateModel extends IBaseModel {
 export interface IBaseEntriesModel extends IBaseModel {
   entries: IBaseModel[]
   count(): number
-  empty(): boolean
   first(): IBaseModel|undefined
   has(index: number): boolean
   last(): IBaseModel|undefined
@@ -139,7 +140,6 @@ export interface IBlockModel extends IBaseModel {
   value: string
   block: string
   fields?: Object
-  is(val: string): boolean
 }
 
 export interface IBlocksModel extends IBaseEntriesModel {
@@ -149,6 +149,8 @@ export interface IBlocksModel extends IBaseEntriesModel {
 export interface IBooleanModel extends IBaseModel {
   type: 'boolean'
   value: boolean
+  isFalse(): boolean 
+  isTrue(): boolean
 }
 
 export interface ICollectionModel {

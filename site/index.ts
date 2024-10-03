@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { isObj } from '../utils'
 import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
@@ -41,18 +42,6 @@ async function init(): Promise<void> {
 }
 
 /**
- * get model's fields
- */
-function fieldRefs() {
-  const models = siteRefs()
-  return {
-    site: models.site.value.fields ?? {},
-    home: models.home.value.fields ?? {},
-    page: models.page.value?.fields ?? {},
-  }
-}
-
-/**
  * get models
  */
 function siteRefs(): ISiteRefs {
@@ -79,7 +68,6 @@ export function createSite(): IApiAddon[] {
       store: siteStore,
       createThumb,
       convertResponse,
-      fieldRefs,
       siteRefs
     },
     init
@@ -95,6 +83,5 @@ export {
   parse,
   createThumb,
   convertResponse,
-  fieldRefs,
   siteRefs
 }

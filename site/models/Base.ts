@@ -1,4 +1,4 @@
-import { toStr, each, ltrim } from '../../utils'
+import { toStr, each, ltrim, isEmpty, isTrue, isFalse } from '../../utils'
 import type { JSONObject } from '../../types'
 import type { ModelTypes, IBaseModel } from '../types'
 import type { Object } from '../../types'
@@ -31,17 +31,31 @@ export default class BaseModel implements IBaseModel {
   }
 
   /**
-   * Compare value
+   * Checking equality.
    */
-  is(compare: any): boolean {
-    return this.value === compare
+  is(val: any): boolean {
+    return this.value === val
   }
 
   /**
-   * Compare value
+   * Checking empty value.
    */
-  not(compare: any): boolean {
-    return this.value !== compare
+  isEmpty(): boolean {
+    return isEmpty(this.value)
+  }
+
+  /**
+   * Checking non-equality.
+   */
+  isNot(val: any): boolean {
+    return this.value !== val
+  }
+
+  /**
+   * Checking non-empty value.
+   */
+  isNotEmpty(): boolean {
+    return !this.isEmpty()
   }
   
   /**

@@ -78,6 +78,13 @@ export default class BaseDateModel extends BaseModel implements IBaseDateModel {
   isComing(): boolean {
     return now() < this.value
   }
+
+  /**
+   * Checking empty value.
+   */
+  isEmpty(): boolean {
+    return !(this.value instanceof Date)
+  }
   
   /**
    * Flag to check, if datetime is now

@@ -25,13 +25,16 @@ export default class BlockModel extends BaseFieldsModel implements IBlockModel {
   }
 
   /**
-   * Helper to check, if this is a specific blocktype
+   * Check, if this is a specific blocktype
    */
   is(block: string): boolean {
     return this.block === block
   }
 
-  not(block: string): boolean {
+  /**
+   * Check, if it's not a specific blocktype.
+   */
+  isNot(block: string): boolean {
     return this.block !== block
   }
 }

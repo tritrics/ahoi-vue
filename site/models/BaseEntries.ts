@@ -28,13 +28,6 @@ export default class BaseEntriesModel extends BaseModel implements IBaseEntriesM
   }
 
   /**
-   * No entries
-   */
-  empty(): boolean {
-    return this.count() === 0
-  }
-
-  /**
    * Get the first element
    */
   first(): IBaseModel|undefined {
@@ -46,6 +39,13 @@ export default class BaseEntriesModel extends BaseModel implements IBaseEntriesM
    */
   has(index: number = 0): boolean {
     return has(this.entries, index)
+  }
+
+  /**
+   * Checking empty list.
+   */
+  isEmpty(): boolean {
+    return this.count() === 0
   }
 
   /**

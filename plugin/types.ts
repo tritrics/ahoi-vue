@@ -7,10 +7,11 @@ export interface IBaseStore {
   has(key: string): boolean
   init(): Promise<void>
   is(key: string, val: any): boolean
-  isNot(key: string, val: any): boolean
-  isFalse(key: string): boolean
-  isTrue(key: string): boolean
   isEmpty(key: string): boolean
+  isFalse(key: string): boolean
+  isNot(key: string, val: any): boolean
+  isNotEmpty(key: string): boolean
+  isTrue(key: string): boolean
   ref(key: string): Ref
   set(key: string, val?: any): void
   stop(): void
