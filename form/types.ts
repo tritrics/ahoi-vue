@@ -1,13 +1,10 @@
-import type { ComputedRef } from 'vue'
-import type { Object, IAddonStore, JSONObject } from '../types'
+import type { Object, IImmutableStore, JSONObject } from '../types'
 
-export interface IFormStore extends IAddonStore {
-  valid: ComputedRef<boolean>
+export interface IFormStore extends IImmutableStore {
   getFieldValues(): IFormParams
-  isValid(compare: boolean): boolean
   submit(): Promise<JSONObject>
   reset(): void
-  validate(onInput: boolean): void
+  validate(immediate?: boolean): void
 }
 
 export interface IFormParams {
@@ -37,13 +34,10 @@ export interface IFormBaseModel {
   required: boolean
   valid: boolean
   msg: string|null
-  parent?: IFormListModel
-  stop: Function|null
   validate(val?: any): void
   watch(start: boolean): void
   get(): FormPostValue
   set(value: any): void
-  delete(id?: string): void
   toString(): string
 }
 
@@ -81,19 +75,11 @@ export interface IFormEmailModel extends IFormBaseModel {
   value: string
 }
 
-export interface IFormListModel extends IFormBaseModel {
-  type: 'list'
-  value: IFormStringModel[]
-  min: number|null
-  max: number|null
-  minlength: number|null
-  maxlength: number|null
-  add(value: string): void
-  delete(id: string): void
-}
-
 export interface IFormNumberModel extends IFormBaseModel {
   type: 'number'
+  min: number|null
+  max: number|null
+  step: number|null
   value: number
 }
 

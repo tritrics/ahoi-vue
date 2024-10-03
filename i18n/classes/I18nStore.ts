@@ -1,12 +1,12 @@
-import { uuid, isStr } from '../../fn'
-import { AddonStore, getLanguage, inject, globalStore } from '../../plugin'
+import { uuid, isStr } from '../../utils'
+import { ImmutableStore, getLanguage, inject, globalStore } from '../../plugin'
 import type { II18nStore } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Store width language terms.
  */
-class I18nStore extends AddonStore implements II18nStore {
+class I18nStore extends ImmutableStore implements II18nStore {
 
   /**
    * Avoid race conditions

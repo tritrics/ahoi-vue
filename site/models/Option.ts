@@ -1,4 +1,4 @@
-import { toStr, isStr, isNum, has } from '../../fn'
+import { toStr, isStr, isNum, has } from '../../utils'
 import BaseModel from './Base'
 import type { IOptionModel } from '../types'
 import type { JSONObject } from '../../types'

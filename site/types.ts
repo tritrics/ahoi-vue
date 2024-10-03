@@ -1,4 +1,4 @@
-import type { Object, DateTimeFormat, IAddonStore } from "../types"
+import type { Object, DateTimeFormat, IImmutableStore } from "../types"
 
 /**
  * Plugin
@@ -52,11 +52,11 @@ export interface IThumbDimensions {
   height: number
 }
 
-export interface ISiteStore extends IAddonStore {
+export interface ISiteStore extends IImmutableStore {
   load(lang: string|null): Promise<void>
 }
 
-export interface IHomeStore extends IAddonStore {
+export interface IHomeStore extends IImmutableStore {
   load(lang: string|null): Promise<void>
 }
 

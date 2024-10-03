@@ -1,4 +1,4 @@
-import { has, count, isArr } from '../../fn'
+import { has, count, isArr } from '../../utils'
 import { parse } from '../index'
 import BaseModel from './Base'
 import type { IBaseModel, IBaseEntriesModel } from '../types'

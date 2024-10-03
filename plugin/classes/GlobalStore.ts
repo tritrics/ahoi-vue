@@ -1,12 +1,12 @@
-import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../fn'
-import AddonStore from './AddonStore'
+import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../utils'
+import ImmutableStore from './ImmutableStore'
 import { optionsStore, inject } from '../index'
 import type { Object, IGlobalStore, II18nStore, ISiteStore, IHomeStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
-class GlobalStore extends AddonStore implements IGlobalStore {
+class GlobalStore extends ImmutableStore implements IGlobalStore {
 
   /**
    * Intern lookup map with meta-values of languages

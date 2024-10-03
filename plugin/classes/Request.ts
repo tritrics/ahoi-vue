@@ -1,6 +1,5 @@
-import { upper, each, count, unique, objToParam, inArr, isStr, isObj, isUrl, isArr, isNum, isInt, isBool, toPath, toKey, toInt, toBool } from '../../fn'
+import { upper, each, count, unique, objToParam, inArr, isStr, isObj, isUrl, isArr, isNum, isInt, isBool, toPath, toKey, toInt, toBool } from '../../utils'
 import { inject, globalStore } from '../index'
-import debug from '../modules/debug'
 import { APIVERSION } from '../index'
 import type { Object, IApiRequestOptions, ApiMethods, ApiPagesStatus, JSONObject } from '../../types'
 
@@ -147,7 +146,6 @@ class Request {
    * Call API interface /info.
    */
   async getInfo(): Promise<JSONObject> {
-    debug.verbose('>', 'getInfo()')
     const res: JSONObject = await this.#apiRequest(
       this.#getUrl(this.host, APIVERSION, 'info'),
       null,
@@ -160,7 +158,6 @@ class Request {
    * Call API interface /language/(:any).
    */
   async getLanguage(lang: string|null): Promise<JSONObject> {
-    debug.verbose('>', 'getLanguage()')
     const res = await this.#apiRequest(
       this.#getUrl(this.host, APIVERSION, 'language', lang),
       this.#getOptions('id'),
@@ -173,7 +170,6 @@ class Request {
    * getPage and getFile are identical
    */
   async getNode(node: 'page'|'file', path: string|string[]|null): Promise<JSONObject> {
-    debug.verbose('>', 'getNode()')
     const res = await this.#apiRequest(
       this.#getUrl(this.host, APIVERSION, node, path),
       this.#getOptions('fields', 'id'),
@@ -186,7 +182,6 @@ class Request {
    * getPages and getFiles are identical
    */
   async getCollection(node: 'pages'|'files', path: string|string[]|null): Promise<JSONObject> {
-    debug.verbose('>', 'getCollection()')
     const res = await this.#apiRequest(
       this.#getUrl(this.host, APIVERSION, node, path),
       this.#getOptions('fields', 'filter', 'id', 'limit', 'offset', 'sort', 'status'),
@@ -199,7 +194,6 @@ class Request {
    * Post data to a specified action /action/(:any).
    */
   async postCreate(action: string|string[], data: IApiRequestOptions): Promise<JSONObject> {
-    debug.verbose('>', 'postCreate()')
 
     // get token
     const resToken: JSONObject = await this.#apiRequest(
@@ -249,21 +243,15 @@ class Request {
         options.body = JSON.stringify(data)
       }
     }
-    debug.verbose(url)
-    debug.verbose(options)
-    debug.verbose(data)
 
     // request
     const response = await fetch(url, options)
     const json: JSONObject = await response.json()
-    debug.verbose(json)
-    debug.verbose('<', 'ready')
 
     // error
     if (!response.ok || !json.ok) {
       const msg = json.msg || response.status
       const status = json.status || response.statusText
-      debug.error('error', msg, status)
       throw new Error(`AHOI Plugin: API reports an error while requesting ${url}: ${msg} (Error ${status})`)
     }
 

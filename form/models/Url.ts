@@ -1,7 +1,6 @@
-import { isEmpty, isUrl } from '../../fn'
+import { isEmpty, isUrl } from '../../utils'
 import BaseModel from './Base'
 import type { IFormUrlModel } from '../types'
-import type { Object } from '../../types'
 
  /**
   * Model to represent an url input
@@ -12,11 +11,6 @@ export default class UrlModel extends BaseModel implements IFormUrlModel {
    * Type
    */
   type: 'url' = 'url'
-
-  /** */
-  constructor(def: Object) {
-    super(def)
-  }
 
   /**
    * Type- and required-validation

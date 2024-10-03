@@ -1,4 +1,4 @@
-import { has, each, count, trim, htmlentities, toStr, isStr, toKey, isArr } from '../../fn'
+import { has, each, count, trim, htmlentities, toStr, isStr, toKey, isArr } from '../../utils'
 import BaseModel from './Base'
 import type { NodeModelTypes, INodeModel } from '../types'
 import type { Object, JSONObject } from '../../types'

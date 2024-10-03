@@ -1,4 +1,4 @@
-import { toDate, dateToStr } from '../../fn'
+import { toDate, dateToStr } from '../../utils'
 import BaseDateModel from './BaseDate'
 import type { IFormTimeModel } from '../types'
 import type { Object } from '../../types'

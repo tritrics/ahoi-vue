@@ -3,7 +3,7 @@ import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
 import PageModel from '../models/Page'
 import FileModel from '../models/File'
 import TranslationModel from '../models/Translation'
-import { isStr, isObj, toStr, has } from '../../fn'
+import { isStr, isObj, toStr, has } from '../../utils'
 import { globalStore } from '../../plugin'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
@@ -14,7 +14,8 @@ import type { Props, Attributes, ILinkA, ILinkRouter, ILinkRouterName, ILinkRout
  */
 const props = withDefaults(defineProps<Props>(), {
   to: '',
-  disabled: false
+  disabled: false,
+  blank: false
 })
 
 /**
@@ -47,7 +48,7 @@ const attr = computed<Attributes>(() => {
       res.href = link.value.href
     }
     res.class = `ahoi-link ${link.value.type}`
-    if (link.value.type === 'url') {
+    if (link.value.type === 'url' || props.blank) {
       res.target = '_blank'
     }
     if (props.disabled) {

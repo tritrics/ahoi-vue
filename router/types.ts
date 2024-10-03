@@ -1,12 +1,12 @@
 import type { RouteRecordRaw, RouterHistory, RouteComponent } from 'vue-router'
-import type { IAddonStore } from "../types"
+import type { IImmutableStore } from "../types"
 
-export interface IRouterStore extends IAddonStore {
+export interface IRouterStore extends IImmutableStore {
   getHistoryMode(): RouterHistory
   getRoute(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
 }
 
-export interface IPageStore extends IAddonStore {
+export interface IPageStore extends IImmutableStore {
   commit(): void
   getBlueprint(): string|undefined
   load(node: string, commit: boolean): Promise<void>

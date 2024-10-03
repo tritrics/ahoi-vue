@@ -1,6 +1,6 @@
 import { watchEffect } from 'vue'
-import { toStr, isEmpty, uuid, has, isTrue } from '../../fn'
-import type { FormModelTypes, IFormBaseModel, IFormListModel } from '../types'
+import { toStr, isEmpty, uuid, has, isTrue } from '../../utils'
+import type { FormModelTypes, IFormBaseModel } from '../types'
 import type { Object, FormPostValue } from "../../types"
 
 /**
@@ -41,30 +41,13 @@ export default class BaseModel implements IFormBaseModel {
   /**
    * Stop function for validation watcher
    */
-  stop: Function|null = null
-
-  /**
-   * Optional parent model for childs of list models
-   */
-  parent?: IFormListModel
+  _watchStop: Function|null = null
   
   /** */
-  constructor(def: Object, parent?: IFormListModel) {
+  constructor(def: Object) {
     this.id = uuid()
     this.value = has(def, 'value') ? toStr(def.value) : ''
     this.required = has(def, 'required') && isTrue(def.required, false) ? true : false
-    if(parent instanceof BaseModel && parent.type === 'list') { // ListModel due to circular referenciation not possible here
-      this.parent = parent
-    }
-  }
-
-  /**
-   * Delete method for childs of list models 
-   */
-  delete(): void {
-    if (this.parent instanceof BaseModel && this.parent.type === 'list') {
-      this.parent.delete(this.id)
-    }
   }
 
   /**
@@ -99,15 +82,15 @@ export default class BaseModel implements IFormBaseModel {
    * Watcher to start validation
    */
   watch(start: boolean = true): void {
-    if (start) {
-      if(this.stop === null) {
-        this.stop = watchEffect(() => {
+    if (isTrue(start)) {
+      if(this._watchStop === null) {
+        this._watchStop = watchEffect(() => {
           this.validate(this.value)
         })
       }
-    } else if (this.stop !== null) {
-      this.stop()
-      this.stop = null
+    } else if (this._watchStop !== null) {
+      this._watchStop()
+      this._watchStop = null
     }
   }
 

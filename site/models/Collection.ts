@@ -1,4 +1,4 @@
-import { toInt } from '../../fn'
+import { toInt } from '../../utils'
 import type { ICollectionModel } from '../types'
 import type { Object } from '../../types'
 

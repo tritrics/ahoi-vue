@@ -1,4 +1,4 @@
-import { toStr, isDate, toDate, dateToStr, now } from '../../fn'
+import { toStr, isDate, toDate, dateToStr, now } from '../../utils'
 import BaseModel from './Base'
 import { globalStore } from '../../plugin'
 import type { ISiteOptions, IBaseDateModel } from '../types'

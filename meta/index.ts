@@ -1,4 +1,4 @@
-import { inArr } from '../fn'
+import { inArr } from '../utils'
 import MetaStore from './classes/MetaStore'
 import type { IMetaStore } from './types'
 import type { IApiAddon } from '../types'

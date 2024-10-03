@@ -1,4 +1,4 @@
-import { has, isNum, toNum, isEmpty} from '../../fn'
+import { has, isNum, toNum, isEmpty } from '../../utils'
 import BaseModel from './Base'
 import type { IFormNumberModel, FormPostValue } from '../types'
 import type { Object } from '../../types'
@@ -23,11 +23,17 @@ export default class NumberModel extends BaseModel implements IFormNumberModel {
    */
   max: number|null
 
+  /**
+   * Step (1 = integer)
+   */
+  step: number|null
+
   /** */
   constructor(def: Object) {
     super(def)
-    this.min = has(def, 'min') && isNum(def.min, 1, null, false) ? toNum(def.min) : null
-    this.max = has(def, 'max') && isNum(def.max, 1, null, false) ? toNum(def.max) : null
+    this.min = has(def, 'min') && isNum(def.min, null, null, false) ? toNum(def.min) : null
+    this.max = has(def, 'max') && isNum(def.max, null, null, false) ? toNum(def.max) : null
+    this.step = has(def, 'step') && isNum(def.step, 0, null, false) ? toNum(def.step) : null
   }
 
   /**
@@ -51,6 +57,11 @@ export default class NumberModel extends BaseModel implements IFormNumberModel {
       return this._setValid('min')
     } else if(this.max && !isNum(this.value, null, this.max, false)) {
       return this._setValid('max')
+    } else if(this.step !== null) {
+      const num = toNum(this.value) as number * (1 / this.step) // this.number % this.step has rounding problems!!!
+      if (num % 1 !== 0) {
+        return this._setValid('step')
+      }
     }
     return this._setValid()
   }

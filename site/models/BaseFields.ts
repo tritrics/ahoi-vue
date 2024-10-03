@@ -1,4 +1,4 @@
-import { has } from '../../fn'
+import { has } from '../../utils'
 import BaseModel from './Base'
 import { parse } from '../index'
 import type { IBaseFieldsModel, IModelList } from '../types'

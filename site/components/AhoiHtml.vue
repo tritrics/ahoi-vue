@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { has } from '../../fn'
+import { has } from '../../utils'
 import AhoiNode from './AhoiNode.vue'
 import AhoiLink from './AhoiLink.vue'
 import type { Props } from './AhoiHtml'

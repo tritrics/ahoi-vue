@@ -1,12 +1,12 @@
-import { uuid, isStr } from '../../fn'
-import { AddonStore, getPage, globalStore } from '../../plugin'
+import { uuid } from '../../utils'
+import { ImmutableStore, getPage, globalStore } from '../../plugin'
 import { convertResponse } from '../index'
 import type { Object, ISiteStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
-class SiteStore extends AddonStore implements ISiteStore {
+class SiteStore extends ImmutableStore implements ISiteStore {
 
   /**
    * Flag if site was already requested.

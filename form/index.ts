@@ -1,4 +1,4 @@
-import { has, isStr } from '../fn'
+import { has, isStr } from '../utils'
 import FormStore from './classes/FormStore'
 import type { IApiAddon, IFormStore, Object, IFormOptions } from '../types'
 

@@ -1,4 +1,4 @@
-import { has, isTrue, isEmpty, isDate, toDate, dateToStr } from '../../fn'
+import { has, isTrue, isEmpty, isDate, toDate, dateToStr } from '../../utils'
 import BaseDateModel from './BaseDate'
 import type { IFormDateModel } from '../types'
 import type { Object } from '../../types'

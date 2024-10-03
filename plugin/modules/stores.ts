@@ -1,5 +1,5 @@
-import { has, isStr, isObj } from '../../fn'
-import { BaseStore, UserStore } from '../index'
+import { has, isStr, isObj } from '../../utils'
+import { BaseStore } from '../index'
 import type { Object, IBaseStore } from '../../types'
 
 /**
@@ -14,7 +14,7 @@ export function stores(mixed: string|Object, data?: Object|IBaseStore): IBaseSto
 
   // no name given, data in mixed, don't register store
   if (!isStr(mixed, 1)) {
-    return new UserStore(isObj(mixed) ? mixed : {})
+    return new BaseStore(isObj(mixed) ? mixed : {})
   }
   
   // create store
@@ -22,7 +22,7 @@ export function stores(mixed: string|Object, data?: Object|IBaseStore): IBaseSto
     if (data instanceof BaseStore) {
       storesMap[mixed] = data
     } else {
-      storesMap[mixed] = new UserStore(isObj(data) ? data : {})
+      storesMap[mixed] = new BaseStore(isObj(data) ? data : {})
     }
   }
 

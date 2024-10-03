@@ -1,6 +1,5 @@
 import BaseStringModel from './BaseString'
-import type { IFormStringModel, IFormListModel } from '../types'
-import type { Object } from '../../types'
+import type { IFormStringModel } from '../types'
 
  /**
   * Model to represent a text input
@@ -17,8 +16,8 @@ export default class StringModel extends BaseStringModel implements IFormStringM
    */
   linebreaks: false = false
 
-  /** */
-  constructor(def: Object, parent?: IFormListModel) {
-    super(def, parent)
-  }
+  /**
+   * Maximum length for string
+   */
+  maxlength: number = 64
 }

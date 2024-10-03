@@ -1,4 +1,4 @@
-import { now } from '../../fn'
+import { now } from '../../utils'
 import DateBaseModel from './BaseDate'
 import { globalStore } from '../../plugin'
 import type { ITimeModel, ISiteOptions } from '../types'

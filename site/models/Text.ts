@@ -1,4 +1,4 @@
-import { isTrue } from '../../fn'
+import { isTrue } from '../../utils'
 import BaseModel from './Base'
 import { globalStore } from '../../plugin'
 import type { ITextModel, ISiteOptions } from '../types'

@@ -1,5 +1,5 @@
 import { createRouter as createVueRouter } from 'vue-router'
-import { isTrue, isStr } from '../../fn'
+import { isTrue, isStr } from '../../utils'
 import { routerStore, pageStore } from '../index'
 import { globalStore } from '../../plugin'
 import type { Router, RouteLocationNormalized } from 'vue-router'

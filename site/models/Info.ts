@@ -1,4 +1,4 @@
-import { has, isTrue, isArr } from '../../fn'
+import { has, isTrue, isArr } from '../../utils'
 import BaseModel from './Base'
 import { parse } from '../index'
 import type { IInfoModel, ILanguageModel, IInfoMeta } from '../types'

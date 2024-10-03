@@ -1,4 +1,4 @@
-import { toStr, toBool } from '../../fn'
+import { toStr, toBool } from '../../utils'
 import BaseModel from './Base'
 import type { IColorModel } from '../types'
 import type { JSONObject } from '../../types'

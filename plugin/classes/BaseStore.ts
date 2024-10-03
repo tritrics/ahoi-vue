@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import { each, has, count, upperFirst, get as getByPath, isStr, isTrue, isFalse, isEmpty, isObj, isFn } from '../../fn'
+import { each, has, count, upperFirst, get as getByPath, isStr, isTrue, isFalse, isEmpty, isObj, isFn } from '../../utils'
 import type { Object, IBaseStore, IStoreData, IStoreDataValue } from '../../types'
 import type { Ref, WatchCallback, WatchOptions, WatchStopHandle } from 'vue'
 

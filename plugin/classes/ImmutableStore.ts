@@ -1,10 +1,10 @@
 import BaseStore from './BaseStore'
-import type { IAddonStore } from '../../types'
+import type { IImmutableStore } from '../../types'
 
 /**
  * Basic store for use by addons.
  */
-class AddonStore extends BaseStore implements IAddonStore {
+class ImmutableStore extends BaseStore implements IImmutableStore {
 
   /**
    * Flag to determine, if new properties can be added by set('foo', 'bar).
@@ -14,4 +14,4 @@ class AddonStore extends BaseStore implements IAddonStore {
   }
 }
 
-export default AddonStore
+export default ImmutableStore

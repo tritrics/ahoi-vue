@@ -1,4 +1,4 @@
-import { each, trim, toStr, ltrim } from '../../fn'
+import { each, trim, toStr, ltrim } from '../../utils'
 import BaseModel from './Base'
 import type { LinkTypes, ILinkModel } from '../types'
 import type { JSONObject } from '../../types'

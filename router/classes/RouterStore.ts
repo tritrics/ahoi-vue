@@ -1,7 +1,7 @@
 import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, toKey, toBool } from '../../fn'
+import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, toKey, toBool } from '../../utils'
 import { installedRouterTypes } from '../index'
-import { AddonStore, optionsStore } from '../../plugin'
+import { ImmutableStore, optionsStore } from '../../plugin'
 import type { RouteRecordRaw, RouterHistory  } from 'vue-router'
 import type { IRouterStore, IRouteOptions, IRouteNormalized } from '../types'
 import type { Object } from '../../types'
@@ -9,7 +9,7 @@ import type { Object } from '../../types'
 /**
  * Store width language terms.
  */
-class RouterStore extends AddonStore implements IRouterStore {
+class RouterStore extends ImmutableStore implements IRouterStore {
 
   /** variables containing functions and MUST NOT be reactive */
   default: IRouteNormalized|null = null

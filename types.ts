@@ -1,4 +1,4 @@
-export type * from './fn/types'
+export type * from './utils/types'
 export type * from './form/types'
 export type * from './i18n/types'
 export type * from './meta/types'

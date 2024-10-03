@@ -1,6 +1,6 @@
-import { has, isInt, isStr, toInt, isEmpty } from '../../fn'
+import { has, isInt, isStr, toInt, isEmpty } from '../../utils'
 import BaseModel from './Base'
-import type { IFormBaseStringModel, IFormListModel } from '../types'
+import type { IFormBaseStringModel } from '../types'
 import type { Object } from '../../types'
 
 /**
@@ -9,25 +9,29 @@ import type { Object } from '../../types'
 export default class BaseStringModel extends BaseModel implements IFormBaseStringModel {
 
   /**
+   * Allow line breaks, fixed to false
+   */
+  linebreaks: boolean = false
+  
+  /**
    * Minimum length for text
    */
-  minlength: number|null
+  minlength: number|null = null
 
   /**
    * Maximum length for text
    */
-  maxlength: number|null
-
-  /**
-   * Allow line breaks, fixed to false
-   */
-  linebreaks: boolean = false
+  maxlength: number|null = null
 
   /** */
-  constructor(def: Object, parent?: IFormListModel) {
-    super(def, parent)
-    this.minlength = has(def, 'minlength') && isInt(def.minlength, 1, null, false) ? toInt(def.minlength) : null
-    this.maxlength = has(def, 'maxlength') && isInt(def.maxlength, 1, null, false) ? toInt(def.maxlength) : null
+  constructor(def: Object) {
+    super(def)
+    if (has(def, 'minlength') && isInt(def.minlength, 1, null, false)) {
+      this.minlength = toInt(def.minlength)
+    }
+    if (has(def, 'maxlength') && isInt(def.maxlength, 1, null, false)) {
+      this.maxlength = toInt(def.maxlength)
+    }
   }
 
   /**

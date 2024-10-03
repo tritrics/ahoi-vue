@@ -1,4 +1,4 @@
-import { has, isTrue, isBool } from '../../fn'
+import { has, isTrue, isBool } from '../../utils'
 import BaseModel from './Base'
 import type { IFormBooleanModel } from '../types'
 import type { Object } from '../../types'

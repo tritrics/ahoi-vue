@@ -1,4 +1,4 @@
-import { toNum, isInt, isNum, toInt } from '../../fn'
+import { toNum, isInt, isNum, toInt } from '../../utils'
 import BaseModel from './Base'
 import { globalStore } from '../../plugin'
 import type { INumberModel, ISiteOptions } from '../types'

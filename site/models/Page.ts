@@ -1,4 +1,4 @@
-import { has, each, isStr, toKey } from '../../fn'
+import { has, each, isStr, toKey } from '../../utils'
 import BaseFieldsModel from './BaseFields'
 import CollectionModel from './Collection'
 import TranslationModel from './Translation'

@@ -1,4 +1,4 @@
-import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../../fn'
+import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../../utils'
 import type { IThumbModel, IThumbOptions, IThumbImage, IThumbDimensions, ThumbCropOptions } from '../types'
 import type { Object }  from '../../types' 
 

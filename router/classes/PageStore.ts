@@ -1,12 +1,12 @@
-import { uuid, isStr, isTrue } from '../../fn'
-import { inject, getPage, globalStore, AddonStore } from '../../plugin'
+import { uuid, isStr, isTrue } from '../../utils'
+import { inject, getPage, globalStore, ImmutableStore } from '../../plugin'
 import type { IPageStore } from '../types'
 import type { Object } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
-class PageStore extends AddonStore implements IPageStore {
+class PageStore extends ImmutableStore implements IPageStore {
 
   /**
    * The last loaded page data (pageModel), before it's commited and therewith saved in store.

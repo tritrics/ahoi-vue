@@ -1,6 +1,6 @@
-import type { IUserStore } from "../types"
+import type { IBaseStore } from "../types"
 
-export interface IMetaStore extends IUserStore {}
+export interface IMetaStore extends IBaseStore {}
 
 export interface IMetaConfigFields {
   [ key: string ]: IMetaConfigField

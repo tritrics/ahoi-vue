@@ -1,4 +1,4 @@
-import { toBool } from '../../fn'
+import { toBool } from '../../utils'
 import BaseModel from './Base'
 import type { IBooleanModel } from '../types'
 

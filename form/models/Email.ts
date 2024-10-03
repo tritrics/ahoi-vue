@@ -1,7 +1,6 @@
-import { isEmpty, isEmail } from '../../fn'
+import { isEmpty, isEmail } from '../../utils'
 import BaseModel from './Base'
 import type { IFormEmailModel } from '../types'
-import type { Object } from '../../types'
 
  /**
   * Model to represent a email input
@@ -12,11 +11,6 @@ export default class EmailModel extends BaseModel implements IFormEmailModel {
    * Type
    */
   type: 'email' = 'email'
-
-  /** */
-  constructor(def: Object) {
-    super(def)
-  }
 
   /**
    * Type- and required-validation

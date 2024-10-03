@@ -1,4 +1,4 @@
-import { toKey } from '../../fn'
+import { toKey } from '../../utils'
 import BaseFieldsModel from './BaseFields'
 import type { IBlockModel } from '../types'
 import type { JSONObject } from '../../types'

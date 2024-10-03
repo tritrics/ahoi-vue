@@ -1,4 +1,4 @@
-import { toStr, each, ltrim } from '../../fn'
+import { toStr, each, ltrim } from '../../utils'
 import type { JSONObject } from '../../types'
 import type { ModelTypes, IBaseModel } from '../types'
 import type { Object } from '../../types'

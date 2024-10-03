@@ -1,4 +1,4 @@
-import { toStr } from '../../fn'
+import { toStr } from '../../utils'
 import BaseModel from './Base'
 import { createLinkByValues } from './Link'
 import type { ILinkModel, ITranslationModel } from '../types'

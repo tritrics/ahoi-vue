@@ -1,13 +1,13 @@
-import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../fn'
-import { UserStore, optionsStore, globalStore, inject, stores } from '../../plugin'
+import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../utils'
+import { BaseStore, optionsStore, globalStore, inject, stores } from '../../plugin'
 import { createThumb } from '../../site'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
-import type { Object, IBaseStore, IFilesModel, IFileModel } from '../../types'
+import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel } from '../../types'
 
 /**
  * Meta value store, extends user store, because user can add more properties.
  */
-class MetaStore extends UserStore implements IMetaStore {
+class MetaStore extends BaseStore implements IMetaStore {
 
   /**
    * Map of metafields, which can be
@@ -193,28 +193,30 @@ class MetaStore extends UserStore implements IMetaStore {
   /**
    * Set a meta value from a given field from a model.
    */
-  #setFromModel(model: IFilesModel|undefined, field: string): boolean {
-    if (!model) {
+  #setFromModel(model: IBaseModel|undefined, metaField: string): boolean {
+    if (!model?.type) {
       return false
     }
-    switch(field) {
-      case 'image': {
-        const file = model.first() as IFileModel
-        if (file && file.isImage()) {
-          const thumb = createThumb(file, 1200, 630) // make definable by user
-          if (thumb) {
-            this._setImage(thumb.src())
-            return true
-          }
-        }
-        break
+    if (metaField === 'image') {
+      let image = null
+      if (model.type === 'file') {
+        image = model as IFileModel
+      } else if (model.type === 'files') {
+        const images = model as IFilesModel
+        image = images.first() as IFileModel
       }
-      default: {
-        const value = model.str()
-        if (isStr(value, 1)) {
-          this.set(field, value)
+      if (image && image.isImage()) {
+        const thumb = createThumb(image, 1200, 630) // make definable by user
+        if (thumb) {
+          this._setImage(thumb.src())
           return true
         }
+      }
+    } else {
+      const value = model.str()
+      if (isStr(value, 1)) {
+        this.set(metaField, value)
+        return true
       }
     }
     return false
@@ -250,13 +252,13 @@ class MetaStore extends UserStore implements IMetaStore {
   #updateMeta(): void {
     const pageStore: IBaseStore = stores('page') // possibly undefined
     const siteStore: IBaseStore = stores('site')
-    each(this.#metaFields, (def: IMetaConfigField, field: string) => {
+    each(this.#metaFields, (def: IMetaConfigField, metaField: string) => {
       let res
       if (pageStore && def.page) {
-        res = this.#setFromModel(pageStore.get(`fields.${def.page}`), field)
+        res = this.#setFromModel(pageStore.get(`fields.${def.page}`), metaField)
       }
       if (!res && def.site) {
-        this.#setFromModel(siteStore.get(`fields.${def.site}`), field)
+        this.#setFromModel(siteStore.get(`fields.${def.site}`), metaField)
       }
     })
   }

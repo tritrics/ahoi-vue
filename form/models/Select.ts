@@ -1,4 +1,4 @@
-import { has, isTrue, isInt, toInt, isArr, toStr, isEmpty, inArr } from '../../fn'
+import { has, isTrue, isInt, toInt, isArr, toStr, isEmpty, inArr } from '../../utils'
 import BaseModel from './Base'
 import type { IFormSelectModel } from '../types'
 import type { Object } from '../../types'

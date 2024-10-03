@@ -1,4 +1,4 @@
-import { inArr } from '../fn'
+import { inArr } from '../utils'
 import I18nStore from './classes/I18nStore'
 import type { II18nStore } from './types'
 import type { IApiAddon } from '../types'

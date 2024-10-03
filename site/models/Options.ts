@@ -1,4 +1,4 @@
-import { each } from '../../fn'
+import { each } from '../../utils'
 import BaseEntriesModel from './BaseEntries'
 import type { IOptionsModel, IOptionModel } from '../types'
 import type { Object } from '../../types'

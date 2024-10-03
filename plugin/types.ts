@@ -26,15 +26,11 @@ export interface IStoreDataValue {
   watchstop: WatchStopHandle[]
 }
 
-export interface IAddonStore extends IBaseStore {
+export interface IImmutableStore extends IBaseStore {
   ADD_PROPERTIES: false
 }
 
-export interface IUserStore extends IBaseStore {
-  ADD_PROPERTIES: true
-}
-
-export interface IGlobalStore extends IAddonStore {
+export interface IGlobalStore extends IImmutableStore {
   getNodeFromPath(val: string): string
   getHomeSlug(code?: string): string
   isValidLang(code: string|null|undefined): boolean
@@ -58,7 +54,6 @@ export interface IApiOptions {
   lang?: string
   langdetect?: boolean
   locale?: string
-  debug?: number
   direction?: 'ltr' | 'rtl'
   nl2br?: boolean
   router?: boolean

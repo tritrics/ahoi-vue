@@ -1,4 +1,4 @@
-import { isObj } from '../fn'
+import { isObj } from '../utils'
 import { getInfo, globalStore, optionsStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
 import HomeStore from './classes/HomeStore'

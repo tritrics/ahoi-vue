@@ -1,4 +1,4 @@
-import { has, isFn, inArr, isObj, isStr } from '../../fn'
+import { has, isFn, inArr, isObj, isStr } from '../../utils'
 import { stores } from './stores'
 import type { Object, IApiAddon, IBaseStore } from '../../types'
 

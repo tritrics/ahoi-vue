@@ -1,4 +1,4 @@
-import { isObj } from '../../fn'
+import { isObj } from '../../utils'
 import { Thumb } from '../index'
 import FileModel from '../models/File'
 import type { IFileModel } from '../types'

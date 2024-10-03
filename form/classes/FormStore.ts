@@ -1,6 +1,6 @@
-import { computed } from 'vue'
-import { each, toKey, isBool, isObj, isStr, toBool, toInt, isTrue } from '../../fn'
-import { AddonStore, postCreate } from '../../plugin'
+import { watchEffect } from 'vue'
+import { each, toKey, isBool, isObj, isStr, toBool, toInt, isTrue } from '../../utils'
+import { ImmutableStore, postCreate } from '../../plugin'
 import BaseModel from '../models/Base'
 import * as models from '../models/models'
 import type { IFormBaseModel } from '../types'
@@ -14,7 +14,12 @@ const modelsMap: Object = models
 /**
  * Store with plugin and addons options.
  */
-class FormStore extends AddonStore implements IFormStore {
+class FormStore extends ImmutableStore implements IFormStore {
+
+  /**
+   * Stop function for validation watcher
+   */
+  _watchStop: Function|null = null
 
   /** */
   constructor(formOptions: IFormOptions = {}) {
@@ -24,6 +29,7 @@ class FormStore extends AddonStore implements IFormStore {
       fields: {},
       action: '',
       lang: '',
+      valid: true,
       immediate: false,
       processing: false,
       errno: 0, // error code of LAST submit(), 0 = OK
@@ -46,13 +52,6 @@ class FormStore extends AddonStore implements IFormStore {
   }
 
   /**
-   * Wrapper/Alternative for valid.value
-   */
-  isValid(compare: boolean = true): boolean {
-    return this.valid.value === toBool(compare)
-  }
-
-  /**
    * Reset form
    */
   reset(): void {
@@ -68,15 +67,24 @@ class FormStore extends AddonStore implements IFormStore {
   /**
    * Send the field values to API
    */
-  async submit(resetOnSuccess: boolean = true): Promise<JSONObject> {
+  async submit(
+    validate: 'immediate'|boolean = true,
+    resetOnSuccess: boolean = true
+  ) : Promise<JSONObject> {
 
-    // Form without action is not submittable, but may be useful for other frondend use.
-    const action = this.get('action')
-    if (!isStr(action, 1)) {
-      return Promise.resolve({} as JSONObject)
+    // validation
+    const immediate = toKey(validate) === 'immediate'
+    if (isTrue(validate) || immediate) {
+      this.validate(immediate)
+      if (this.isFalse('valid')) {
+        this._set('errno', 100)
+        return Promise.resolve({})
+      }
     }
+
     const options: Object = {}
     this._set('processing', true)
+    const action = this.get('action')
     const res = await postCreate([ this.get('lang'), action], this.getFieldValues(), options)
     this._set('processing', false)
 
@@ -84,37 +92,31 @@ class FormStore extends AddonStore implements IFormStore {
      * @see: ActionService.php
      * Fatal errors: 1 - 99
      * Non-fatal errors: >= 100
+     * Field-value validation: 100
      */
     const errno = toInt(res?.body?.errno) ?? 1
     this._set('errno', errno)
     if (errno === 0 && isTrue(resetOnSuccess)) {
       this.reset()
     }
-    return res
+    return Promise.resolve(res)
   }
-
-  /**
-   * Overall valid flag
-   */
-  valid = computed<boolean>(() => {
-    let res: boolean = true
-    const fields = this.ref('fields')
-    each(fields.value, (field: IFormBaseModel) => {
-      if (!field.valid) {
-        res = false
-      }
-    })
-    return res
-  })
 
   /**
    * Validation of all fields and also switch the immediate setting
    */
-  validate(immediate: boolean = false): void {
+  validate(immediate?: boolean): void {
+    let valid: boolean = true
     each(this.get('fields'), (field: IFormBaseModel) => {
       field.validate()
+      if (!field.valid) {
+        valid = false
+      }
     })
-    this._setImmediate(immediate)
+    this._set('valid', valid)
+    if (isBool(immediate)) {
+      this._setImmediate(immediate)
+    }
   }
 
   /**
@@ -155,14 +157,25 @@ class FormStore extends AddonStore implements IFormStore {
   }
 
   /**
-   * Setter for immediate flag
+   * Setter for immediate flag, watch/unwatch fields' valid flag
    */
   _setImmediate(val: any): void {
-    if (isBool(val, false)) {
-      const immediate = toBool(val)
-      this._set('immediate', immediate)
+    const immediate = toBool(val)
+    this._set('immediate', immediate)
+    if (immediate) {
       each(this.get('fields'), (field: IFormBaseModel) => {
-        field.watch(immediate) // watch on/off
+        field.watch(true) // field watch on
+      })
+      if(this._watchStop === null) { // overall valid flag watch on
+        this._watchStop = watchEffect(() => {
+          this.validate()
+        })
+      }
+    } else if (this._watchStop !== null) {
+      this._watchStop() // overall valid flag watch on
+      this._watchStop = null
+      each(this.get('fields'), (field: IFormBaseModel) => {
+        field.watch(false) // field watch off
       })
     }
   }

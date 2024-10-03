@@ -1,4 +1,4 @@
-import { toStr } from '../../fn'
+import { toStr } from '../../utils'
 import BaseModel from './Base'
 import type { IStringModel } from '../types'
 

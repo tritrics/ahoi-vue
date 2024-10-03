@@ -1,4 +1,4 @@
-import { toStr } from '../../fn'
+import { toStr } from '../../utils'
 import BaseModel from './Base'
 import type { IMarkdownModel } from '../types'
 import type { JSONObject } from '../../types'

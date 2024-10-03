@@ -1,4 +1,4 @@
-import { each, has, isArr, isObj } from '../../fn'
+import { each, has, isArr, isObj } from '../../utils'
 import BaseModel from '../models/Base'
 import * as models from '../models/models'
 import type { Object, JSONObject } from '../../types'

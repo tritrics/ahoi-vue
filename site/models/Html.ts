@@ -1,4 +1,4 @@
-import { each, has, isArr } from '../../fn'
+import { each, has, isArr } from '../../utils'
 import BaseModel from './Base'
 import NodeModel from './Node'
 import LinkModel from './Link'

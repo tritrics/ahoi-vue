@@ -1,15 +1,13 @@
-import { each } from '../fn'
-import AddonStore from './classes/AddonStore'
+import { each } from '../utils'
+import ImmutableStore from './classes/ImmutableStore'
 import BaseStore from './classes/BaseStore'
-import UserStore from './classes/UserStore'
 import GlobalStore from './classes/GlobalStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
-import debug from './modules/debug'
 import { getFieldsRef, getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
-import type { IApiOptions, IApiAddon, IGlobalStore, IAddonStore } from '../types'
+import type { IApiOptions, IApiAddon, IGlobalStore, IImmutableStore, Object } from '../types'
 
 /**
  * The API interface version.
@@ -20,7 +18,7 @@ const APIVERSION: string = 'v1'
 /**
  * The user options store. Initialized before all other stores.
  */
-let optionsStore: IAddonStore
+let optionsStore: IImmutableStore
 
 /**
  * The global store. Initialized before all other stores.
@@ -30,12 +28,10 @@ let globalStore: IGlobalStore
 /** 
  * Plugin factory
  */
-export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
-  debug.level(options.debug)
-  debug.log(':: AHOI PLUGIN INSTALLED ::')
+export async function createApi(options: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
 
   // init the stores
-  optionsStore = new AddonStore(options)
+  optionsStore = new ImmutableStore(options)
   stores('options', optionsStore)
   globalStore = new GlobalStore()
   stores('global', globalStore)
@@ -46,8 +42,8 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
   // init the router
   let Router: any
   if (inject('router')) {
-    const getRouter = inject('router', 'getRouter') as Function
-    Router = await getRouter()
+    const initRouter = inject('router', 'initRouter') as Function
+    Router = await initRouter()
   }
   
   // register plugin
@@ -81,7 +77,8 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
       if (Router) {
         app.use(Router)
       }
-    }
+    },
+    getRouter: () => Router ?? undefined
   }
 }
 
@@ -90,7 +87,6 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]) {
  */
 export {
   APIVERSION,
-  debug,
   VERSION,
   globalStore,
   optionsStore,
@@ -104,8 +100,7 @@ export {
   inject,
   postCreate,
   stores,
-  AddonStore,
+  ImmutableStore,
   BaseStore,
-  UserStore,
   Request,
 }
