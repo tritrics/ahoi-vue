@@ -3,7 +3,7 @@ import BaseModel from './Base'
 import NodeModel from './Node'
 import LinkModel from './Link'
 import type { IHtmlModel, INodeModel } from '../types'
-import type { JSONObject } from '../../types'
+import type { JSONObject, Object } from '../../types'
 
 /**
  * Model representing a text field with html (writer...).
@@ -23,11 +23,11 @@ export default class HtmlModel extends BaseModel implements IHtmlModel {
   /**
    * Getter for value as string
    */
-  str(): string {
+  str(options: Object = {}): string {
     if (this.has()) {
       let html: string = ''
       each (this.value, (node: INodeModel) => {
-        html += node.html()
+        html += node.html(options)
       })
       return html
     }
