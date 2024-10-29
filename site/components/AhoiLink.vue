@@ -48,7 +48,7 @@ const attr = computed<Attributes>(() => {
       res.href = link.value.href
     }
     res.class = `ahoi-link ${link.value.type}`
-    if (link.value.type === 'url' || props.blank) {
+    if (link.value.type === 'url' || link.value.type === 'file' || props.blank) {
       res.target = '_blank'
     }
     if (props.disabled) {
