@@ -1,5 +1,5 @@
 import { upper, count, objToParam, inArr, isStr, isObj, isUrl } from '../../utils'
-import type { Object, ApiMethods, JSONObject } from '../../types'
+import type { Object, ApiMethods, JSONObject, IApiRequestOptions } from '../../types'
 
 /**
  * Class to handle a single request
@@ -22,11 +22,11 @@ class Request {
 
   /**
    */
-  constructor(url: string, data: Object = {}, forceMethod: ApiMethods|null = null) {
+  constructor(url: string, data: IApiRequestOptions = {}, forceMethod: ApiMethods|null = null) {
     if (isUrl(url)) {
       this.url = url
     } else {
-      throw new Error('AHOI Plugin: No url defined for Api request')
+      throw new Error('[AHOI] No url defined for Api request')
     }
     if (isObj(data)) {
       this.data = data
@@ -74,9 +74,9 @@ class Request {
 
     // error
     if (!response.ok || !json.ok) {
-      const msg = json.msg || response.status
-      const status = json.status || response.statusText
-      throw new Error(`AHOI Plugin: API reports an error while requesting ${url}: ${msg} (Error ${status})`)
+      const msg = json.msg ?? response.status
+      const status = json.status ?? response.statusText
+      throw new Error(`[AHOI] API reports an error while requesting ${url}: ${msg} (Error ${status})`)
     }
 
     // OK

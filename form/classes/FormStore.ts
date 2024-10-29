@@ -22,8 +22,8 @@ class FormStore extends ImmutableStore implements IFormStore {
   _watchStop: Function|null = null
 
   /** */
-  constructor(formOptions: IFormOptions = {}) {
-    const options: IFormOptions = isObj(formOptions) ? formOptions : {}
+  constructor(setupOptions: IFormOptions = {}) {
+    const options: IFormOptions = isObj(setupOptions) ? setupOptions : {}
     super({
       options: options,
       fields: {},

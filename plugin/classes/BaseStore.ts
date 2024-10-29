@@ -21,9 +21,9 @@ class BaseStore implements IBaseStore {
   }
 
   /** */
-  constructor(initialValues: Object = {}) {
-    if (isObj(initialValues)) {
-      each(initialValues, (val: any, key: string) => {
+  constructor(setupOptions: Object = {}) {
+    if (isObj(setupOptions)) {
+      each(setupOptions, (val: any, key: string) => {
         this._set(key, val) // don't use set() here
       })
     }

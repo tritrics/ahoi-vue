@@ -1,9 +1,9 @@
 import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
 import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, toKey, toBool } from '../../utils'
-import { installedRouterTypes } from '../index'
-import { ImmutableStore, optionsStore } from '../../plugin'
+import { installedRouter } from '../index'
+import { ImmutableStore, apiStore } from '../../plugin'
 import type { RouteRecordRaw, RouterHistory  } from 'vue-router'
-import type { IRouterStore, IRouteOptions, IRouteNormalized } from '../types'
+import type { IRouterStore, IRouteOptions, IRouteNormalized, IRouteMap } from '../types'
 import type { Object } from '../../types'
 
 /**
@@ -12,9 +12,8 @@ import type { Object } from '../../types'
 class RouterStore extends ImmutableStore implements IRouterStore {
 
   /** variables containing functions and MUST NOT be reactive */
-  default: IRouteNormalized|null = null
-  catchall: IRouteNormalized|null = null
-  blueprints: Object = {}
+  //default: IRouteNormalized|null = null
+  blueprints: IRouteMap = {}
 
   /** */
   constructor() {
@@ -37,29 +36,27 @@ class RouterStore extends ImmutableStore implements IRouterStore {
   async init(): Promise<void> {
 
     // get user-values from options
-    const def = optionsStore.get('router')
+    const def = apiStore.get('addons.router')
     this._setType(def.type)
     this._setHistory(def.history)
     this._setScroll(def.scroll)
 
     // default route must always exist
-    const defaultRoute = this.#getRouteDefNormalized(def.default)
+    const defaultRoute = this.#getRouteDefNormalized(def.blueprints.default)
     if (!defaultRoute) {
-      throw new Error('AHOI Plugin: Router configuration needs at least a default route')
+      throw new Error('[AHOI] Router configuration needs at least a default route')
     }
-    this.default = defaultRoute
-
-    // catchall route
-    const catchallRoute = this.#getRouteDefNormalized(def.catchall, defaultRoute.meta)
-    this.catchall = catchallRoute ?? defaultRoute
+    this.blueprints.default = defaultRoute
 
     // optional mapping blueprints to routes
     const blueprints: Object = {}
     if (isObj(def.blueprints)) {
       each(def.blueprints, (def: IRouteOptions, blueprint: string) => {
-        const record = this.#getRouteDefNormalized(def, defaultRoute.meta)
-        if (record) {
-          blueprints[blueprint] = record
+        if (blueprint !== 'default') {
+          const record = this.#getRouteDefNormalized(def, defaultRoute.meta)
+          if (record) {
+            blueprints[blueprint] = record
+          }
         }
       })
       this.blueprints = blueprints
@@ -83,15 +80,13 @@ class RouterStore extends ImmutableStore implements IRouterStore {
   /**
    * Getting a route-defintion (for router) for a given blueprint.
    * Returnes default-route, if no specific route for blueprint is defined or
-   * catchall-route, if blueprint is false.
+   * error-route, if blueprint is false.
    */
   getRoute(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
-    if (blueprint === false || !isStr(blueprint, 1)) {
-      return this.#getRouteHelper(this.catchall as IRouteNormalized, path, meta)
-    } else if (has(this.blueprints, blueprint)) {
+    if (isStr(blueprint, 1) && has(this.blueprints, blueprint)) {
       return this.#getRouteHelper(this.blueprints[blueprint], path, meta)
     }
-    return this.#getRouteHelper(this.default as IRouteNormalized, path, meta)
+    return this.#getRouteHelper(this.blueprints.default as IRouteNormalized, path, meta)
   }
 
   /**
@@ -118,7 +113,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
    */
   _setType(val: any): void {
     val = toKey(val)
-    if (isStr(val) && inArr(val, installedRouterTypes)) {
+    if (isStr(val) && inArr(val, installedRouter)) {
       this._set('type', val)
     }
   }

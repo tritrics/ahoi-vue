@@ -16,11 +16,11 @@ export function createI18n(): IApiAddon {
     name: 'i18n',
     store: i18nStore,
     export: {
-      store: i18nStore
+      store: i18nStore,
     },
     dependencies(addons: string[]): void {
       if(!inArr('site', addons)) {
-        throw new Error('AHOI Plugin: Addon i18n requires addon site.')
+        throw new Error('[AHOI] Addon i18n requires addon site.')
       }
     }
   }
@@ -29,4 +29,6 @@ export function createI18n(): IApiAddon {
 /**
  * Export module
  */
-export { i18nStore }
+export {
+  i18nStore,
+}

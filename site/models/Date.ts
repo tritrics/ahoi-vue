@@ -1,6 +1,6 @@
 import { today } from '../../utils'
 import DateBaseModel from './BaseDate'
-import { globalStore } from '../../plugin'
+import { apiStore } from '../../plugin'
 import type { ISiteOptions, IDateModel } from '../types'
 import type { JSONObject } from '../../types'
 
@@ -29,9 +29,9 @@ export default class DateModel extends DateBaseModel implements IDateModel {
    */
   str(options: ISiteOptions = {}): string {
     return this.value.toLocaleDateString(
-      options?.locale ?? globalStore.get('locale'),
+      options?.locale ?? apiStore.get('locale'),
       {
-        ...(options?.date ?? globalStore.get('date')),
+        ...(options?.date ?? apiStore.get('date')),
         timeZone: 'UTC'
       }
     )

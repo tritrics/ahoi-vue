@@ -2,7 +2,7 @@ import { createRouter as createVueRouter } from 'vue-router'
 import { isTrue, isStr } from '../../utils'
 import { routerStore } from '../index'
 import { siteStore } from '../../site'
-import { globalStore } from '../../plugin'
+import { apiStore } from '../../plugin'
 import type { Router, RouteLocationNormalized } from 'vue-router'
 
 /**
@@ -11,15 +11,15 @@ import type { Router, RouteLocationNormalized } from 'vue-router'
  */
 async function loadPage(path: string): Promise<string|false> {
   try {
-    if (globalStore.isTrue('multilang')) {
+    if (apiStore.isTrue('multilang')) {
       const url = new URL(path, window.location.href)
-      globalStore.setLangFromUrl(url.href)
-      await globalStore.updateStores()
+      apiStore.setLangFromUrl(url.href)
+      await apiStore.updateStores()
     }
 
     // Request, but don't commit. Committed by Layout.vue.
     await siteStore.loadPageByPath(path, false)
-    return siteStore.getPageBlueprint() ?? 'default'
+    return siteStore.getNextPageBlueprint() ?? 'default'
   }
   catch (err) {
 
@@ -33,8 +33,8 @@ async function loadPage(path: string): Promise<string|false> {
  * Factory for router with dynamically added routes and
  * automatically page loades in siteStore.
  */
-export function routerFactory(): Router {
-    const router = createVueRouter({
+export function routerFactory(track: Function): Router {
+  const router = createVueRouter({
     history: routerStore.getHistoryMode(),
     scrollBehavior() {
       return isTrue(routerStore.get('scroll')) ? {
@@ -54,7 +54,7 @@ export function routerFactory(): Router {
   })
 
   // beforeEach handles dynamic route creation and page request
-  router.beforeEach(async (to: RouteLocationNormalized) => {
+  router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
     switch(to.name) {
 
       // step 1.
@@ -71,8 +71,13 @@ export function routerFactory(): Router {
 
         // handle home slug
         if (to.path === '/') {
-          const home = globalStore.getHomeSlug()
+          const home = apiStore.getHomeSlug()
           if (isStr(home, 1) && home !== '/') {
+            track(
+              to.fullPath,
+              siteStore.getNextPageTitle(),
+              from?.fullPath
+            )
             return home
           }
         }
@@ -85,6 +90,11 @@ export function routerFactory(): Router {
         // update router status
         const url = new URL(to.path, window.location.href)
         routerStore.set('url', url.href)
+        track(
+          to.fullPath,
+          siteStore.getNextPageTitle(),
+          from?.fullPath
+        )
         return true
       }
     }

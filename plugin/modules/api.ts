@@ -1,12 +1,13 @@
 import { each, count, unique, inArr, isStr, isUrl, isArr, isNum, isInt, isTrue, toPath, toKey, toInt } from '../../utils'
-import { Request, inject, globalStore, APIVERSION } from '../index'
+import { Request, inject, apiStore, APIVERSION } from '../index'
 import type { Object, IFormParams, IApiRequestOptions, ApiPagesStatus, JSONObject } from '../../types'
 
 /**
  * Call API interface /file/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getFile(path: string|string[], options: IApiRequestOptions = {} ): Promise<JSONObject> {
+export async function getFile(path: string|string[], requestOptions?: IApiRequestOptions ): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'file', path),
     getOptions(options, 'fields', 'id')
@@ -19,7 +20,8 @@ export async function getFile(path: string|string[], options: IApiRequestOptions
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getFiles(path: string|string[], options: IApiRequestOptions = {}): Promise<JSONObject> {
+export async function getFiles(path: string|string[], requestOptions?: IApiRequestOptions): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'files', path),
     getOptions(options, 'fields', 'filter', 'id', 'limit', 'offset', 'sort', 'status')
@@ -32,7 +34,8 @@ export async function getFiles(path: string|string[], options: IApiRequestOption
  * Call API interface /info.
  * Returns global information about the site.
  */
-export async function getInfo(options: IApiRequestOptions = {}): Promise<JSONObject> {
+export async function getInfo(requestOptions?: IApiRequestOptions): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'info')
   )
@@ -44,7 +47,8 @@ export async function getInfo(options: IApiRequestOptions = {}): Promise<JSONObj
  * Call API interface /language/(:any).
  * Returns information from a single language.
  */
-export async function getLanguage(lang: string, options: IApiRequestOptions = {}): Promise<JSONObject> {
+export async function getLanguage(lang: string, requestOptions?: IApiRequestOptions): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'language', lang),
     getOptions(options, 'id'),
@@ -58,7 +62,8 @@ export async function getLanguage(lang: string, options: IApiRequestOptions = {}
  * Call API interface /page/(:all?).
  * Returns information of a single page or site (if node is empty).
  */
-export async function getPage(path: string|string[]|null = null, options: IApiRequestOptions = {}): Promise<JSONObject> {
+export async function getPage(path: string|string[]|null = null, requestOptions?: IApiRequestOptions): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'page', path),
     getOptions(options, 'fields', 'id')
@@ -71,7 +76,8 @@ export async function getPage(path: string|string[]|null = null, options: IApiRe
  * Call API interface /pages/(:all?).
  * Returns information of sub-pages of a single page or site (if node is empty).
  */
-export async function getPages(path: string|string[]|null = null, options: IApiRequestOptions = {}): Promise<JSONObject> {
+export async function getPages(path: string|string[]|null = null, requestOptions?: IApiRequestOptions): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'pages', path),
     getOptions(options, 'fields', 'filter', 'id', 'limit', 'offset', 'sort', 'status')
@@ -83,7 +89,8 @@ export async function getPages(path: string|string[]|null = null, options: IApiR
 /**
  * Submit data to a specified action /action/(:any).
  */
-export async function postCreate(action: string|string[], data: IFormParams = {}, options: IApiRequestOptions = {} ): Promise<JSONObject> {
+export async function postCreate(action: string|string[], data: IFormParams = {}, requestOptions?: IApiRequestOptions): Promise<JSONObject> {
+  const options = Object.assign({}, requestOptions)
   const tokenRequest = new Request(
     getUrl(options, APIVERSION, 'token', action),
   )
@@ -100,8 +107,8 @@ export async function postCreate(action: string|string[], data: IFormParams = {}
 /**
  * Parse response, if core plugin is installed.
  */
-function convertResponse(userOptions: Object, json: JSONObject): JSONObject {
-  if (inject('site') && !isTrue(userOptions.raw)) {
+function convertResponse(requestOptions: Object, json: JSONObject): JSONObject {
+  if (inject('site') && !isTrue(requestOptions.raw)) {
     const fn = inject('site', 'convertResponse') as Function
     return fn(json)
   }
@@ -111,7 +118,7 @@ function convertResponse(userOptions: Object, json: JSONObject): JSONObject {
 /**
  * Getting specified request options from user-given or default options.
  */
-function getOptions(userOptions: Object, ...args: string[]): IApiRequestOptions|null {
+function getOptions(requestOptions: IApiRequestOptions, ...args: string[]): IApiRequestOptions|undefined {
   const options: IApiRequestOptions = {}
 
   /**
@@ -122,8 +129,8 @@ function getOptions(userOptions: Object, ...args: string[]): IApiRequestOptions|
    */
   if (inArr('fields', args)) {
     const fields: string[] = []
-    if (isArr(userOptions.fields)) {
-      each (userOptions.fields, (arg: any) => {
+    if (isArr(requestOptions.fields)) {
+      each (requestOptions.fields, (arg: any) => {
         each(isArr(arg) ? arg : [ arg ], (field: any) => {
           if (isStr(field, 1)) {
             fields.push(toKey(field))
@@ -149,8 +156,8 @@ function getOptions(userOptions: Object, ...args: string[]): IApiRequestOptions|
    *   [ 'created', 'date >', '2024-08-06' ]
    * ]
    */
-  if (inArr('filter', args) && isArr(userOptions.filter)) {
-    const filter = arrToParam(userOptions.filter)
+  if (inArr('filter', args) && isArr(requestOptions.filter)) {
+    const filter = arrToParam(requestOptions.filter)
     if (count(filter) > 0) {
       options.filter = filter
     }
@@ -160,32 +167,32 @@ function getOptions(userOptions: Object, ...args: string[]): IApiRequestOptions|
    * ID can be any value. The ID is returned as it is by response.
    * Used to avoid race conditions.
    */
-  if (inArr('id', args) && isStr(userOptions.id, 1)) {
-    options.id = userOptions.id
+  if (inArr('id', args) && isStr(requestOptions.id, 1)) {
+    options.id = requestOptions.id
   }
 
   /**
    * Get option `limit`.
    * Used in API request pages() to limit the number of returned pages.
    */
-  if (inArr('limit', args) && isInt(userOptions.limit, 1)) {
-    options.limit = toInt(userOptions.limit)
+  if (inArr('limit', args) && isInt(requestOptions.limit, 1)) {
+    options.limit = toInt(requestOptions.limit)
   }
 
   /**
    * Get option `offset`.
    * Used in API request pages() to get a specified result set in combination with limit.
    */
-  if (inArr('offset', args) && isInt(userOptions.offset, 1)) {
-    options.offset = toInt(userOptions.offset)
+  if (inArr('offset', args) && isInt(requestOptions.offset, 1)) {
+    options.offset = toInt(requestOptions.offset)
   }
 
   /**
    * Get option `sort`.
    * Used in API request pages() sort the returned pages ascending or descending.
    */
-  if (inArr('sort', args) && isArr(userOptions.sort)) {
-    const sort = arrToParam(userOptions.sort)
+  if (inArr('sort', args) && isArr(requestOptions.sort)) {
+    const sort = arrToParam(requestOptions.sort)
     if (count(sort) > 0) {
       options.sort = sort
     }    
@@ -196,27 +203,27 @@ function getOptions(userOptions: Object, ...args: string[]): IApiRequestOptions|
    * Status of pages in collection request. Can be listed, unlisted or
    * published (= listed or unlisted).
    */
-  if (inArr('status', args) && isStr(userOptions.status)) {
-    const status: string = toKey(userOptions.status)
+  if (inArr('status', args) && isStr(requestOptions.status)) {
+    const status: string = toKey(requestOptions.status)
     if (inArr(status, ['listed', 'unlisted', 'published'])) {
       options.status = status as ApiPagesStatus
     }
   }  
-  return count(options) > 0 ? options : null
+  return count(options) > 0 ? options : undefined
 }
 
 /**
  * Helper to build an URL from multiple parts.
  */
-function getUrl(userOptions: Object, ...args: (string|string[]|null)[]): string {
+function getUrl(requestOptions: Object, ...args: (string|string[]|null)[]): string {
 
   // getting host from options or global store
   // Host must be the fully qualified hostname followed by the api-slug like set in Kirby's config.
   let host: string|null = null
-  if (isUrl(userOptions.host)) {
-    host = userOptions.host
-  } else if (isUrl(globalStore.get('host'))) {
-    host = globalStore.get('host')
+  if (isUrl(requestOptions.host)) {
+    host = requestOptions.host
+  } else if (isUrl(apiStore.get('host'))) {
+    host = apiStore.get('host')
   }
   if (isStr(host) && host.endsWith('/')) {
     host = host.substring(0, host.length - 1)

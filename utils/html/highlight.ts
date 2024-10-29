@@ -53,7 +53,7 @@ function colorize(match: string, colors: Colors): string {
  */
 export default function highlight(str: string, colors?: Colors): string {
   if (isStr(str)) {
-    return str.replace(reg, (match) => colorize(match, colors || defaultColors))
+    return str.replace(reg, (match) => colorize(match, colors ?? defaultColors))
   }
   return ''
 }

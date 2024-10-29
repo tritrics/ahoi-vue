@@ -1,6 +1,21 @@
-import { inArr, isBool, isInt, isObj, isStr, isTrue, objToAttr, toKey, round, clone } from '../../utils'
-import type { IThumbModel, IThumbOptions, IThumbImage, IThumbDimensions, ThumbCropOptions } from '../types'
+import { inArr, isBool, isInt, isNum, isStr, isTrue, objToAttr, toKey, round, toBool, toNum } from '../../utils'
+import type { IThumbModel, IThumbOptions, IImageModel, IThumbDimensions, ThumbCropOptions, IImageAttributes } from '../types'
 import type { Object }  from '../../types' 
+
+/**
+ * Cropping options
+ */
+const croppingOptions: ThumbCropOptions[] = [
+  'top-left',
+  'top',
+  'top-right',
+  'left',
+  'center',
+  'right',
+  'bottom-left',
+  'bottom',
+  'bottom-right'
+]
 
 /**
  * Representation of an image with helper functions to create scaled thumbs.
@@ -22,301 +37,275 @@ import type { Object }  from '../../types'
 class Thumb implements IThumbModel { // name Image is reservated by JS
 
   /**
+   * The thumb attributes
+   */
+  _attr: IImageAttributes
+
+  /**
    * The image object with src and dimensions of the original
    */
-  _orig: IThumbImage
+  _image: IImageModel
 
   /**
-   * The requested width of the thumb.
+   * Thumb options
    */
-  _width: number|null = null
-
-  /**
-   * The requested height of the thumb.
-   */
-  _height: number|null = null
-
-  /**
-   * Cropping function, if dimensions don't fit the original ratio (same as in Kirby).
-   */
-  _crop: ThumbCropOptions|boolean = false
-
-  /**
-   * Blurring factor (same as in Kirby).
-   */
-  _blur: number|null = null
-
-  /**
-   * Flag for black/white (same as in Kirby).
-   */
-  _bw: boolean = false
-
-  /**
-   * JPEG qualitiy setting (same as in Kirby).
-   */
-  _quality: number|null = null
-
-  /**
-   * Title, used as alt-property.
-   */
-  _title: string = ''
-
-  /**
-   * Flat for hires / Retina displays.
-   */
-  _hires: boolean = false
-
-  /**
-   * Cropping options
-   */
-  _croppingOptions: ThumbCropOptions[] = [
-    'top-left',
-    'top',
-    'top-right',
-    'left',
-    'center',
-    'right',
-    'bottom-left',
-    'bottom',
-    'bottom-right'
-  ]
+  _options: IThumbOptions
 
   /**
    * With the constructor the object of the original image is mandatory.
    * All options of the requested thumb can also be given, if not set
    * one-by-one with the setters.
    */
-  constructor(
-    image: IThumbImage,
-    width: number|null = null,
-    height: number|null = null,
-    options: IThumbOptions = {}
-  ) {
-    this._orig = image
-    this._title = image.title ?? ''
-    this._hires = window.devicePixelRatio > 1
-
-    const opt = clone(options)
-    this.options(opt)
-    this.dim(width, height) // manually given width and height overwrite same properties in options
+  constructor(image: IImageModel, options: Object = {}) {
+    this._image   = image
+    this._options = this._getOptions(options)
+    this._attr    = this._getAttributes()
   }
-
-  /**
-   * Getter for thumb-tag attributes, optionally as object or string.
-   */
-  attr(asString: boolean = false): string|Object {
-    if (!isObj(this._orig)) {
-      return isTrue(asString) ? '' : []
-    }
-    const attr: Object = this._calculate()
-    if (isStr(this._title, 1)) {
-      attr.alt = this._title
-    }
-    return isTrue(asString) ? objToAttr(attr) : attr
-  }
-
-  /**
-   * Chaining function to set blur.
-   */
-  blur(blur?: number|null): this {
-    if (isInt(blur, 0)) {
-      this._blur = blur
-    }
-    return this
-  }
-
-  /**
-   * Chaining function to set image to black/white.
-   */
-  bw(bw?: boolean): this {
-    this._bw = isTrue(bw)
-    return this
-  }
-
-  /**
-   * Chaining function to set crop
-   */
-  crop(crop?: ThumbCropOptions|boolean): this {
-    if (isBool(crop)) {
-      this._crop = isTrue(crop) ? 'center' : false
-    } else if (isStr(crop)) {
-      const val = toKey(crop)
-      if (inArr(val, this._croppingOptions)) {
-        this._crop = crop as ThumbCropOptions
-      }
-    }
-    return this
-  }
-
-  /**
-   * Chaining function to set dimension
-   */
-  dim(width?: number|null, height?: number|null): this {
-    if (isInt(width, 1) || isInt(height, 1)) { // one of two must be given
-      this._width = isInt(width, 1, this._orig.width) ? width : null
-      this._height = isInt(height, 1, this._orig.height) ? height : null
-    }
-    return this
-  }
-
-  /**
-   * Chaining function to set options from object
-   * checks inside setter
-   */
-  options({
-    width = null,
-    height = null,
-    crop = false,
-    blur = null,
-    bw = false,
-    quality = null
-  }: IThumbOptions = {}) {
-    this.dim(width, height)
-    this.crop(crop)
-    this.blur(blur)
-    this.bw(bw)
-    this.blur(blur)
-    this.quality(quality)
-    return this
-  }
-
+  
   /**
    * Preload the image.
    */
   async preload(): Promise<any> {
-    if (!isObj(this._orig)) {
-      return Promise.resolve()
+    if (isStr(this._attr.src, 1)) {
+      return new Promise((resolve, reject) => {
+        const Preload = new Image()
+        Preload.onload = resolve
+        Preload.onerror = reject
+        Preload.src = this._attr.src as string
+      })
     }
-    const attr = this._calculate()
-    return new Promise((resolve, reject) => {
-      const Preload = new Image()
-      Preload.onload = resolve
-      Preload.onerror = reject
-      Preload.src = attr.src
-    })
+    return Promise.resolve()
   }
 
   /**
-   * Chaining function to set JPEG quality (between 1 and 100).
+   * Get thumb's attributes.
    */
-  quality(quality?: number|null): this {
-    if (isInt(quality, 1, 100)) {
-      this._quality = quality
-    }
-    return this
+  attr(asString: boolean = false): IImageAttributes|string {
+    return asString ? objToAttr(this._attr) : this._attr
+  }
+
+  /**
+   * Get the image.
+   */
+  image(): IImageModel {
+    return this._image
+  }
+
+  /**
+   * Get the options.
+   */
+  options(): IThumbOptions {
+    return this._options
   }
 
   /**
    * Getter for scr/href
    */
   src(): string {
-    if (!isObj(this._orig)) {
-      return ''
-    }
-    const attr: Object = this._calculate()
-    return attr.src
-  }
-
-  toString(): string {
-    return 'Instance of class Thumb'
+    return isStr(this._attr.src, 1) ? this._attr.src : ''
   }
 
   /**
-   * Helper to calculate all options for the thumb-url.
    */
-  _calculate(): Object {
-    if (!isObj(this._orig)) {
-      return {}
+  toString(): string {
+    return this.attr(true) as string
+  }
+
+  /**
+   * Calculate all options for the thumb-url.
+   */
+  _getAttributes(): IImageAttributes {
+
+    // default
+    const res: IImageAttributes = {
+      src: null,
+      width: null,
+      height: null,
+      alt: null,
+      crossorigin: null
     }
-    const res: Object = this._calculateDim()
-    const ext = this._orig.ext.toLowerCase().replace(/jpeg/, 'jpg')
-    const src = []
-    if (window.location.origin !== this._orig.host) {
-      src.push(this._orig.host)
+    const { width, height } = this._getDimensions()
+
+    // src
+    if (
+      isStr(this._image?.host, 1) &&
+      isStr(this._image?.dir, 1) &&
+      isStr(this._image?.name, 1) &&
+      isStr(this._image.ext, 1)
+    ) {
+      const src = []
+      if (window.location.origin !== this._image.host) {
+        src.push(this._image.host)
+      }
+      src.push(this._image.dir)
+      src.push('/')
+      src.push(this._image.name)
+      src.push(`-${width}x${height}`)
+      if (isStr(this._options.crop)) {
+        src.push(`-crop-${this._options.crop}`)
+      }
+      if (this._options.blur !== null && this._options.blur > 0) {
+        src.push(`-blur${this._options.blur}`)
+      }
+      if (this._options.bw === true) {
+        src.push('-bw')
+      }
+      if (this._options.quality !== null && this._options.quality > 0) {
+        src.push(`-q${this._options.quality}`)
+      }
+      const ext = this._image.ext.toLowerCase().replace(/jpeg/, 'jpg')
+      res.src = `${src.join('')}.${ext}`
     }
-    src.push(this._orig.dir)
-    src.push('/')
-    src.push(this._orig.name)
-    src.push(`-${res.width}x${res.height}`)
-    if (isStr(this._crop)) {
-      src.push(`-crop-${this._crop}`)
+
+    // dimenstions
+    res.width = width
+    res.height = height
+
+    // title
+    if (isStr(this._options.title, 1)) {
+      res.alt = this._options.title
     }
-    if (this._blur !== null && this._blur > 0) {
-      src.push(`-blur${this._blur}`)
-    }
-    if (this._bw === true) {
-      src.push('-bw')
-    }
-    if (this._quality !== null && this._quality > 0) {
-      src.push(`-q${this._quality}`)
-    }
-    res.src = `${src.join('')}.${ext}`
+
+    // additional attributes
     res.crossorigin = null
-    return res
+    return res as IImageAttributes
   }
 
   /**
    * Helper to calculate the dimensions for the thumb-url.
+   * ratio represents width/height and is always set, either by options or original ratio
    */
-  _calculateDim(): IThumbDimensions {
+  _getDimensions(): IThumbDimensions {
     const res: IThumbDimensions = {
       width: 0,
       height: 0
     }
-    if (!isObj(this._orig)) {
-      return res
-    }
-    const ratio = this._orig.width / this._orig.height
+    const hasWidth = isInt(this._options.width, 1)
+    const hasHeight = isInt(this._options.height, 1)
+    const hasCrop = isStr(this._options.crop) && inArr(toKey(this._options.crop), croppingOptions)
+    const ratio = this._image.width / this._image.height
 
-    // width and height given
-    if (isInt(this._width, 1) && isInt(this._height, 1)) {
+    if (hasWidth && hasHeight) {
 
       // crop to fit in width and height
-      if (isStr(this._crop)) {
-        res.width = this._width!
-        res.height = this._height!
+      if (hasCrop) {
+        res.width = this._options.width!
+        res.height = this._options.height!
       }
       
       // fit either width or height, keep ratio
       else {
-        res.width = round(this._height! * ratio, 0)
-        if (res.width <= this._width!) {
-          res.height = this._height!
+        res.width = round(this._options.height! * ratio, 0)
+        if (res.width <= this._options.width!) {
+          res.height = this._options.height!
         } else {
-          res.width = this._width!
-          res.height = round(this._width! / ratio, 0)
+          res.width = this._options.width!
+          res.height = round(this._options.width! / ratio, 0)
         }
       }
     }
-
-    // only width given: keep ratio, calculate height
-    else if (isInt(this._width, 1)) {
-      res.width = this._width!
-      res.height = round(this._width! / ratio, 0)
+    else if (hasWidth) {
+      res.width = this._options.width!
+      res.height = round(this._options.width! / ratio, 0)
     }
-
-    // only height given: keep ratio, calculate width
-    else if (isInt(this._height, 1)) {
-      res.width = round(this._height! * ratio, 0)
-      res.height = this._height!
+    else if (hasHeight) {
+      res.width = round(this._options.height! * ratio, 0)
+      res.height = this._options.height!
     }
-
-    // nothing given, use original dimensions
     else {
-      res.width = this._orig.width
-      res.height = this._orig.height
+      res.width = this._image.width
+      res.height = round(this._options.width! / ratio, 0)
     }
 
     // double resolution for hiRes displays
     if (
-      this._hires &&
-      isInt(res.width * 2, 1, this._orig.width) &&
-      isInt(res.height * 2, 1, this._orig.height)
+      this._options.hires &&
+      isInt(res.width * 2, 1, this._image.width) &&
+      isInt(res.height * 2, 1, this._image.height)
     ) {
       res.width *= 2
       res.height *= 2
     }
     return res
+  }
+
+  /**
+   * Setting options from user-given options.
+   */
+  _getOptions(options: Object): IThumbOptions {
+    const res: Object = {}
+
+    // dimensions
+    res.width = isInt(options.width, 1) ? options.width: null
+    res.height = isInt(options.height, 1) ? options.height: null
+
+    // ratio
+    let ratio: null|number = null
+    if (isNum(options.ratio, 0.01)) {
+      ratio = options.ratio
+    } else if (isStr(options.ratio, 1) && /^[0-9][\s]?\/[\s]?[0-9]$/.test(options.ratio)) {
+      const [ n, d ] = options.ratio.split('/').map((a) => toNum(a))
+      if (n !== null && d !== null && n > 0 && d > 0) {
+        ratio = n / d
+      }
+    }
+
+    // ratio only relevant, if either height or width are NOT set
+    // calculate width/height from ratio, don't add ratio to res
+    if (ratio && res.width && !res.height) {
+      res.height = round(res.width / ratio, 0)
+    } else if (ratio && res.height && !res.width) {
+      res.width = round(res.width * ratio, 0)
+    } else if (ratio && !res.width && !res.height) {
+      res.width = round(this._image.height * ratio, 0)
+      if (res.width <= this._image.width) {
+        res.height = this._image.height
+      } else {
+        res.width = this._image.width
+        res.height = round(this._image.width / ratio, 0)
+      }
+    }
+
+    // blur
+    res.blur = isInt(options.blur, 0) ? options.blur : null
+
+    // bw
+    res.bw = isTrue(options.bw, false)
+
+    // crop
+    res.crop = false
+    if (isBool(options.crop, false)) {
+      res.crop = isTrue(options.crop, false) ? 'center' : false
+    } else if (isStr(options.crop)) {
+      const val = toKey(options.crop)
+      if (inArr(val, croppingOptions)) {
+        res.crop = val as ThumbCropOptions
+      }
+    }
+    if (res.crop === false && ratio) {
+      res.crop = 'center'
+    }
+
+    // hires
+    if (isBool(options.hires, false)) {
+      res.hires = toBool(options.hires)
+    } else {
+      res.hires = window.devicePixelRatio > 1
+    }
+
+    // quality
+    res.quality = isInt(options.quality, 1, 100) ? options.quality : null
+
+    // title
+    if (isStr(options.title, 1)) {
+      res.title = options.title
+    } else if (isStr(this._image?.title, 1)) {
+      res.title = this._image.title
+    } else {
+      res.title = this._image?.title ?? ''
+    }
+
+    return res as IThumbOptions
   }
 }
 

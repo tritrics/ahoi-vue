@@ -1,7 +1,7 @@
 import { uuid, toPath, isStr, isTrue, toKey } from '../../utils'
-import { ImmutableStore, getPage, globalStore } from '../../plugin'
+import { ImmutableStore, getPage, apiStore } from '../../plugin'
 import { convertResponse } from '../index'
-import type { Object, ISiteStore, IPageModel } from '../../types'
+import type { Object, ISiteStore, IPageModel, JSONObject } from '../../types'
 
 /**
  * Store holding site, page and home-page models.
@@ -45,10 +45,17 @@ class SiteStore extends ImmutableStore implements ISiteStore {
   }
 
   /**
-   * Helper to get the blueprint from last loaded page (not from store).
+   * Helper to get the next (uncommited) blueprint.
    */
-  getPageBlueprint(): string|undefined {
+  getNextPageBlueprint(): string|undefined {
     return this.#pageModel?.meta?.blueprint
+  }
+
+  /**
+   * Helper to get the next (uncommited) pagetitle.
+   */
+  getNextPageTitle(): string|undefined {
+    return this.#pageModel?.meta?.title
   }
 
   /**
@@ -56,7 +63,7 @@ class SiteStore extends ImmutableStore implements ISiteStore {
    * mixed can be node or path
    */
   async loadHome(lang: string|null): Promise<void> {
-    const node = toPath(lang, globalStore.get('home'))
+    const node = toPath(lang, apiStore.get('home'))
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
@@ -68,7 +75,6 @@ class SiteStore extends ImmutableStore implements ISiteStore {
     this._set('home', convertResponse(json))
   }
 
-  
   /**
    * Request page by given node
    */
@@ -77,8 +83,19 @@ class SiteStore extends ImmutableStore implements ISiteStore {
       return
     }
     this.#requestid.page = uuid()
-    const json = await getPage(node, { raw: true, id: this.#requestid.page })
-    if (json.id !== this.#requestid.page) {
+    let json: JSONObject = {}
+    try {
+      json = await getPage(node, { raw: true, id: this.#requestid.page })
+    }
+    
+    // load error page, if existing (otherwise an error is thrown)
+    catch(E) {
+      json = await getPage(
+        toPath(apiStore.get('lang'), apiStore.get('error')),
+        { raw: true, id: this.#requestid.page }
+      )
+    }
+    if (json?.id !== this.#requestid.page) {
       return Promise.resolve()
     }
     this.#pageModel = convertResponse(json) as IPageModel
@@ -95,14 +112,14 @@ class SiteStore extends ImmutableStore implements ISiteStore {
       return
     }
     this._set('path', path)
-    return await this.loadPage(globalStore.getNodeFromPath(path), commit)
+    return await this.loadPage(apiStore.getNodeFromPath(path), commit)
   }
 
   /**
    * Request site.
    */
   async loadSite(lang: string|null = null): Promise<void> {
-    if (!globalStore.isValidLang(lang) || (this.isNot('site', null) && this.#lang === toKey(lang))) {
+    if (!apiStore.isValidLang(lang) || (this.isNot('site', null) && this.#lang === toKey(lang))) {
       return
     }
     this.#requestid.site = uuid()

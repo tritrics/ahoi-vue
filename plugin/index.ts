@@ -1,13 +1,13 @@
 import { each } from '../utils'
 import ImmutableStore from './classes/ImmutableStore'
 import BaseStore from './classes/BaseStore'
-import GlobalStore from './classes/GlobalStore'
+import ApiStore from './classes/ApiStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
 import { getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
-import type { IApiOptions, IApiAddon, IGlobalStore, IImmutableStore, Object } from '../types'
+import type { IApiOptions, IApiAddon, IApiStore, Object } from '../types'
 
 /**
  * The API interface version.
@@ -16,25 +16,18 @@ import type { IApiOptions, IApiAddon, IGlobalStore, IImmutableStore, Object } fr
 const APIVERSION: string = 'v1'
 
 /**
- * The user options store. Initialized before all other stores.
- */
-let optionsStore: IImmutableStore
-
-/**
  * The global store. Initialized before all other stores.
  */
-let globalStore: IGlobalStore
+let apiStore: IApiStore
 
 /** 
  * Plugin factory
  */
-export async function createApi(options: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
+export async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
 
   // init the stores
-  optionsStore = new ImmutableStore(options)
-  stores('options', optionsStore)
-  globalStore = new GlobalStore()
-  stores('global', globalStore)
+  apiStore = new ApiStore(setupOptions)
+  stores('api', apiStore)
 
   // load addons
   const addonsLoaded: IApiAddon[] = await loadAddons(addons)
@@ -52,8 +45,7 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]): P
       app.config.globalProperties['$api'] = {
         APIVERSION,
         VERSION,
-        store: globalStore,
-        options: optionsStore,
+        store: apiStore,
         getFile,
         getFiles,
         getInfo,
@@ -87,8 +79,7 @@ export async function createApi(options: IApiOptions, ...addons: IApiAddon[]): P
 export {
   APIVERSION,
   VERSION,
-  globalStore,
-  optionsStore,
+  apiStore,
   getFile,
   getFiles,
   getInfo,

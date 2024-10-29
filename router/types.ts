@@ -1,6 +1,10 @@
 import type { RouteRecordRaw, RouterHistory, RouteComponent } from 'vue-router'
 import type { IImmutableStore } from "../types"
 
+export interface IRouteMap {
+  [ key: string ]: IRouteNormalized
+}
+
 export interface IRouterStore extends IImmutableStore {
   getHistoryMode(): RouterHistory
   getRoute(blueprint: string|false, path: string, meta: Object): RouteRecordRaw

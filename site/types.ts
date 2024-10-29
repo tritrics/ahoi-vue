@@ -29,19 +29,15 @@ export interface ISiteRefs {
  * Image / Thumb
  */
 export interface IThumbModel {
-  attr(asString: boolean): string|Object
-  blur(blur?: number): IThumbModel
-  bw(bw?: boolean): IThumbModel
-  crop(crop?: ThumbCropOptions|boolean): IThumbModel
-  dim(width?: number|null, height?: number|null): IThumbModel
-  options(options: IThumbOptions): IThumbModel
+  attr(asString: boolean): IImageAttributes|string
+  image(): IImageModel
+  options(): IThumbOptions
   preload(): Promise<any>
-  quality(quality?: number): IThumbModel
   src(): string
   toString(): string
 }
 
-export interface IThumbImage {
+export interface IImageModel {
   host: string
   dir: string
   name: string
@@ -51,13 +47,24 @@ export interface IThumbImage {
   title?: string
 }
 
+export interface IImageAttributes {
+  src: string|null
+  width: number|null
+  height: number|null
+  alt: string|null
+  crossorigin: null
+}
+
 export interface IThumbOptions {
-  width?: number|null,
-  height?: number|null,
-  crop?: ThumbCropOptions|boolean
-  blur?: number|null
-  bw?: boolean
-  quality?: number|null
+  bw: boolean
+  blur: number|null
+  crop: ThumbCropOptions|boolean
+  height: number|null,
+  hires: boolean,
+  ratio: number,
+  quality: number|null
+  title: string|null,
+  width: number|null,
 }
 
 export interface IThumbDimensions {
@@ -67,7 +74,8 @@ export interface IThumbDimensions {
 
 export interface ISiteStore extends IImmutableStore {
   commitPage(): void
-  getPageBlueprint(): string|undefined
+  getNextPageBlueprint(): string|undefined
+  getNextPageTitle(): string|undefined
   loadHome(lang: string|null): Promise<void>
   loadPage(node: string, commit: boolean): Promise<void>
   loadPageByPath(path: string, commit: boolean): Promise<void>

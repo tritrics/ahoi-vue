@@ -16,11 +16,11 @@ export function createMeta(): IApiAddon {
     name: 'meta',
     store: metaStore,
     export: {
-      store: metaStore
+      store: metaStore,
     },
     dependencies(addons: string[]): void {
       if(!inArr('site', addons)) {
-        throw new Error('AHOI Plugin: Addon meta requires addon site.')
+        throw new Error('[AHOI] Addon meta requires addon site.')
       }
     }
   }
@@ -29,4 +29,6 @@ export function createMeta(): IApiAddon {
 /**
  * Export module
  */
-export { metaStore }
+export {
+  metaStore,
+}

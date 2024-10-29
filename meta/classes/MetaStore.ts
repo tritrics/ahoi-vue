@@ -1,5 +1,5 @@
 import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../utils'
-import { BaseStore, optionsStore, globalStore, inject, stores } from '../../plugin'
+import { BaseStore, apiStore, inject, stores } from '../../plugin'
 import { createThumb } from '../../site'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
 import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel, IPageModel, ISiteModel } from '../../types'
@@ -41,7 +41,7 @@ class MetaStore extends BaseStore implements IMetaStore {
   async init(): Promise<void> {
 
     // fields defined in config, taken from config, site or page
-    const watch = this.#setMetaFields(optionsStore.get('meta'))
+    const watch = this.#setMetaFields(apiStore.get('addons.meta'))
     if (watch.site) {
       stores('site').watch('site', () => this.#updateMeta())
     }
@@ -49,19 +49,19 @@ class MetaStore extends BaseStore implements IMetaStore {
       stores('site').watch('page', () => this.#updateMeta())
     }
 
-    // lang from globalStore
-    if (globalStore.isTrue('multilang')) {
-      globalStore.watch('lang', (newVal: string) => {
+    // lang from apiStore
+    if (apiStore.isTrue('multilang')) {
+      apiStore.watch('lang', (newVal: string) => {
         this._setLang(newVal)
       }, { immediate: true })
     } else {
-      globalStore.watch('detected', (newVal: string) => {
+      apiStore.watch('detected', (newVal: string) => {
         this._setLang(newVal)
       }, { immediate: true })
     }
 
-    // locale from globalStore
-    globalStore.watch('locale', (newVal: string) => {
+    // locale from apiStore
+    apiStore.watch('locale', (newVal: string) => {
       this._setLocale(newVal)
     }, { immediate: true })
 
@@ -250,7 +250,7 @@ class MetaStore extends BaseStore implements IMetaStore {
    * Try to get content field 1st from page and 2nd from site.
    */
   #updateMeta(): void {
-    const siteStore: IBaseStore = stores('site')
+    const siteStore: IBaseStore = stores('site') as IBaseStore
     const site: ISiteModel = siteStore.get('site')
     const page: IPageModel|null = siteStore.get('page')
     each(this.#metaFields, (def: IMetaConfigField, metaField: string) => {

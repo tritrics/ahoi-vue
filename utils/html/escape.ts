@@ -16,5 +16,5 @@ const map: Map = {
  * opposite of php's addslashes
  */
 export default function escape(val: string): string {
-  return toStr(val).replace(/[&<>"']/g, (m: string) => (map[m] || ''))
+  return toStr(val).replace(/[&<>"']/g, (m: string) => (map[m] ?? ''))
 }

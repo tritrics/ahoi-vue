@@ -1,5 +1,6 @@
 import { inArr } from '../utils'
 import RouterStore from './classes/RouterStore'
+import { inject } from '../plugin'
 import type { IRouterStore } from './types'
 import type { Object, IApiAddon } from "../types"
 import type { Router } from 'vue-router'
@@ -17,7 +18,27 @@ const routerStore: IRouterStore = new RouterStore()
 /**
  * Router types, must exist in ./modules
  */
-const installedRouterTypes: string[] = [ 'dynamic-load' ]
+const installedRouter: string[] = [ 'dynamic-load' ]
+
+/**
+ * Addon factory
+ */
+function createRouter(): IApiAddon[] {
+  return [{
+    name: 'router',
+    store: routerStore,
+    export: {
+      getRouter,
+      initRouter,
+      store: routerStore,
+    },
+    dependencies(addons: string[]): void {
+      if(!inArr('site', addons)) {
+        throw new Error('[AHOI] Addon router requires addon site.')
+      }
+    }
+  }]
+}
 
 /**
  * Getter for Router instance
@@ -31,37 +52,24 @@ function getRouter(): Router {
  * @TODO: add a router without autom. load of page
  */
 async function initRouter(): Promise<Router> {
-  return import(`./router/${routerStore.get('type')}.ts`).then(
+  return import(`./modules/${routerStore.get('type')}.ts`).then(
     (mod: Object) => {
-      routerInstance = mod.routerFactory()
+      const track = inject('tracker', 'track')
+      routerInstance = mod.routerFactory(track)
       return routerInstance
     },
     () => {
-      throw new Error(`AHOI Plugin: Router factory ${routerStore.get('type')} not found`)
+      throw new Error(`[AHOI] Router factory ${routerStore.get('type')} not found`)
     })
-}
-
- /**
- * Addon factory
- */
-export function createRouter(): IApiAddon[] {
-  return [{
-    name: 'router',
-    store: routerStore,
-    export: {
-      store: routerStore,
-      initRouter,
-      getRouter
-    },
-    dependencies(addons: string[]): void {
-      if(!inArr('site', addons)) {
-        throw new Error('AHOI Plugin: Addon router requires addon site.')
-      }
-    }
-  }]
 }
 
 /**
  * Export module
  */
-export { routerStore, installedRouterTypes, initRouter, getRouter }
+export {
+  createRouter,
+  getRouter,
+  initRouter,
+  installedRouter,
+  routerStore,
+}

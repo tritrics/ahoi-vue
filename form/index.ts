@@ -11,7 +11,7 @@ const formsMap: Object = {}
  * Get, register or implicitely create a form.
  * @TODO: request fielddef from Kirby
  */
-function forms(mixed: string|IFormOptions, options?: IFormOptions): IFormStore {
+function forms(mixed: string|IFormOptions, setupOptions?: IFormOptions): IFormStore {
 
   // no name given, options in mixed, don't register form
   if (!isStr(mixed)) {
@@ -20,7 +20,7 @@ function forms(mixed: string|IFormOptions, options?: IFormOptions): IFormStore {
   
   // create form
   if (!has(formsMap, mixed)) {
-    formsMap[mixed] = new FormStore(options)
+    formsMap[mixed] = new FormStore(setupOptions)
   }
   return formsMap[mixed]
 }
@@ -40,4 +40,6 @@ export function createForm(): IApiAddon {
 /**
  * Export module
  */
-export { forms }
+export {
+  forms,
+}

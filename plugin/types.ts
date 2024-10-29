@@ -31,9 +31,10 @@ export interface IImmutableStore extends IBaseStore {
   ADD_PROPERTIES: false
 }
 
-export interface IGlobalStore extends IImmutableStore {
+export interface IApiStore extends IImmutableStore {
   getNodeFromPath(val: string): string
   getHomeSlug(code?: string): string
+  hasRouter(): boolean
   isValidLang(code: string|null|undefined): boolean
   isCurrentLang(code: string): boolean
   setLangFromDetected(): void
@@ -51,21 +52,22 @@ export interface IApiAddon {
 }
 
 export interface IApiOptions {
+  addons?: IApiAddon[]
+  brand?: string
+  date?: DateTimeFormat
+  description?: string
+  direction?: 'ltr' | 'rtl'
   host: string
+  image?: string
+  keywords?: string
   lang?: string
   langdetect?: boolean
   locale?: string
-  direction?: 'ltr' | 'rtl'
+  meta?: Object
   nl2br?: boolean
-  router?: boolean
-  date?: DateTimeFormat
+  router?: boolean|Object
   time?: DateTimeFormat
-  brand?: string
   title?: string
-  keywords?: string
-  description?: string
-  image?: string
-  addons?: IApiAddon[]
 }
 
 export interface IApiRequestOptions {

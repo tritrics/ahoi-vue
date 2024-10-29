@@ -1,12 +1,12 @@
 import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../utils'
 import ImmutableStore from './ImmutableStore'
-import { optionsStore, inject } from '../index'
-import type { Object, IGlobalStore, II18nStore, ISiteStore } from '../../types'
+import { inject } from '../index'
+import type { Object, IApiStore, II18nStore, ISiteStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
-class GlobalStore extends ImmutableStore implements IGlobalStore {
+class ApiStore extends ImmutableStore implements IApiStore {
 
   /**
    * Intern lookup map with meta-values of languages
@@ -16,33 +16,58 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
    */
   #langmap: Object = {}
 
+  /**
+   * does languages in #langmap have unique urls?
+   */
+  #uniqueLangUrls: boolean = false
+
+  /**
+   * The best language
+   */
+  #detectedLang: string|null = null
+
+  /**
+   * The user prefered language
+   */
+  #userLang: string|null = null
+
   /** */
-  constructor() {
+  constructor(setupOptions: Object) {
     super({
+      addons: {},
       date: { year: 'numeric', month: 'numeric', day: 'numeric' },
-      detected: false, // lang detected 
       direction: 'ltr',
       home: 'home',
+      error: 'error',
       host: null,
       lang: null, // selected lang in a multilang enviroment, null on default and in nolang enviroments!
+      langdetect: true, // user setting, if detected language should be automatically selected
       languages: [],
       locale: 'en-EN',
       multilang: false, // autoset with languages
       nl2br: false,
       router: false,
-      time: { hour: '2-digit', minute: '2-digit' }
+      time: { hour: '2-digit', minute: '2-digit' },
     })
 
     // get user-values from options
-    this._setDate(optionsStore.get('date'))
-    this._setDirection(optionsStore.get('direction'))
-    this._setHome(optionsStore.get('home'))
-    this._setHost(optionsStore.get('host'))
-    this._setDetected(optionsStore.get('lang'))
-    this._setLocale(optionsStore.get('locale'))
-    this._setNl2br(optionsStore.get('nl2br'))
-    this._setRouter(optionsStore.get('router'))
-    this._setTime(optionsStore.get('time'))
+    if (setupOptions?.lang && isStr(setupOptions.lang, 2, 2)) {
+      this.#userLang = toKey(setupOptions.lang)
+    }
+    this._setDate(setupOptions?.date)
+    this._setDirection(setupOptions?.direction)
+    this._setHome(setupOptions?.home)
+    this._setHost(setupOptions?.host)
+    this._setError(setupOptions?.error)
+    this._setLangdetect(setupOptions?.langdetect)
+    this._setLocale(setupOptions?.locale)
+    this._setNl2br(setupOptions?.nl2br)
+    this._setRouter(setupOptions?.router)
+    this._setTime(setupOptions?.time)
+    this._setAddons(setupOptions?.addons) // after _setRouter
+
+    // init routines
+    this.#detectLanguage()
   }
 
   /**
@@ -85,11 +110,18 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
     if (this.isValidLang(selected)) {
       return this.#langmap[selected].slug
     }
-    const detected = this.get('detected')
-    if (this.isValidLang(detected)) {
-      return this.#langmap[detected].slug
+    if (this.#detectedLang !== null && this.isValidLang(this.#detectedLang)) {
+      return this.#langmap[this.#detectedLang].slug
     }
     return ''
+  }
+
+  /**
+   * Check if router definition is set
+   * (router can be false, true or configuration object)
+   */
+  hasRouter(): boolean {
+    return !this.isFalse('router')
   }
 
   /**
@@ -114,7 +146,7 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
    */
   setLangFromDetected(): void {
     if (this.isTrue('multilang')) {
-      this._setLang(this.get('detected'))
+      this._setLang(this.#detectedLang)
     }
   }
 
@@ -124,7 +156,7 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
    */
   setLangFromUrl(url?: string): void {
     if (this.isTrue('multilang')) {
-      if (this.isTrue('langdetect')) {
+      if (this.#uniqueLangUrls) {
         const code = this._getLangFromUrl(url ?? window.location.href)
         if (this.isValidLang(code) && this.isNot('lang', code)) {
           this._setLang(code)
@@ -137,7 +169,7 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
   }
 
   /**
-   * Update Stores with globalStore data in cases, where watch() doesn't work, because
+   * Update Stores with apiStore data in cases, where watch() doesn't work, because
    * result must be awaited to continue with parent procedure.
    */
   async updateStores(): Promise<void> {
@@ -182,6 +214,18 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
   }
 
   /**
+   * Set all addons-settings. No checks.
+   */
+  _setAddons(val: any): void {
+    if (isObj(val)) {
+      this._set('addons', val)
+      if (has(val, 'router') && isObj(val.router)) {
+        this._setRouter(true)
+      }
+    }
+  }
+
+  /**
    * Setter for date settings
    * Options for printing out date values
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
@@ -190,45 +234,6 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
     if (isObj(val)) { // @TODO: check array entries
       this._set('date', val)
     }
-  }
-
-  /**
-   * Default language is the best language computed from user-option,
-   * browser language and default language. Can differ from lang, which
-   * may change in runtime.
-   */
-  _setDetected(val: any): void {
-
-    // 1. from given (user-option)
-    const userLang: string = toKey(val)
-    if (
-      (this.isFalse('multilang') && isStr(userLang, 2, 2)) ||
-      this.isValidLang(userLang)
-    ) {
-      return this._set('detected', userLang)
-    }
-
-    // 2. from browser
-    for (let i = 0; i < navigator.languages.length; i++) {
-      const navLang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
-      if (!isUndef(navLang) && this.isValidLang(navLang)) {
-        return this._set('detected', navLang)
-      }
-    }
-    
-    if (this.isFalse('multilang')) {
-      return
-    }
-
-    // 3. default lang like defined in Kirby
-    for(const lang in this.#langmap) {
-      if (isTrue(this.#langmap[lang].default)) {
-        return this._set('detected', lang)
-      }
-    }
-
-    // 4. first lang
-    this._set('detected', Object.keys(this.#langmap).shift())
   }
 
   /**
@@ -241,6 +246,16 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
     const direction = toKey(val)
     if (direction === 'ltr' || direction === 'rtl') {
       this._set('direction', val)
+    }
+  }
+
+  /**
+   * Setter for home-slug
+   * The error-slug (not path) like optionally defined in Kirby's config.php.
+   */
+  _setError(val: any): void {
+    if (isStr(val, 1)) {
+      this._set('error', trim(val, '/'))
     }
   }
 
@@ -283,6 +298,15 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
   }
 
   /**
+   * User-setting, if language should be automatically detected in multilanguage enviroments.
+   */
+  _setLangdetect(val: any): void {
+    if (isBool(val, false)) {
+      this._set('langdetect', toBool(val))
+    }
+  }
+
+  /**
    * Setter for languages and multilang
    * Languages: List with all available languages.
    * { code: meta }
@@ -294,6 +318,8 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
     const languages: Object[] = multilang ? val : {}
     this._set('languages', languages)
     this._set('multilang', multilang)
+
+    // setting intern language data
     this.#langmap = {}
     const urls: string[] = []
     each(languages, (language: Object) => {
@@ -312,8 +338,8 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
       // language detection.
       urls.push(`${language.meta.origin}${language.meta.slug}`)
     })
-    this._set('langdetect', count(urls) > 1 && count(urls) === count(unique(urls)))
-    this._setDetected(optionsStore.get('lang'))
+    this.#uniqueLangUrls = count(urls) > 1 && count(urls) === count(unique(urls))
+    this.#detectLanguage()
   }
 
   /**
@@ -339,14 +365,13 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
 
   /**
    * Setter for router
-   * Flag to determine, if component <router-link> should be used for
-   * intern links.
+   * Router-flag is required, if the router-addon is NOT used, but
+   * links should be converted to router-links anyway. If the router-addon
+   * is used, this flag is set to true.
    */
   _setRouter(val: any): void {
     if (isBool(val, false)) {
       this._set('router', toBool(val))
-    } else if (isObj(val) && has(val, 'type')) {
-      this._set('router', true)
     }
   }
 
@@ -360,6 +385,50 @@ class GlobalStore extends ImmutableStore implements IGlobalStore {
       this._set('time', val)
     }
   }
+
+  /**
+   * Detect the best language and store in #detectLang. Language is
+   * just detected and not used right away.
+   */
+  #detectLanguage(): void {
+
+    // 1. from given (user-option)
+    const userLang: string|null = this.#userLang
+    if (
+      (this.isFalse('multilang') && isStr(userLang, 2, 2)) ||
+      this.isValidLang(userLang)
+    ) {
+      this.#detectedLang = userLang
+      return
+    }
+
+    // 2. from browser
+    for (let i = 0; i < navigator.languages.length; i++) {
+      const navLang: string|undefined = navigator.languages[i].toLowerCase().split('-').shift()
+      if (!isUndef(navLang) && this.isValidLang(navLang)) {
+        this.#detectedLang = navLang
+        return
+      }
+    }
+    
+    if (this.isFalse('multilang')) {
+      return
+    }
+
+    // 3. default lang like defined in Kirby
+    for(const lang in this.#langmap) {
+      if (isTrue(this.#langmap[lang].default)) {
+        this.#detectedLang = lang
+        return
+      }
+    }
+
+    // 4. first lang
+    const firstLang = Object.keys(this.#langmap).shift()
+    if (isStr(firstLang, 2, 2)) {
+      this.#detectedLang = firstLang
+    }
+  }
 }
 
-export default GlobalStore
+export default ApiStore

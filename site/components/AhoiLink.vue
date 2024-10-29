@@ -4,7 +4,7 @@ import PageModel from '../models/Page'
 import FileModel from '../models/File'
 import TranslationModel from '../models/Translation'
 import { isStr, isObj, toStr, has } from '../../utils'
-import { globalStore } from '../../plugin'
+import { apiStore } from '../../plugin'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
 import type { Props, Attributes, ILinkA, ILinkRouter, ILinkRouterName, ILinkRouterPath } from './AhoiLink'
@@ -26,11 +26,11 @@ const emit = defineEmits<{
 }>()
 
 /**
- * Using router-link depends on setting in globalStore AND if router is installed.
+ * Using router-link depends on setting in apiStore AND if router is installed.
  * (needs to be computed value, fails otherwise in watchEffect())
  */
 const useRouter = computed(() => {
-  return globalStore.isTrue('router') && !!getCurrentInstance()?.appContext.config.globalProperties.$router
+  return apiStore.hasRouter() && !!getCurrentInstance()?.appContext.config.globalProperties.$router
 })
 
 /**
@@ -77,7 +77,7 @@ watchEffect(() => {
   // to is instance of LinkModel
   if (isObj(to) && (has(to, 'attr') && has(to.attr, 'data-type') && has(to.attr, 'href'))) {
     res.type = to.attr['data-type']
-    res.title = toStr(to.value) || to.attr.href
+    res.title = toStr(to.value) ?? to.attr.href
     if (res.type === 'page' && useRouter.value) {
       res.elem = 'router-link'
       res.to = {
