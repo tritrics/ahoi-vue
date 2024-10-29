@@ -2,5 +2,5 @@
  * Converts value to string.
  */
 export default function toStr(val: any): string {
-  return typeof val === 'object' ? '' : `${val}`
+  return typeof val === 'object' || val === undefined ? '' : `${val}`
 }

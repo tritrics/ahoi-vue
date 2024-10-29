@@ -16,7 +16,7 @@ const props = defineProps<Props>()
       :classes="props.classes"
     />
     <template v-else>
-      {{ props.model.str({ shy: '|' }) }}
+      {{ props.model.str() }}
     </template>
   </component>
 </template>

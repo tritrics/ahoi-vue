@@ -52,20 +52,20 @@ export default class NodeModel extends BaseModel implements INodeModel {
   /**
    * Get html, recoursive
    */
-  html(): string {
+  html(options: Object = {}): string {
     switch(this.type) {
       case 'node-text':
-        return toStr(this.value)
+        return this.str(options)
       case 'node-self-closing':
         return `<${this.elem}${this.attrToStr(true)} />`
       default: {
         let html: string = `<${this.elem}${this.attrToStr(true)}>`
         if (this.has()) {
           each(this.value, (node: INodeModel) => {
-            html += node.html()
+            html += node.html(options)
           })
         } else {
-          html += toStr(this.value)
+          html += this.str(options)
         }
         html += `</${this.elem}>`
         return html
@@ -78,9 +78,9 @@ export default class NodeModel extends BaseModel implements INodeModel {
    */
   str(options: Object = {}): string {
     // not working @TODO
-    if (isStr(options?.shy, 1)) {
-      return toStr(this.value).replace(options.shy, '&shy;')
-    }
+    //if (isStr(options?.shy, 1)) {
+    //  return toStr(this.value).replace(options.shy, '&shy;')
+    //}
     return toStr(this.value)
   }
 
