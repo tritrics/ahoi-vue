@@ -185,8 +185,8 @@ export interface IDatetimeModel extends IBaseDateModel {
 export interface IFileModel extends IBaseFieldsModel {
   type: 'file'
   value: undefined
-  meta: IFileMeta
-  link: ILinkModel
+  meta?: IFileMeta
+  link?: ILinkModel
   isImage(): boolean
 }
 
@@ -268,8 +268,8 @@ export interface IOptionsModel extends IBaseEntriesModel {
 export interface IPageModel extends IBaseFieldsModel {
   type: 'page'
   value: undefined
-  meta: IPageMeta
-  link: ILinkModel
+  meta?: IPageMeta
+  link?: ILinkModel
   translations?: ITranslationModel[]
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
@@ -311,7 +311,7 @@ export interface ITranslationModel extends IBaseModel {
 
 export interface IUserModel extends IBaseFieldsModel {
   type: 'user'
-  meta: Object
+  meta?: Object
 }
 
 export interface IUsersModel extends IBaseEntriesModel {

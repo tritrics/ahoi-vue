@@ -1,4 +1,4 @@
-import { has, each, isStr, toKey } from '../../utils'
+import { has, each, isStr, isObj, toKey } from '../../utils'
 import BaseFieldsModel from './BaseFields'
 import CollectionModel from './Collection'
 import TranslationModel from './Translation'
@@ -20,12 +20,12 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
   /**
    * Meta values
    */
-  meta: IPageMeta
+  meta?: IPageMeta
 
   /**
    * Link model
    */
-  link: ILinkModel
+  link?: ILinkModel
 
   /**
    * List with link models for each language
@@ -45,10 +45,12 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
   /** */
   constructor(obj: JSONObject) {
     super(obj)
-    this.meta = obj.meta
-    this.meta.blueprint = toKey(this.meta.blueprint)
-    this.meta.modified = new Date(this.meta.modified)
-    this.link = createLinkByValues('page', obj.meta.title, obj.meta.href)
+    if (isObj(obj.meta) && has(obj.meta, 'node')) {
+      this.meta = obj.meta as IPageMeta
+      this.meta.blueprint = toKey(this.meta!.blueprint)
+      this.meta.modified = new Date(this.meta!.modified)
+      this.link = createLinkByValues('page', obj.meta.title, obj.meta.href)
+    }
     if (has(obj, 'translations')) {
       this.translations = []
       each(obj.translations, (translation: Object) => {
@@ -68,9 +70,16 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
    */
   blueprint(test?: string): string|boolean {
     if (isStr(test, 1)) {
-      return this.meta.blueprint === toKey(test)
+      return this.meta?.blueprint === toKey(test)
     }
-    return this.meta.blueprint
+    return this.meta?.blueprint ?? ''
+  }
+
+  /**
+   * Checking empty value.
+   */
+  isEmpty(): boolean {
+    return ! isObj(this.meta)
   }
 
   /** */

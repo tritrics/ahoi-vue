@@ -1,3 +1,4 @@
+import { has, isObj } from '../../utils'
 import BaseFieldsModel from './BaseFields'
 import type { IUserModel } from '../types'
 import type { JSONObject } from '../../types'
@@ -15,12 +16,21 @@ export default class UserModel extends BaseFieldsModel implements IUserModel {
   /**
    * Meta values
    */
-  meta: Object
+  meta?: Object
   
   /** */
   constructor(obj: JSONObject) {
     super(obj)
-    this.meta = obj.meta
+    if (isObj(obj.meta) && has(obj.meta, 'node')) {
+      this.meta = obj.meta
+    }
+  }
+
+  /**
+   * Checking empty value.
+   */
+  isEmpty(): boolean {
+    return ! isObj(this.meta)
   }
 
   /** */
