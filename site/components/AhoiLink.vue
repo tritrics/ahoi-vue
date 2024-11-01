@@ -2,7 +2,7 @@
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
 import PageModel from '../models/Page'
 import FileModel from '../models/File'
-import TranslationModel from '../models/Translation'
+import LanguageModel from '../models/Language'
 import { isStr, isObj, toStr, has } from '../../utils'
 import { apiStore } from '../../plugin'
 import type { Ref } from 'vue'
@@ -70,7 +70,7 @@ watchEffect(() => {
   // extract link, if props.to is instance of PageModel, FileModel or TranslationModel
   // otherwise use props.to as it is
   const to =
-    (props.to instanceof PageModel || props.to instanceof FileModel || props.to instanceof TranslationModel)
+    (props.to instanceof PageModel || props.to instanceof FileModel || props.to instanceof LanguageModel)
     ? props.to.link
     : props.to
 

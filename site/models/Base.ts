@@ -1,4 +1,4 @@
-import { toStr, each, ltrim, isEmpty, isTrue, isFalse } from '../../utils'
+import { toStr, each, has, isEmpty } from '../../utils'
 import type { JSONObject } from '../../types'
 import type { ModelTypes, IBaseModel } from '../types'
 import type { Object } from '../../types'
@@ -16,7 +16,7 @@ export default class BaseModel implements IBaseModel {
   /**
    * Value
    */
-  value: any = null
+  value: any = undefined
 
   /** */
   constructor(value: any) {
@@ -71,11 +71,40 @@ export default class BaseModel implements IBaseModel {
   }
 
   /** */
-  toJSON(): JSONObject {
+  toJSONold(): JSONObject {
+    const ordered = ['type', 'value', 'meta', 'link', 'languages', 'fields', 'collection', 'entries']
     const json: Object = {}
+    each(ordered, (prop: keyof this) => {
+      if (has(this, prop as string)) {
+        const publicName: string = prop as string
+        json[publicName] = this[prop]
+      }
+    })
     const props = Object.keys(this)
     each(props, (prop: keyof this) => {
-      const publicName: string = ltrim(prop as string, '_')
+      if (!has(json, prop as string)) {
+        const publicName: string = prop as string
+        json[publicName] = this[prop]
+      }
+    })
+    return json
+  }
+
+  /** */
+  toJSON(): JSONObject {
+    const json: Object = {
+      type: undefined,
+      value: undefined,
+      meta: undefined,
+      link: undefined,
+      languages: undefined,
+      fields: undefined,
+      collection: undefined,
+      entries: undefined,
+    }
+    const props = Object.keys(this)
+    each(props, (prop: keyof this) => {
+      const publicName: string = prop as string
       json[publicName] = this[prop]
     })
     return json

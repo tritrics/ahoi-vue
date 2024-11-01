@@ -11,7 +11,7 @@ class ApiStore extends ImmutableStore implements IApiStore {
   /**
    * Intern lookup map with meta-values of languages
    * {
-   *   [lancode] => { meta... }
+   *   [lang] => { meta... }
    * }
    */
   #langmap: Object = {}
@@ -91,27 +91,27 @@ class ApiStore extends ImmutableStore implements IApiStore {
     }
 
     // multilang, remove prefix from start and replace with lang
-    const code: string = this.get('lang')
-    path = path.replace(this.#langmap[code]['reg'], '/')
-    return rtrim(`/${code}${path === '/' ? home : path}`, '/')
+    const lang: string = this.get('lang')
+    path = path.replace(this.#langmap[lang]['reg'], '/')
+    return rtrim(`/${lang}${path === '/' ? home : path}`, '/')
   }
 
   /**
    * Get the home slug for a given, selected or detected language.
    */
-  getHomeSlug(code?: string): string {
+  getHomeSlug(lang?: string): string {
     if (this.isFalse('multilang')) {
       return '/'
     }
-    if (isStr(code, 1)) {
-      return this.isValidLang(code) ? this.#langmap[code].slug : ''
+    if (isStr(lang, 1)) {
+      return this.isValidLang(lang) ? this.#langmap[lang].node : ''
     }
     const selected = this.get('lang')
     if (this.isValidLang(selected)) {
-      return this.#langmap[selected].slug
+      return this.#langmap[selected].node
     }
     if (this.#detectedLang !== null && this.isValidLang(this.#detectedLang)) {
-      return this.#langmap[this.#detectedLang].slug
+      return this.#langmap[this.#detectedLang].node
     }
     return ''
   }
@@ -127,18 +127,18 @@ class ApiStore extends ImmutableStore implements IApiStore {
   /**
    * Check, if the given language is valid in multilang-enviroment
    */
-  isValidLang(code: string|null|undefined): boolean {
+  isValidLang(lang: string|null|undefined): boolean {
     if (this.isFalse('multilang')) {
-      return isEmpty(code)
+      return isEmpty(lang)
     }
-    return isStr(code, 1) && has(this.#langmap, code)
+    return isStr(lang, 1) && has(this.#langmap, lang)
   }
 
   /**
    * Check, if given language is the currently selected.
    */
-  isCurrentLang(code: string): boolean {
-    return isStr(code, 1) && this.is('lang', code)
+  isCurrentLang(lang: string): boolean {
+    return isStr(lang, 1) && this.is('lang', lang)
   }
 
   /**
@@ -154,18 +154,21 @@ class ApiStore extends ImmutableStore implements IApiStore {
    * Detect and set language from url. Sets detected lang, if
    * url detection fails and no lang was set before.
    */
-  setLangFromUrl(url?: string): void {
+  setLangFromUrl(url?: string): boolean {
     if (this.isTrue('multilang')) {
+      const currentLang = this.get('lang')
       if (this.#uniqueLangUrls) {
-        const code = this._getLangFromUrl(url ?? window.location.href)
-        if (this.isValidLang(code) && this.isNot('lang', code)) {
-          this._setLang(code)
+        const lang = this._getLangFromUrl(url ?? window.location.href)
+        if (this.isValidLang(lang) && this.isNot('lang', lang)) {
+          this._setLang(lang)
         }
       }
       if (!this.isValidLang(this.get('lang'))) {
         this.setLangFromDetected()
       }
+      return currentLang !== this.get('lang')
     }
+    return false
   }
 
   /**
@@ -193,21 +196,21 @@ class ApiStore extends ImmutableStore implements IApiStore {
   _getLangFromUrl(href: string): string {
     let res: string = ''
     const url = new URL(`${rtrim(href, '/')}/`)
-    for(const code in this.#langmap) {
-      if (!this.#langmap[code]['reg'].test(url.pathname)) {
+    for(const lang in this.#langmap) {
+      if (!this.#langmap[lang]['reg'].test(url.pathname)) {
         continue
       }
-      if (isStr(this.#langmap[code].origin, 1)) {
-        if (this.#langmap[code].origin === lower(url.origin)) {
-          return code
-        } else if (isStr(this.#langmap[code].slug, 1)) {
-          return code
+      if (isStr(this.#langmap[lang].origin, 1)) {
+        if (this.#langmap[lang].origin === lower(url.origin)) {
+          return lang
+        } else if (isStr(this.#langmap[lang].node, 1)) {
+          return lang
         }
       } else {
-        if (isStr(this.#langmap[code].slug, 1)) {
-          return code
+        if (isStr(this.#langmap[lang].node, 1)) {
+          return lang
         }
-        res = code
+        res = lang
       }
     }
     return res
@@ -323,20 +326,20 @@ class ApiStore extends ImmutableStore implements IApiStore {
     this.#langmap = {}
     const urls: string[] = []
     each(languages, (language: Object) => {
-      const code = toKey(language.meta.code)
-      this.#langmap[code] = language.meta
+      const lang = toKey(language.meta.lang)
+      this.#langmap[lang] = language.meta
 
       // normalize values
-      this.#langmap[code].origin = lower(this.#langmap[code].origin)
+      this.#langmap[lang].origin = lower(this.#langmap[lang].origin)
 
       // RegExp is used to analyse paths
-      let slug = '/' + trim(language.meta.slug, '/') + '/'
-      slug = slug === '//' ? '/' : slug
-      this.#langmap[code]['reg'] = new RegExp(`^${regEsc(slug)}`)
+      let node = '/' + trim(language.meta.node, '/') + '/'
+      node = node === '//' ? '/' : node
+      this.#langmap[lang]['reg'] = new RegExp(`^${regEsc(node)}`)
 
       // Combination of origin and slug must be unique to enable
       // language detection.
-      urls.push(`${language.meta.origin}${language.meta.slug}`)
+      urls.push(`${language.meta.origin}${language.meta.node}`)
     })
     this.#uniqueLangUrls = count(urls) > 1 && count(urls) === count(unique(urls))
     this.#detectLanguage()

@@ -1,36 +1,19 @@
-import { has, each, isStr, isObj, toKey } from '../../utils'
-import BaseFieldsModel from './BaseFields'
+import { has, isStr, toKey } from '../../utils'
+import BaseObjectModel from './BaseObject'
 import CollectionModel from './Collection'
-import TranslationModel from './Translation'
 import { parse } from '../index'
-import { createLinkByValues } from './Link'
-import type { IPageModel, ILinkModel, ICollectionModel, IFileModel, IPageMeta, ITranslationModel } from '../types'
-import type { Object, JSONObject } from '../../types'
+import type { IPageModel, ICollectionModel, IFileModel } from '../types'
+import type { JSONObject } from '../../types'
 
 /**
  * Model representing a page field or the page request.
  */
-export default class PageModel extends BaseFieldsModel implements IPageModel {
+export default class PageModel extends BaseObjectModel implements IPageModel {
   
   /**
    * Type
    */
   type: 'page' = 'page'
-  
-  /**
-   * Meta values
-   */
-  meta?: IPageMeta
-
-  /**
-   * Link model
-   */
-  link?: ILinkModel
-
-  /**
-   * List with link models for each language
-   */
-  translations?: ITranslationModel[]
 
   /**
    * Collection model with information about entries
@@ -45,17 +28,8 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
   /** */
   constructor(obj: JSONObject) {
     super(obj)
-    if (isObj(obj.meta) && has(obj.meta, 'node')) {
-      this.meta = obj.meta as IPageMeta
+    if (isStr(this.meta?.blueprint, 1)) {
       this.meta.blueprint = toKey(this.meta!.blueprint)
-      this.meta.modified = new Date(this.meta!.modified)
-      this.link = createLinkByValues('page', obj.meta.title, obj.meta.href)
-    }
-    if (has(obj, 'translations')) {
-      this.translations = []
-      each(obj.translations, (translation: Object) => {
-        this.translations!.push(new TranslationModel(translation))
-      })
     }
     if (has(obj, 'collection')) {
       this.collection = new CollectionModel(obj.collection)
@@ -73,25 +47,5 @@ export default class PageModel extends BaseFieldsModel implements IPageModel {
       return this.meta?.blueprint === toKey(test)
     }
     return this.meta?.blueprint ?? ''
-  }
-
-  /**
-   * Checking empty value.
-   */
-  isEmpty(): boolean {
-    return ! isObj(this.meta)
-  }
-
-  /** */
-  toJSON() {
-    return {
-      type: this.type,
-      meta: this.meta,
-      link: this.link,
-      translations: this.translations,
-      fields: this.fields,
-      collection: this.collection,
-      entries: this.entries
-    }
   }
 }

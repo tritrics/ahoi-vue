@@ -127,6 +127,7 @@ export interface IBaseDateModel extends IBaseModel {
 }
 
 export interface IBaseEntriesModel extends IBaseModel {
+  value: undefined
   entries: IBaseModel[]
   count(): number
   first(): IBaseModel|undefined
@@ -136,16 +137,23 @@ export interface IBaseEntriesModel extends IBaseModel {
 }
 
 export interface IBaseFieldsModel extends IBaseModel {
-  fields?: Object,
+  value: undefined
+  fields?: Object
   has(field: string): boolean
+}
+
+export interface IBaseObjectModel extends IBaseFieldsModel {
+  meta?: Object
+  link?: ILinkModel
+  languages?: ILanguageModel[]
+  sortedLanguages(defaultFirst: boolean, byLang: boolean): ILanguageModel[]
 }
 
 /**
  * Models
  */
-export interface IBlockModel extends IBaseModel {
+export interface IBlockModel extends IBaseFieldsModel {
   type: 'block'
-  value: string
   block: string
   fields?: Object
 }
@@ -182,11 +190,8 @@ export interface IDatetimeModel extends IBaseDateModel {
   type: 'datetime'
 }
 
-export interface IFileModel extends IBaseFieldsModel {
+export interface IFileModel extends IBaseObjectModel {
   type: 'file'
-  value: undefined
-  meta?: IFileMeta
-  link?: ILinkModel
   isImage(): boolean
 }
 
@@ -203,18 +208,13 @@ export interface IHtmlModel extends IBaseModel {
 export interface IInfoModel extends IBaseModel {
   type: 'info'
   value: undefined
-  meta: IInfoMeta
-  languages?: ILanguageModel[]
-  sites?: ISiteModel[]
-  site?: ISiteModel
+  interface: Object
+  isMultilang(): boolean
+  defaultLang(): string|null
 }
 
-export interface ILanguageModel extends IBaseModel {
+export interface ILanguageModel extends IBaseObjectModel {
   type: 'language'
-  value: string
-  meta: ILanguageMeta
-  fields?: Object
-  code: string
   isDefault(): boolean
   has(field: string): boolean
 }
@@ -265,12 +265,8 @@ export interface IOptionsModel extends IBaseEntriesModel {
   type: 'options'
 }
 
-export interface IPageModel extends IBaseFieldsModel {
+export interface IPageModel extends IBaseObjectModel {
   type: 'page'
-  value: undefined
-  meta?: IPageMeta
-  link?: ILinkModel
-  translations?: ITranslationModel[]
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
   blueprint(test?: string): string|boolean
@@ -280,10 +276,8 @@ export interface IPagesModel extends IBaseEntriesModel {
   type: 'pages'
 }
 
-export interface ISiteModel extends IBaseFieldsModel {
+export interface ISiteModel extends IBaseObjectModel {
   type: 'site'
-  value: undefined
-  meta: IPageMeta
 }
 
 export interface IStringModel extends IBaseModel {
@@ -304,14 +298,8 @@ export interface ITimeModel extends IBaseDateModel {
   type: 'time'
 }
 
-export interface ITranslationModel extends IBaseModel {
-  type: 'translation'
-  link: ILinkModel
-}
-
-export interface IUserModel extends IBaseFieldsModel {
+export interface IUserModel extends IBaseObjectModel {
   type: 'user'
-  meta?: Object
 }
 
 export interface IUsersModel extends IBaseEntriesModel {
@@ -320,81 +308,6 @@ export interface IUsersModel extends IBaseEntriesModel {
 
 export interface IModelList {
   [ key: string ]: IBaseModel
-}
-
-/**
- * Metadata as used in models
- */
-export interface IFileMeta {
-  host: string
-  dir: string
-  file: string
-  name: string
-  ext: string
-  href: string
-  node: string
-  lang?: string
-  filetype: 'image' | 'file'
-  blueprint: string
-  title: string
-  modified: Date
-  translations?: {
-    lang: string
-    href: string
-    node: string
-  }[]
-}
-
-export interface IImageMeta extends IFileMeta {
-  width: number
-  height: number
-}
-
-export interface IInfoMeta {
-  multilang: boolean
-  [ key: string ]: any
-}
-
-export interface ILanguageMeta {
-  code: string
-  title: string
-  default: boolean
-  origin?: string
-  slug: string
-  locale: string
-  direction: string
-}
-
-export interface ISiteMeta {
-  node: string
-  lang?: string
-  blueprint: 'site'
-  title: string
-  modified: Date
-  translations?: {
-    lang: string
-    node: string
-  }[]
-  api?: Object
-}
-
-export interface IPageMeta {
-  slug: string
-  href: string
-  node: string
-  lang?: string
-  blueprint: string
-  status: string
-  sort: number
-  home: boolean
-  title: string
-  modified: Date
-  translations?: {
-    lang: string
-    href: string
-    node: string
-  }[]
-  api?: Object
 }
 
 /**
@@ -442,6 +355,5 @@ export type ModelTypes =
   | 'structure'
   | 'text'
   | 'time'
-  | 'translation'
   | 'user'
   | 'users'

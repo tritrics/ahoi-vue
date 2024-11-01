@@ -1,7 +1,7 @@
-import { has, count, isObj } from '../../utils'
+import { has, isObj } from '../../utils'
 import BaseModel from './Base'
 import { parse } from '../index'
-import type { IBaseFieldsModel, IModelList } from '../types'
+import type { IModelList, IBaseFieldsModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
@@ -17,7 +17,7 @@ export default class BaseFieldsModel extends BaseModel implements IBaseFieldsMod
   /** */
   constructor(obj: JSONObject) {
     super(undefined)
-    if (has(obj, 'fields')) {
+    if (isObj(obj.fields)) {
       this.fields = parse(obj.fields)
     }
   }
@@ -27,12 +27,5 @@ export default class BaseFieldsModel extends BaseModel implements IBaseFieldsMod
    */
   has(field: string): boolean {
     return this.fields !== undefined && has(this.fields, field)
-  }
-
-  /**
-   * Checking empty field object.
-   */
-  isEmpty(): boolean {
-    return !(isObj(this.fields) && count(this.fields) > 0)
   }
 }

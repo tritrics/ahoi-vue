@@ -49,17 +49,15 @@ class RouterStore extends ImmutableStore implements IRouterStore {
     this.blueprints.default = defaultRoute
 
     // optional mapping blueprints to routes
-    const blueprints: Object = {}
     if (isObj(def.blueprints)) {
       each(def.blueprints, (def: IRouteOptions, blueprint: string) => {
         if (blueprint !== 'default') {
           const record = this.#getRouteDefNormalized(def, defaultRoute.meta)
           if (record) {
-            blueprints[blueprint] = record
+            this.blueprints[blueprint] = record
           }
         }
       })
-      this.blueprints = blueprints
     }
   }
   

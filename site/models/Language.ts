@@ -1,50 +1,35 @@
-import { has, isTrue } from '../../utils'
-import BaseModel from './Base'
-import { parse } from '../index'
-import type { ILanguageModel, ILanguageMeta } from '../types'
+import { has, isTrue, toStr } from '../../utils'
+import BaseObjectModel from './BaseObject'
+import type { ILanguageModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing a language.
  */
-export default class LanguageModel extends BaseModel implements ILanguageModel {
+export default class LanguageModel extends BaseObjectModel implements ILanguageModel {
   
   /**
    * Type
    */
   type: 'language' = 'language'
-
-  /**
-   * Meta values
-   */
-  meta: ILanguageMeta
-
-  /**
-   * Fields (terms) of the language
-   */
-  fields?: Object
   
   /** */
   constructor(obj: JSONObject) {
-    super(obj.meta.title)
-    this.meta = obj.meta
-    if (has(obj, 'fields')) {
-      this.fields = parse(obj.fields)
-    }
-  }
-
-  /**
-   * Shortcut to get language code
-   */
-  get code(): string {
-    return this.meta.code
+    super(obj)
   }
 
   /**
    * Flag to check, if this is the default language
    */
   isDefault(): boolean {
-    return isTrue(this.meta.default)
+    return isTrue(this.meta?.default)
+  }
+
+  /**
+   * Getter for (raw) value
+   */
+  get(): any {
+    return toStr(this.meta?.lang)
   }
 
   /**
@@ -52,5 +37,12 @@ export default class LanguageModel extends BaseModel implements ILanguageModel {
    */
   has(field: string): boolean {
     return this.fields !== undefined && has(this.fields, field)
+  }
+
+  /**
+   * Getter for value as string
+   */
+  str(): string {
+    return toStr(this.meta?.title)
   }
 }

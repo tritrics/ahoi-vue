@@ -13,8 +13,10 @@ async function loadPage(path: string): Promise<string|false> {
   try {
     if (apiStore.isTrue('multilang')) {
       const url = new URL(path, window.location.href)
-      apiStore.setLangFromUrl(url.href)
-      await apiStore.updateStores()
+      const changed = apiStore.setLangFromUrl(url.href)
+      if (changed) {
+        await apiStore.updateStores()
+      }
     }
 
     // Request, but don't commit. Committed by Layout.vue.
@@ -22,6 +24,7 @@ async function loadPage(path: string): Promise<string|false> {
     return siteStore.getNextPageBlueprint() ?? 'default'
   }
   catch (err) {
+    console.error(err)
 
     // @TODO: set path to Kirbys notfound-page in config and request that here
     // or do this in PageModel

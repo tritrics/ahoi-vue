@@ -33,12 +33,12 @@ export interface IImmutableStore extends IBaseStore {
 
 export interface IApiStore extends IImmutableStore {
   getNodeFromPath(val: string): string
-  getHomeSlug(code?: string): string
+  getHomeSlug(lang?: string): string
   hasRouter(): boolean
-  isValidLang(code: string|null|undefined): boolean
-  isCurrentLang(code: string): boolean
+  isValidLang(lang: string|null|undefined): boolean
+  isCurrentLang(lang: string): boolean
   setLangFromDetected(): void
-  setLangFromUrl(url?: string): void
+  setLangFromUrl(url?: string): boolean
   updateStores(): Promise<void>
 }
 
