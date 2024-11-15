@@ -125,20 +125,25 @@ function getOptions(requestOptions: IApiRequestOptions, ...args: string[]): IApi
    * Get option `fields`.
    * Fields can be array with single fieldnames or subarray:
    * this.options.fields = [ field1, field2, [field3, field4]]
-   * If fields is empty array, all fields are returned.
+   * If fields is '*' or true, it's translated to [ '*' ]
    */
   if (inArr('fields', args)) {
-    const fields: string[] = []
+    const res: string[] = []
     if (isArr(requestOptions.fields)) {
       each (requestOptions.fields, (arg: any) => {
         each(isArr(arg) ? arg : [ arg ], (field: any) => {
           if (isStr(field, 1)) {
-            fields.push(toKey(field))
+            res.push(toKey(field))
           }
         })
       })
+      const fields = unique(res)
+      if (fields.length > 0) {
+        options.fields = fields
+      }
+    } else if (isTrue(requestOptions.fields) || requestOptions.fields === '*') {
+      options.fields = [ '*' ]
     }
-    options.fields = unique(fields) // empty array wanted!
   }
 
   /**

@@ -85,14 +85,14 @@ class SiteStore extends ImmutableStore implements ISiteStore {
     this.#requestid.page = uuid()
     let json: JSONObject = {}
     try {
-      json = await getPage(node, { raw: true, id: this.#requestid.page })
+      json = await getPage(node, { raw: true, id: this.#requestid.page, fields: true })
     }
     
     // load error page, if existing (otherwise an error is thrown)
     catch(E) {
       json = await getPage(
         toPath(apiStore.get('lang'), apiStore.get('error')),
-        { raw: true, id: this.#requestid.page }
+        { raw: true, id: this.#requestid.page, fields: true }
       )
     }
     if (json?.id !== this.#requestid.page) {
@@ -123,7 +123,7 @@ class SiteStore extends ImmutableStore implements ISiteStore {
       return
     }
     this.#requestid.site = uuid()
-    const json = await getPage(lang, { raw: true, id: this.#requestid.site })
+    const json = await getPage(lang, { raw: true, id: this.#requestid.site, fields: true })
     if (json.id !== this.#requestid.site) {
       return Promise.resolve()
     }

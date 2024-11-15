@@ -71,7 +71,7 @@ export interface IApiOptions {
 }
 
 export interface IApiRequestOptions {
-  fields?: string[]
+  fields?: string[]|true|'*'
   filter?: any[]
   host?: string|null
   id?: string
