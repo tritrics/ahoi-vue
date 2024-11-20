@@ -38,7 +38,7 @@ export default class InfoModel extends BaseObjectModel implements IInfoModel {
     if (isArr(this.languages)) {
       for (let i = 0; i < this.languages.length; i++) {
         if (isTrue(this.languages[i].isDefault())) {
-          return this.languages![i].lang
+          return this.languages![i].get()
         }
       }
     }
