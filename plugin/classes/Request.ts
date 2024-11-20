@@ -65,7 +65,6 @@ class Request {
       } else {
         options.headers = { 'content-type': 'application/json' }
         options.body = JSON.stringify(this.data)
-        console.log(options.body)
       }
     }
 
