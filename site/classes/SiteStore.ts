@@ -1,7 +1,7 @@
-import { uuid, toPath, isStr, isTrue, toKey } from '../../utils'
+import { uuid, toPath, isStr, toKey } from '../../utils'
 import { ImmutableStore, getPage, apiStore } from '../../plugin'
 import { convertResponse } from '../index'
-import type { Object, ISiteStore, IPageModel, JSONObject } from '../../types'
+import type { Object, ISiteStore, JSONObject } from '../../types'
 
 /**
  * Store holding site, page and home-page models.
@@ -12,11 +12,6 @@ class SiteStore extends ImmutableStore implements ISiteStore {
    * Language of requested site for intern checks
    */
   #lang: string|null = null
-  
-  /**
-   * The last loaded page model, before it's commited and therewith saved in store.
-   */
-  #pageModel: IPageModel|null = null
 
   /**
    * Avoid race conditions
@@ -30,32 +25,10 @@ class SiteStore extends ImmutableStore implements ISiteStore {
   /** */
   constructor() {
     super({
-      path: null,
       site: null,
       page: null,
       home: null,
     })
-  }
-
-  /**
-   * Save the last loaded page in store.
-   */
-  commitPage(): void {
-    this._set('page', this.#pageModel)
-  }
-
-  /**
-   * Helper to get the next (uncommited) blueprint.
-   */
-  getNextPageBlueprint(): string|undefined {
-    return this.#pageModel?.meta?.blueprint
-  }
-
-  /**
-   * Helper to get the next (uncommited) pagetitle.
-   */
-  getNextPageTitle(): string|undefined {
-    return this.#pageModel?.meta?.title
   }
 
   /**
@@ -83,12 +56,7 @@ class SiteStore extends ImmutableStore implements ISiteStore {
   /**
    * Request page by given node
    */
-  async loadPage(
-    node: string,
-    fields: string[]|boolean|'*' = '*',
-    languages: boolean|'*' = true,
-    commit: boolean = true
-  ): Promise<void> {
+  async loadPage(node: string, fields: string[]|boolean|'*' = '*', languages: boolean|'*' = true): Promise<void> {
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
@@ -113,26 +81,14 @@ class SiteStore extends ImmutableStore implements ISiteStore {
     if (json?.id !== this.#requestid.page) {
       return Promise.resolve()
     }
-    this.#pageModel = convertResponse(json) as IPageModel
-    if (isTrue(commit)) {
-      this.commitPage()
-    }
+    this._set('page', convertResponse(json))
   }
 
   /**
    * Request page by given path
    */
-  async loadPageByPath(
-    path: string,
-    fields: string[]|boolean|'*' = '*',
-    languages: boolean|'*' = true,
-    commit: boolean = true
-  ): Promise<void> {
-    if (!isStr(path, 1)) {
-      return
-    }
-    this._set('path', path)
-    return await this.loadPage(apiStore.getNodeFromPath(path), fields, languages, commit)
+  async loadPageByPath(path: string, fields: string[]|boolean|'*' = '*', languages: boolean|'*' = true): Promise<void> {
+    return await this.loadPage(apiStore.getNodeFromPath(path), fields, languages)
   }
 
   /**

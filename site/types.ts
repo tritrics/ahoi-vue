@@ -73,13 +73,10 @@ export interface IThumbDimensions {
 }
 
 export interface ISiteStore extends IImmutableStore {
-  commitPage(): void
-  getNextPageBlueprint(): string|undefined
-  getNextPageTitle(): string|undefined
-  loadHome(lang: string|null): Promise<void>
-  loadPage(node: string, fields: string[]|boolean|'*', languages: boolean|'*', commit: boolean): Promise<void>
-  loadPageByPath(path: string, fields: string[]|boolean|'*', languages: boolean|'*', commit: boolean): Promise<void>
-  loadSite(lang: string|null): Promise<void>
+  loadHome(lang?: string|null): Promise<void>
+  loadPage(node: string, fields?: string[]|boolean|'*', languages?: boolean|'*'): Promise<void>
+  loadPageByPath(path: string, fields?: string[]|boolean|'*', languages?: boolean|'*'): Promise<void>
+  loadSite(lang?: string|null): Promise<void>
   set(): void
 }
 

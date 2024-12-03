@@ -42,7 +42,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
     this._setScroll(def.scroll)
 
     // default route must always exist
-    const defaultRoute = this.#getRouteDefNormalized(def.blueprints.default)
+    const defaultRoute = this.#getRouteDefNormalized('default', def.blueprints.default)
     if (!defaultRoute) {
       throw new Error('[AHOI] Router configuration needs at least a default route')
     }
@@ -52,7 +52,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
     if (isObj(def.blueprints)) {
       each(def.blueprints, (def: IRouteOptions, blueprint: string) => {
         if (blueprint !== 'default') {
-          const record = this.#getRouteDefNormalized(def, defaultRoute.meta)
+          const record = this.#getRouteDefNormalized(blueprint, def, defaultRoute.meta)
           if (record) {
             this.blueprints[blueprint] = record
           }
@@ -150,7 +150,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
   /**
    * Helper to transform the option given route to a normlized route.
    */
-  #getRouteDefNormalized(def: IRouteOptions|undefined, defaultMeta: Object = {}): IRouteNormalized|undefined {
+  #getRouteDefNormalized(blueprint: string, def: IRouteOptions|undefined, defaultMeta: Object = {}): IRouteNormalized|undefined {
     const res: Object = {
       meta: { ...defaultMeta },
       components: {}
@@ -190,6 +190,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
           res.meta[key] = val
         }
       })
+      res.meta.blueprint = blueprint
       if (!has(res.meta, 'fields') || !isArr(res.meta.fields)) {
         res.meta.fields = '*'
       }

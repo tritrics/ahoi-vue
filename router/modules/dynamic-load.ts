@@ -2,14 +2,14 @@ import { createRouter as createVueRouter } from 'vue-router'
 import { isTrue, isStr } from '../../utils'
 import { routerStore } from '../index'
 import { siteStore } from '../../site'
-import { apiStore } from '../../plugin'
+import { apiStore, getPage } from '../../plugin'
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 
 /**
- * Loading a page from a path, select language and return blueprint.
+ * Loading a page from a path, select language and add route to router.
  * Returns false, is page was not found.
  */
-async function findPage(path: string): Promise<string|false> {
+async function preflight(router: Router, path: string): Promise<void> {
   try {
     if (apiStore.isTrue('multilang')) {
       const url = new URL(path, window.location.href)
@@ -19,16 +19,18 @@ async function findPage(path: string): Promise<string|false> {
       }
     }
 
-    // Request, but don't commit. Committed by Layout.vue.
-    await siteStore.loadPageByPath(path, true, true, false)
-    return siteStore.getNextPageBlueprint() ?? 'default'
+    // Request meta data of page to get blueprint
+    const preflight = await getPage(apiStore.getNodeFromPath(path), { raw: true })
+    const blueprint = preflight?.body?.meta?.blueprint ?? 'default'
+    const routeRecord: RouteRecordRaw = routerStore.getRouteRecord(blueprint, path, { loaded: true })
+    router.addRoute(routeRecord)
   }
   catch (err) {
     console.error(err)
 
     // @TODO: set path to Kirbys notfound-page in config and request that here
     // or do this in PageModel
-    return false
+    return
   }
 }
 
@@ -63,9 +65,9 @@ export function routerFactory(track: Function): Router {
       // step 1.
       // unknown route is entered, dynamic route is added and redirected to
       case 'new': {
-        const blueprint: string|false = await findPage(to.path)
-        const routeRecord: RouteRecordRaw = routerStore.getRouteRecord(blueprint, to.path, { loaded: true })
-        router.addRoute(routeRecord)
+
+        // @todo: in preflight()
+        await preflight(router, to.path)
         return to.fullPath
       }
 
@@ -77,26 +79,22 @@ export function routerFactory(track: Function): Router {
         if (to.path === '/') {
           const home = apiStore.getHomeSlug()
           if (isStr(home, 1) && home !== '/') {
-            track(
-              to.fullPath,
-              siteStore.getNextPageTitle(),
-              from?.fullPath
-            )
             return home
           }
         }
 
-        // in normal cases catchall has already loaded page.
-        if (siteStore.get('path') !== to.path) {
-          await findPage(to.path)
-        }
+        // request page, fields are defined in router.blueprints or set to '*' as default
+        const fields = to.meta.fields as string[]|boolean|'*'
+        await siteStore.loadPageByPath(to.path, fields, true)
 
         // update router status
         const url = new URL(to.path, window.location.href)
         routerStore.set('url', url.href)
+
+        // track analytics
         track(
           to.fullPath,
-          siteStore.getNextPageTitle(),
+          siteStore.get('page')?.meta?.title,
           from?.fullPath
         )
         return true
