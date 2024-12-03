@@ -58,7 +58,7 @@ function track(...args: any[]): void {
 
 /**
  */
-export function createTracker(): IApiAddon[] {
+function createTracker(): IApiAddon[] {
   return [{
     name: 'tracker',
     export: {
@@ -73,7 +73,8 @@ export function createTracker(): IApiAddon[] {
 /**
  * Export module
  */
-export default {
+export {
+  createTracker,
   setConfig,
   setConsent,
   track,
