@@ -1,6 +1,6 @@
 import { has, isStr, toKey } from '../../utils'
-import BaseObjectModel from './BaseObject'
-import CollectionModel from './Collection'
+import ObjectModel from '../data/ObjectModel'
+import CollectionModel from './CollectionModel'
 import { parse } from '../index'
 import type { IPageModel, ICollectionModel, IFileModel } from '../types'
 import type { JSONObject } from '../../types'
@@ -8,7 +8,7 @@ import type { JSONObject } from '../../types'
 /**
  * Model representing a page field or the page request.
  */
-export default class PageModel extends BaseObjectModel implements IPageModel {
+export default class PageModel extends ObjectModel implements IPageModel {
   
   /**
    * Type

@@ -1,11 +1,11 @@
-import BaseObjectModel from './BaseObject'
+import ObjectModel from '../data/ObjectModel'
 import type { ISiteModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing the site request.
  */
-export default class SiteModel extends BaseObjectModel implements ISiteModel {
+export default class SiteModel extends ObjectModel implements ISiteModel {
   
   /**
    * Type

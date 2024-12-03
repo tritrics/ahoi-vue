@@ -1,5 +1,5 @@
 import { toStr, isStr, isNum, has } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import type { IOptionModel } from '../types'
 import type { JSONObject } from '../../types'
 

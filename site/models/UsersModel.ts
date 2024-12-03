@@ -1,10 +1,10 @@
-import BaseEntriesModel from './BaseEntries'
+import EntriesModel from '../data/EntriesModel'
 import type { IUsersModel } from '../types'
 
 /**
  * Model representing a list of users.
  */
-export default class UsersModel extends BaseEntriesModel implements IUsersModel {
+export default class UsersModel extends EntriesModel implements IUsersModel {
 
   /**
    * Type

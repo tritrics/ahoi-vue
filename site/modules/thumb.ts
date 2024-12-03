@@ -1,6 +1,6 @@
 import { isObj, isInt } from '../../utils'
 import { Thumb } from '../index'
-import FileModel from '../models/File'
+import FileModel from '../models/FileModel'
 import type { IFileModel } from '../types'
 import type { Object, IImageModel } from '../../types'
 

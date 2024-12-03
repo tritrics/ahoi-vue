@@ -1,5 +1,5 @@
 import { toStr } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import type { IStringModel } from '../types'
 
 /**

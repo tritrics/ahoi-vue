@@ -1,5 +1,5 @@
 import { toBool } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import type { IBooleanModel } from '../types'
 
 /**

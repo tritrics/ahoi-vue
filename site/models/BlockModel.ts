@@ -1,12 +1,12 @@
 import { toKey } from '../../utils'
-import BaseFieldsModel from './BaseFields'
+import FieldsModel from '../data/FieldsModel'
 import type { IBlockModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing a block field.
  */
-export default class BlockModel extends BaseFieldsModel implements IBlockModel {
+export default class BlockModel extends FieldsModel implements IBlockModel {
   
   /**
    * Type

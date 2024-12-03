@@ -1,13 +1,15 @@
 import { toStr, isDate, toDate, dateToStr, now } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from './BaseModel'
 import { apiStore } from '../../plugin'
-import type { ISiteOptions, IBaseDateModel } from '../types'
+import type { ISiteOptions, IDatetimeModel, DateTypes } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Base model for date models.
  */
-export default class BaseDateModel extends BaseModel implements IBaseDateModel {
+export default class DatetimeModel extends BaseModel implements IDatetimeModel {
+
+  type: DateTypes = 'datetime'
 
   /**
    * Value as utc string

@@ -1,7 +1,7 @@
 import { each, has, isArr } from '../../utils'
-import BaseModel from './Base'
-import NodeModel from './Node'
-import LinkModel from './Link'
+import BaseModel from '../data/BaseModel'
+import NodeModel from './NodeModel'
+import LinkModel from './LinkModel'
 import type { IHtmlModel, INodeModel } from '../types'
 import type { JSONObject, Object } from '../../types'
 

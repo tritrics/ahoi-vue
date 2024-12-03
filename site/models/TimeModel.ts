@@ -1,5 +1,5 @@
 import { now } from '../../utils'
-import DateBaseModel from './BaseDate'
+import DatetimeModel from '../data/DatetimeModel'
 import { apiStore } from '../../plugin'
 import type { ITimeModel, ISiteOptions } from '../types'
 import type { JSONObject } from '../../types'
@@ -7,7 +7,7 @@ import type { JSONObject } from '../../types'
 /**
  * Model representing a time field.
  */
-export default class TimeModel extends DateBaseModel implements ITimeModel {
+export default class TimeModel extends DatetimeModel implements ITimeModel {
   
   /**
    * Type

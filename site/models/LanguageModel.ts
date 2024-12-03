@@ -1,12 +1,12 @@
 import { has, isTrue, toStr } from '../../utils'
-import BaseObjectModel from './BaseObject'
+import ObjectModel from '../data/ObjectModel'
 import type { ILanguageModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing a language.
  */
-export default class LanguageModel extends BaseObjectModel implements ILanguageModel {
+export default class LanguageModel extends ObjectModel implements ILanguageModel {
   
   /**
    * Type

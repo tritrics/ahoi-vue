@@ -1,5 +1,5 @@
 import { isTrue } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import { apiStore } from '../../plugin'
 import type { ITextModel, ISiteOptions } from '../types'
 import type { JSONObject } from '../../types'

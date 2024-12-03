@@ -1,10 +1,10 @@
-import BaseEntriesModel from './BaseEntries'
+import EntriesModel from '../data/EntriesModel'
 import type { IPagesModel } from '../types'
 
 /**
  * Model representing a list of pages.
  */
-export default class PagesModel extends BaseEntriesModel implements IPagesModel {
+export default class PagesModel extends EntriesModel implements IPagesModel {
   
   /**
    * Type

@@ -1,13 +1,13 @@
 import { has, isObj } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from './BaseModel'
 import { parse } from '../index'
-import type { IModelList, IBaseFieldsModel } from '../types'
+import type { IModelList, IFieldsModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Base model for models with fields.
  */
-export default class BaseFieldsModel extends BaseModel implements IBaseFieldsModel {
+export default class FieldsModel extends BaseModel implements IFieldsModel {
   
   /**
    * Arrary with fields

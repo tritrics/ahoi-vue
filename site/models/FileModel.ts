@@ -1,12 +1,12 @@
 import { toInt } from '../../utils'
-import BaseObjectModel from './BaseObject'
+import ObjectModel from '../data/ObjectModel'
 import type { IFileModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing a file field.
  */
-export default class FileModel extends BaseObjectModel implements IFileModel {
+export default class FileModel extends ObjectModel implements IFileModel {
   
   /**
    * Type

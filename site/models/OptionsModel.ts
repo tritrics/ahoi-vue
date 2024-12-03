@@ -1,12 +1,12 @@
 import { each } from '../../utils'
-import BaseEntriesModel from './BaseEntries'
+import EntriesModel from '../data/EntriesModel'
 import type { IOptionsModel, IOptionModel } from '../types'
 import type { Object } from '../../types'
 
 /**
  * Model representing a list of select-options.
  */
-export default class PageModel extends BaseEntriesModel implements IOptionsModel {
+export default class PageModel extends EntriesModel implements IOptionsModel {
   
   /**
    * Type

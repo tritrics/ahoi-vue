@@ -1,5 +1,5 @@
 import { each, has, isArr, isObj } from '../../utils'
-import BaseModel from '../models/Base'
+import BaseModel from '../data/BaseModel'
 import * as models from '../models/models'
 import type { Object, JSONObject } from '../../types'
 

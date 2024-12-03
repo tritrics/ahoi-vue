@@ -1,14 +1,14 @@
-import { has, isObj, toKey, isArr, isStr } from '../../utils'
-import BaseFieldsModel from './BaseFields'
+import { has, isObj, isArr, isStr } from '../../utils'
+import FieldsModel from './FieldsModel'
 import { parse } from '../index'
-import { createLinkByValues } from './Link'
-import type { IBaseObjectModel, ILinkModel, ILanguageModel } from '../types'
+import { createLinkByValues } from '../models/LinkModel'
+import type { IObjectModel, ILinkModel, ILanguageModel } from '../types'
 import type { Object, JSONObject } from '../../types'
 
 /**
  * Base model for models with fields.
  */
-export default class BaseObjectModel extends BaseFieldsModel implements IBaseObjectModel {
+export default class ObjectModel extends FieldsModel implements IObjectModel {
   
   /**
    * Object with meta data

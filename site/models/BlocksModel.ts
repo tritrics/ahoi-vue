@@ -1,10 +1,10 @@
-import BaseEntriesModel from './BaseEntries'
+import EntriesModel from '../data/EntriesModel'
 import type { IBlocksModel } from '../types'
 
 /**
  * Model representing a structure field.
  */
-export default class BlocksModel extends BaseEntriesModel implements IBlocksModel {
+export default class BlocksModel extends EntriesModel implements IBlocksModel {
   
   /**
    * Type

@@ -1,11 +1,11 @@
-import BaseObjectModel from './BaseObject'
+import ObjectModel from '../data/ObjectModel'
 import type { IUserModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing a user field.
  */
-export default class UserModel extends BaseObjectModel implements IUserModel {
+export default class UserModel extends ObjectModel implements IUserModel {
 
   /**
    * Type

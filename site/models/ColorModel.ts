@@ -1,5 +1,5 @@
 import { toStr, toBool } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import type { IColorModel } from '../types'
 import type { JSONObject } from '../../types'
 

@@ -1,13 +1,13 @@
 import { has, count, isArr } from '../../utils'
 import { parse } from '../index'
-import BaseModel from './Base'
-import type { IBaseModel, IBaseEntriesModel } from '../types'
+import BaseModel from './BaseModel'
+import type { IBaseModel, IEntriesModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Base model for models with entries.
  */
-export default class BaseEntriesModel extends BaseModel implements IBaseEntriesModel {
+export default class EntriesModel extends BaseModel implements IEntriesModel {
 
   /**
    * Array with entries

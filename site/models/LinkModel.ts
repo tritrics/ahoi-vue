@@ -1,5 +1,5 @@
 import { each, trim, toStr, ltrim } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import type { LinkTypes, ILinkModel } from '../types'
 import type { JSONObject } from '../../types'
 
@@ -25,8 +25,8 @@ export default class LinkModel extends BaseModel implements ILinkModel {
   constructor(obj: JSONObject) {
     super(toStr(obj.meta?.title ?? obj.value))
     this.attr = {
-      'data-type': obj.meta.type as LinkTypes,
-      href: obj.meta.href as string
+      'data-type': obj.meta?.type as LinkTypes,
+      href: obj.meta?.href as string
     }
   }
 

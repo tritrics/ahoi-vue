@@ -1,12 +1,12 @@
 import { isTrue, isArr } from '../../utils'
-import BaseObjectModel from './BaseObject'
+import ObjectModel from '../data/ObjectModel'
 import type { IInfoModel } from '../types'
 import type { JSONObject } from '../../types'
 
 /**
  * Model representing the info request.
  */
-export default class InfoModel extends BaseObjectModel implements IInfoModel {
+export default class InfoModel extends ObjectModel implements IInfoModel {
   
   /**
    * Type

@@ -1,5 +1,5 @@
 import { toNum, isInt, isNum, toInt } from '../../utils'
-import BaseModel from './Base'
+import BaseModel from '../data/BaseModel'
 import { apiStore } from '../../plugin'
 import type { INumberModel, ISiteOptions } from '../types'
 import type { Object } from '../../types'

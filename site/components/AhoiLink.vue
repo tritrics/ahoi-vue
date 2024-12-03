@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect, getCurrentInstance } from 'vue'
-import PageModel from '../models/Page'
-import FileModel from '../models/File'
-import LanguageModel from '../models/Language'
+import PageModel from '../models/PageModel'
+import FileModel from '../models/FileModel'
+import LanguageModel from '../models/LanguageModel'
 import { isStr, isObj, toStr, has } from '../../utils'
 import { apiStore } from '../../plugin'
 import type { Ref } from 'vue'
