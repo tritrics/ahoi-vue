@@ -19,12 +19,6 @@ export interface IFieldRefs {
   home: Object
 }
 
-export interface ISiteRefs {
-  site: Ref<ISiteModel>
-  page: Ref<IPageModel|null>
-  home: Ref<IPageModel>
-}
-
 /**
  * Image / Thumb
  */

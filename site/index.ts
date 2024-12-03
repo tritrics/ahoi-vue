@@ -8,12 +8,20 @@ import AhoiThumb from './components/AhoiThumb.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
 import type { Ref } from 'vue'
-import type { IApiAddon, ISiteStore, ISiteModel, IPageModel, ISiteRefs } from '../types'
+import type { IApiAddon, ISiteStore, IPageModel } from '../types'
 
 /**
  * Site, Page and Home store
  */
 const siteStore: ISiteStore = new SiteStore()
+
+/**
+ * Shortcuts
+ * allows: const { site, home, page } = inject('api.site')
+ */
+const home: Ref<IPageModel> = siteStore.ref('home')
+const page: Ref<IPageModel> = siteStore.ref('page')
+const site: Ref<IPageModel> = siteStore.ref('site')
 
 /**
  * Addon factory, returns site and page
@@ -28,10 +36,12 @@ function createSite(): IApiAddon[] {
       'AhoiThumb': AhoiThumb,
     },
     export: {
-      store: siteStore,
-      createThumb,
       convertResponse,
-      siteRefs
+      createThumb,
+      home,
+      page,
+      site,
+      store: siteStore,
     },
     init
   }]
@@ -64,25 +74,16 @@ async function init(): Promise<void> {
 }
 
 /**
- * get models
- */
-function siteRefs(): ISiteRefs {
-  return {
-    site: siteStore.ref('site') as Ref<ISiteModel>,
-    home: siteStore.ref('home') as Ref<IPageModel>,
-    page: siteStore.ref('page') as Ref<IPageModel|null>,
-  }
-}
-
-/**
  * Export module
  */
 export {
+  convertResponse,
   createSite,
+  createThumb,
+  home,
+  page,
+  parse,
+  site,
   siteStore,
   Thumb,
-  parse,
-  createThumb,
-  convertResponse,
-  siteRefs
 }
