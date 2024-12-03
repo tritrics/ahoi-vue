@@ -1,15 +1,14 @@
 import { createRouter as createVueRouter } from 'vue-router'
-import { isTrue, isStr } from '../../utils'
+import { isTrue, isStr, toPath } from '../../utils'
 import { routerStore } from '../index'
 import { siteStore } from '../../site'
 import { apiStore, getPage } from '../../plugin'
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 
 /**
- * Loading a page from a path, select language and add route to router.
- * Returns false, is page was not found.
+ * 
  */
-async function preflight(router: Router, path: string): Promise<void> {
+async function getRouteRecord(path: string): Promise<RouteRecordRaw> {
   try {
     if (apiStore.isTrue('multilang')) {
       const url = new URL(path, window.location.href)
@@ -18,19 +17,12 @@ async function preflight(router: Router, path: string): Promise<void> {
         await apiStore.updateStores()
       }
     }
-
-    // Request meta data of page to get blueprint
-    const preflight = await getPage(apiStore.getNodeFromPath(path), { raw: true })
-    const blueprint = preflight?.body?.meta?.blueprint ?? 'default'
-    const routeRecord: RouteRecordRaw = routerStore.getRouteRecord(blueprint, path, { loaded: true })
-    router.addRoute(routeRecord)
+    const page = await getPage(apiStore.getNodeFromPath(path), { raw: true })
+    return routerStore.getRouteRecord(page.body.meta.blueprint, path, { error: false, loaded: true })
   }
-  catch (err) {
-    console.error(err)
-
-    // @TODO: set path to Kirbys notfound-page in config and request that here
-    // or do this in PageModel
-    return
+  catch (E) {
+    console.error(E)
+    return routerStore.getRouteRecord('error', path, { error: true, loaded: true })
   }
 }
 
@@ -67,7 +59,8 @@ export function routerFactory(track: Function): Router {
       case 'new': {
 
         // @todo: in preflight()
-        await preflight(router, to.path)
+        const routeRecord = await getRouteRecord(to.path)
+        router.addRoute(routeRecord)
         return to.fullPath
       }
 
@@ -84,8 +77,11 @@ export function routerFactory(track: Function): Router {
         }
 
         // request page, fields are defined in router.blueprints or set to '*' as default
-        const fields = to.meta.fields as string[]|boolean|'*'
-        await siteStore.loadPageByPath(to.path, fields, true)
+        await siteStore.loadPageByPath(
+          to.meta.error ? toPath(apiStore.get('lang'), apiStore.get('error')) : to.path,
+          to.meta.fields as string[]|boolean|'*',
+          true
+        )
 
         // update router status
         const url = new URL(to.path, window.location.href)

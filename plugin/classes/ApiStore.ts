@@ -38,7 +38,7 @@ class ApiStore extends ImmutableStore implements IApiStore {
       date: { year: 'numeric', month: 'numeric', day: 'numeric' },
       direction: 'ltr',
       home: 'home',
-      error: 'error',
+      error: 'error', // route (not blueprint)
       host: null,
       lang: null, // selected lang in a multilang enviroment, null on default and in nolang enviroments!
       langdetect: true, // user setting, if detected language should be automatically selected
