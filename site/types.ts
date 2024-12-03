@@ -77,8 +77,8 @@ export interface ISiteStore extends IImmutableStore {
   getNextPageBlueprint(): string|undefined
   getNextPageTitle(): string|undefined
   loadHome(lang: string|null): Promise<void>
-  loadPage(node: string, commit: boolean): Promise<void>
-  loadPageByPath(path: string, commit: boolean): Promise<void>
+  loadPage(node: string, fields: string[]|boolean|'*', languages: boolean|'*', commit: boolean): Promise<void>
+  loadPageByPath(path: string, fields: string[]|boolean|'*', languages: boolean|'*', commit: boolean): Promise<void>
   loadSite(lang: string|null): Promise<void>
   set(): void
 }
@@ -109,7 +109,8 @@ export interface IBaseModel {
   toString(): string
 }
 
-export interface IBaseDateModel extends IBaseModel {
+export interface IDatetimeModel extends IBaseModel {
+  type: DateTypes
   value: Date,
   utc: string
   iso: string
@@ -126,7 +127,7 @@ export interface IBaseDateModel extends IBaseModel {
   year(): number|null
 }
 
-export interface IBaseEntriesModel extends IBaseModel {
+export interface IEntriesModel extends IBaseModel {
   value: undefined
   entries: IBaseModel[]
   count(): number
@@ -136,13 +137,13 @@ export interface IBaseEntriesModel extends IBaseModel {
   nth(index: number): IBaseModel|undefined
 }
 
-export interface IBaseFieldsModel extends IBaseModel {
+export interface IFieldsModel extends IBaseModel {
   value: undefined
   fields?: Object
   has(field: string): boolean
 }
 
-export interface IBaseObjectModel extends IBaseFieldsModel {
+export interface IObjectModel extends IFieldsModel {
   meta?: Object
   link?: ILinkModel
   languages?: ILanguageModel[]
@@ -152,13 +153,13 @@ export interface IBaseObjectModel extends IBaseFieldsModel {
 /**
  * Models
  */
-export interface IBlockModel extends IBaseFieldsModel {
+export interface IBlockModel extends IFieldsModel {
   type: 'block'
   block: string
   fields?: Object
 }
 
-export interface IBlocksModel extends IBaseEntriesModel {
+export interface IBlocksModel extends IEntriesModel {
   type: 'blocks'
 }
 
@@ -182,20 +183,16 @@ export interface IColorModel extends IBaseModel {
   alpha: boolean,
 }
 
-export interface IDateModel extends IBaseDateModel {
+export interface IDateModel extends IDatetimeModel {
   type: 'date'
 }
 
-export interface IDatetimeModel extends IBaseDateModel {
-  type: 'datetime'
-}
-
-export interface IFileModel extends IBaseObjectModel {
+export interface IFileModel extends IObjectModel {
   type: 'file'
   isImage(): boolean
 }
 
-export interface IFilesModel extends IBaseEntriesModel {
+export interface IFilesModel extends IEntriesModel {
   type: 'files'
 }
 
@@ -213,7 +210,7 @@ export interface IInfoModel extends IBaseModel {
   defaultLang(): string|null
 }
 
-export interface ILanguageModel extends IBaseObjectModel {
+export interface ILanguageModel extends IObjectModel {
   type: 'language'
   isDefault(): boolean
   has(field: string): boolean
@@ -261,22 +258,22 @@ export interface IOptionModel extends IBaseModel {
   label?: string
 }
 
-export interface IOptionsModel extends IBaseEntriesModel {
+export interface IOptionsModel extends IEntriesModel {
   type: 'options'
 }
 
-export interface IPageModel extends IBaseObjectModel {
+export interface IPageModel extends IObjectModel {
   type: 'page'
   collection?: ICollectionModel
   entries?: (IPageModel|IFileModel)[]
   blueprint(test?: string): string|boolean
 }
 
-export interface IPagesModel extends IBaseEntriesModel {
+export interface IPagesModel extends IEntriesModel {
   type: 'pages'
 }
 
-export interface ISiteModel extends IBaseObjectModel {
+export interface ISiteModel extends IObjectModel {
   type: 'site'
 }
 
@@ -285,7 +282,7 @@ export interface IStringModel extends IBaseModel {
   value: string
 }
 
-export interface IStructureModel extends IBaseEntriesModel {
+export interface IStructureModel extends IEntriesModel {
   type: 'structure'
 }
 
@@ -294,15 +291,15 @@ export interface ITextModel extends IBaseModel {
   value: string
 }
 
-export interface ITimeModel extends IBaseDateModel {
-  type: 'time'
+export interface ITimeModel extends IDatetimeModel {
+   type: 'time'
 }
 
-export interface IUserModel extends IBaseObjectModel {
+export interface IUserModel extends IObjectModel {
   type: 'user'
 }
 
-export interface IUsersModel extends IBaseEntriesModel {
+export interface IUsersModel extends IEntriesModel {
   type: 'users'
 }
 
@@ -313,6 +310,11 @@ export interface IModelList {
 /**
  * Types
  */
+export type DateTypes =
+  | 'datetime'
+  | 'date'
+  | 'time'
+
 export type LinkTypes =
   | 'url'
   | 'page'

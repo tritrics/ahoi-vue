@@ -10,7 +10,7 @@ export async function getFile(path: string|string[], requestOptions?: IApiReques
   const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'file', path),
-    getOptions(options, 'fields', 'id')
+    getOptions(options, 'fields', 'languages', 'id')
   )
   const json = await request.send()
   return convertResponse(options, json)
@@ -51,7 +51,7 @@ export async function getLanguage(lang: string, requestOptions?: IApiRequestOpti
   const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'language', lang),
-    getOptions(options, 'id'),
+    getOptions(options, 'fields', 'id'),
     'GET'
   )
   const json = await request.send()
@@ -66,7 +66,7 @@ export async function getPage(path: string|string[]|null = null, requestOptions?
   const options = Object.assign({}, requestOptions)
   const request = new Request(
     getUrl(options, APIVERSION, 'page', path),
-    getOptions(options, 'fields', 'id')
+    getOptions(options, 'fields', 'languages', 'id')
   )
   const json = await request.send()
   return convertResponse(options, json)
@@ -174,6 +174,14 @@ function getOptions(requestOptions: IApiRequestOptions, ...args: string[]): IApi
    */
   if (inArr('id', args) && isStr(requestOptions.id, 1)) {
     options.id = requestOptions.id
+  }
+
+  /**
+   * Get option `limit`.
+   * Used in API request pages() to limit the number of returned pages.
+   */
+  if (inArr('languages', args)) {
+    options.languages = isTrue(requestOptions.languages) || requestOptions.languages === '*'
   }
 
   /**

@@ -1,5 +1,5 @@
 import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, toKey, toBool } from '../../utils'
+import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, isArr, toKey, toBool } from '../../utils'
 import { installedRouter } from '../index'
 import { ImmutableStore, apiStore } from '../../plugin'
 import type { RouteRecordRaw, RouterHistory  } from 'vue-router'
@@ -60,6 +60,16 @@ class RouterStore extends ImmutableStore implements IRouterStore {
       })
     }
   }
+
+  /**
+   * Get fields for page request for a given blueprint.
+   */
+  getFields(blueprint: string|false): string[]|'*' {
+    if (isStr(blueprint, 1) && has(this.blueprints, blueprint)) {
+      return this.blueprints['blueprint'].meta.fields
+    }
+    return '*'
+  }
   
   /**
    * Get history mode
@@ -80,7 +90,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
    * Returnes default-route, if no specific route for blueprint is defined or
    * error-route, if blueprint is false.
    */
-  getRoute(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
+  getRouteRecord(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
     if (isStr(blueprint, 1) && has(this.blueprints, blueprint)) {
       return this.#getRouteHelper(this.blueprints[blueprint], path, meta)
     }
@@ -180,6 +190,9 @@ class RouterStore extends ImmutableStore implements IRouterStore {
           res.meta[key] = val
         }
       })
+      if (!has(res.meta, 'fields') || !isArr(res.meta.fields)) {
+        res.meta.fields = '*'
+      }
       return res as IRouteNormalized
     }
   }

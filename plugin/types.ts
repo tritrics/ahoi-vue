@@ -71,10 +71,11 @@ export interface IApiOptions {
 }
 
 export interface IApiRequestOptions {
-  fields?: string[]|true|'*'
+  fields?: string[]|boolean|'*'
   filter?: any[]
   host?: string|null
   id?: string
+  languages?: boolean|'*'
   limit?: number
   offset?: number
   raw?: boolean

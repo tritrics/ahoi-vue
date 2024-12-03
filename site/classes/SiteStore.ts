@@ -68,7 +68,12 @@ class SiteStore extends ImmutableStore implements ISiteStore {
       return
     }
     this.#requestid.home = uuid()
-    const json = await getPage(node, { raw: true, id: this.#requestid.home, fields: [ 'title' ] })
+    const json = await getPage(node, {
+      raw: true,
+      id: this.#requestid.home,
+      fields: [ 'title' ],
+      languages: true
+    })
     if (json.id !== this.#requestid.home) {
       return Promise.resolve()
     }
@@ -78,14 +83,24 @@ class SiteStore extends ImmutableStore implements ISiteStore {
   /**
    * Request page by given node
    */
-  async loadPage(node: string, commit: boolean = true): Promise<void> {
+  async loadPage(
+    node: string,
+    fields: string[]|boolean|'*' = '*',
+    languages: boolean|'*' = true,
+    commit: boolean = true
+  ): Promise<void> {
     if (!isStr(node, 1) || this.is('node', node)) {
       return
     }
     this.#requestid.page = uuid()
     let json: JSONObject = {}
     try {
-      json = await getPage(node, { raw: true, id: this.#requestid.page, fields: true })
+      json = await getPage(node, {
+        raw: true,
+        id: this.#requestid.page,
+        fields: fields,
+        languages: languages
+      })
     }
     
     // load error page, if existing (otherwise an error is thrown)
@@ -107,12 +122,17 @@ class SiteStore extends ImmutableStore implements ISiteStore {
   /**
    * Request page by given path
    */
-  async loadPageByPath(path: string, commit: boolean = true): Promise<void> {
+  async loadPageByPath(
+    path: string,
+    fields: string[]|boolean|'*' = '*',
+    languages: boolean|'*' = true,
+    commit: boolean = true
+  ): Promise<void> {
     if (!isStr(path, 1)) {
       return
     }
     this._set('path', path)
-    return await this.loadPage(apiStore.getNodeFromPath(path), commit)
+    return await this.loadPage(apiStore.getNodeFromPath(path), fields, languages, commit)
   }
 
   /**
@@ -123,7 +143,12 @@ class SiteStore extends ImmutableStore implements ISiteStore {
       return
     }
     this.#requestid.site = uuid()
-    const json = await getPage(lang, { raw: true, id: this.#requestid.site, fields: true })
+    const json = await getPage(lang, {
+      raw: true,
+      id: this.#requestid.site,
+      fields: true,
+      languages: true
+    })
     if (json.id !== this.#requestid.site) {
       return Promise.resolve()
     }

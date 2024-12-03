@@ -32,7 +32,7 @@ class I18nStore extends ImmutableStore implements II18nStore {
       return
     }
     this.#requestid = uuid()
-    const json: JSONObject = await getLanguage(lang, { raw: true, id: this.#requestid })
+    const json: JSONObject = await getLanguage(lang, { raw: true, fields: true, id: this.#requestid })
     if (json.id !== this.#requestid) {
       return Promise.resolve()
     }

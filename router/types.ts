@@ -6,8 +6,9 @@ export interface IRouteMap {
 }
 
 export interface IRouterStore extends IImmutableStore {
+  getFields(blueprint: string|false): string[]|'*'
   getHistoryMode(): RouterHistory
-  getRoute(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
+  getRouteRecord(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
 }
 
 export type IRouteOptions = string | IRouteOptionsComponent | IRouteOptionsComponents
@@ -29,6 +30,9 @@ declare type Lazy<T> = () => Promise<T>
 declare type RawRouteComponent = RouteComponent | Lazy<RouteComponent>
 
 export interface IRouteNormalized {
-  meta: Object
   components:  Record<string, RawRouteComponent>
+  meta: {
+    fields: string[]|'*',
+    [ key: string ]: any
+  }
 }
