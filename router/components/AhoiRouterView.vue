@@ -1,14 +1,15 @@
 <script setup>
-import { useRoute, RouterView } from 'vue-router'
+import { inject, onUpdated } from 'vue'
+import { RouterView } from 'vue-router'
 
-const route = useRoute()
-
-// do something each page reload
-// onUpdated(() => foo())
+const { store: routerStore } = inject('api.router')
+const { store: siteStore } = inject('api.site')
+const init = routerStore.ref('init')
+onUpdated(() => siteStore.commitPage())
 </script>
 
 <template>
-  <Suspense v-if="route.meta.loaded">
+  <Suspense v-if="init">
     <RouterView />
   </Suspense>
 </template>

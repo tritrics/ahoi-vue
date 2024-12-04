@@ -8,7 +8,7 @@ export interface IRouteMap {
 export interface IRouterStore extends IImmutableStore {
   getFields(blueprint: string|false): string[]|'*'
   getHistoryMode(): RouterHistory
-  getRouteRecord(blueprint: string|false, path: string, meta: Object): RouteRecordRaw
+  getRouteRecord(blueprint: string|false, path: string, meta?: Object): RouteRecordRaw
 }
 
 export type IRouteOptions = string | IRouteOptionsComponent | IRouteOptionsComponents

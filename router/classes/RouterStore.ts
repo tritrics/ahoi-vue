@@ -26,7 +26,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
 
       // router status
       url: null,
-      //... add more if required
+      init: false,
     })
   }
   

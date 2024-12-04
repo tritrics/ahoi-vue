@@ -1,22 +1,21 @@
 <script setup>
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, inject, onUpdated, defineAsyncComponent } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
 
 const route = useRoute()
-
+const { store: routerStore } = inject('api.router')
+const { store: siteStore } = inject('api.site')
+const init = routerStore.ref('init')
 const layout = computed(() => {
   return defineAsyncComponent(route.meta.layout)
 })
-
-// do something each page reload
-// onUpdated(() => foo())
-
+onUpdated(() => siteStore.commitPage())
 </script>
 
 <template>
-  <component v-if="route.meta.loaded" :is="layout">
-    <Suspense>
-      <RouterView />
-    </Suspense>
+  <component v-if="init" :is="layout">
+      <Suspense>
+        <RouterView />
+      </Suspense>
   </component>
 </template>
