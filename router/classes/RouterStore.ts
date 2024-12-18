@@ -1,5 +1,5 @@
 import { createWebHashHistory, createWebHistory, createMemoryHistory } from 'vue-router'
-import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isEmpty, isArr, toKey, toBool } from '../../utils'
+import { each, has, count, inArr, isStr, isBool, isObj, isUrl, isFn, isInt, isEmpty, isArr, toKey, toBool, toInt } from '../../utils'
 import { installedRouter } from '../index'
 import { ImmutableStore, apiStore } from '../../plugin'
 import type { RouteRecordRaw, RouterHistory  } from 'vue-router'
@@ -11,9 +11,16 @@ import type { Object } from '../../types'
  */
 class RouterStore extends ImmutableStore implements IRouterStore {
 
-  /** variables containing functions and MUST NOT be reactive */
-  //default: IRouteNormalized|null = null
-  blueprints: IRouteMap = {}
+  /**
+   * normalized blueprint definitions from config
+   * default: IRouteNormalized|null = null
+   */
+  #blueprints: IRouteMap = {}
+
+  /**
+   * timestamp of routing start in milliseconds
+   */
+  #routeStart: number = 0
 
   /** */
   constructor() {
@@ -23,11 +30,55 @@ class RouterStore extends ImmutableStore implements IRouterStore {
       type: 'dynamic-load',
       history: 'hash',
       scroll: false,
+      overlayDelay: 500,
+      overlayMin: 500,
 
       // router status
       url: null,
       init: false,
+      loading: false,
+      overlay: false
     })
+  }
+
+  /**
+   * Router Hooks
+   */
+  beforeEach(): void {
+    this._set('loading', true)
+
+    // Overlay handling
+    if (this.isTrue('init') && this.#routeStart === 0) {
+      this.#routeStart = Date.now()
+      setTimeout(() => {
+        if (this.#routeStart > 0) {
+          this._set('overlay', true)
+        }
+      }, this.get('overlayDelay'))
+    }
+  }
+
+  async beforeResolve(): Promise<void> {
+    this._set('loading', false)
+
+    // Overlay handling
+    // Overlay is shown with a delay (@see beforeEach) and is always shown
+    // a minimum duration.
+    if (this.isTrue('init') && this.#routeStart > 0) {
+      const delay = this.get('overlayDelay')
+      const min = this.get('overlayMin')
+      const duration = Date.now() - this.#routeStart
+      this.#routeStart = 0
+      if (this.is('overlay', true) && (duration - delay) <= min) {
+        return new Promise(resolve => setTimeout(resolve, (min - (duration - delay)))).then(() => {
+          this._set('overlay', false)
+        })
+      }
+    }
+
+    // default
+    this._set('overlay', false)
+    return Promise.resolve()
   }
   
   /**
@@ -40,13 +91,15 @@ class RouterStore extends ImmutableStore implements IRouterStore {
     this._setType(def.type)
     this._setHistory(def.history)
     this._setScroll(def.scroll)
+    this._setOverlayDelay(def.overlayDelay)
+    this._setOverlayMin(def.overlayMin)
 
     // default route must always exist
     const defaultRoute = this.#getRouteDefNormalized('default', def.blueprints.default)
     if (!defaultRoute) {
       throw new Error('[AHOI] Router configuration needs at least a default route')
     }
-    this.blueprints.default = defaultRoute
+    this.#blueprints.default = defaultRoute
 
     // optional mapping blueprints to routes
     if (isObj(def.blueprints)) {
@@ -54,7 +107,7 @@ class RouterStore extends ImmutableStore implements IRouterStore {
         if (blueprint !== 'default') {
           const record = this.#getRouteDefNormalized(blueprint, def, defaultRoute.meta)
           if (record) {
-            this.blueprints[blueprint] = record
+            this.#blueprints[blueprint] = record
           }
         }
       })
@@ -65,8 +118,8 @@ class RouterStore extends ImmutableStore implements IRouterStore {
    * Get fields for page request for a given blueprint.
    */
   getFields(blueprint: string|false): string[]|'*' {
-    if (isStr(blueprint, 1) && has(this.blueprints, blueprint)) {
-      return this.blueprints['blueprint'].meta.fields
+    if (isStr(blueprint, 1) && has(this.#blueprints, blueprint)) {
+      return this.#blueprints['blueprint'].meta.fields
     }
     return '*'
   }
@@ -91,10 +144,10 @@ class RouterStore extends ImmutableStore implements IRouterStore {
    * error-route, if blueprint is false.
    */
   getRouteRecord(blueprint: string|false, path: string, meta: Object = {}): RouteRecordRaw {
-    if (isStr(blueprint, 1) && has(this.blueprints, blueprint)) {
-      return this.#getRouteHelper(this.blueprints[blueprint], path, meta)
+    if (isStr(blueprint, 1) && has(this.#blueprints, blueprint)) {
+      return this.#getRouteHelper(this.#blueprints[blueprint], path, meta)
     }
-    return this.#getRouteHelper(this.blueprints.default as IRouteNormalized, path, meta)
+    return this.#getRouteHelper(this.#blueprints.default as IRouteNormalized, path, meta)
   }
 
   /**
@@ -104,6 +157,24 @@ class RouterStore extends ImmutableStore implements IRouterStore {
     val = toKey(val)
     if (isStr(val) && inArr(val, ['web', 'memory', 'hash' ])) {
       this._set('history', val)
+    }
+  }
+
+  /**
+   * Setter overlay minimum visibility time (milliseconds)
+   */
+  _setOverlayMin(val: any): void {
+    if (isInt(val, 0)) {
+      this._set('overlayMin', toInt(val))
+    }
+  }
+
+  /**
+   * Setter overlay delay (milliseconds)
+   */
+  _setOverlayDelay(val: any): void {
+    if (isInt(val, 0)) {
+      this._set('overlayDelay', toInt(val))
     }
   }
 

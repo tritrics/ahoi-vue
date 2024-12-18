@@ -52,6 +52,7 @@ export function routerFactory(track: Function): Router {
 
   // beforeEach: add dynamic route
   router.beforeEach(async (to: RouteLocationNormalized) => {
+      routerStore.beforeEach()
     if (to.name === 'new') {
       const routeRecord = await getRouteRecord(to.path)
       router.addRoute(routeRecord)
@@ -76,9 +77,11 @@ export function routerFactory(track: Function): Router {
       if (to.path === '/') {
         const home = apiStore.getHomeSlug()
         if (isStr(home, 1) && home !== '/') {
+          await routerStore.beforeResolve()
           return home
         }
       }
+      await routerStore.beforeResolve()
       return true
     }
   })
@@ -86,18 +89,18 @@ export function routerFactory(track: Function): Router {
   // afterEach: track
   router.afterEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
 
-      // init is false on default and set to true with the first route,
-      // so template can be rendered
-      const url = new URL(to.path, window.location.href)
-      routerStore.set('url', url.href)
-      routerStore.set('init', true)
+    // init is false on default and set to true with the first route,
+    // so template can be rendered
+    const url = new URL(to.path, window.location.href)
+    routerStore.set('url', url.href)
+    routerStore.set('init', true)
 
-      // track
-      track(
-        to.fullPath,
-        siteStore.get('page')?.meta?.title,
-        from?.fullPath
-      )
+    // track
+    track(
+      to.fullPath,
+      siteStore.get('page')?.meta?.title,
+      from?.fullPath
+    )
   })
   return router
 }

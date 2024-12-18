@@ -6,6 +6,8 @@ export interface IRouteMap {
 }
 
 export interface IRouterStore extends IImmutableStore {
+  beforeEach(): void
+  beforeResolve(): Promise<void>
   getFields(blueprint: string|false): string[]|'*'
   getHistoryMode(): RouterHistory
   getRouteRecord(blueprint: string|false, path: string, meta?: Object): RouteRecordRaw
