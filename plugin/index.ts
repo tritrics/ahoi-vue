@@ -23,7 +23,7 @@ let apiStore: IApiStore
 /** 
  * Plugin factory
  */
-export async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
+async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
 
   // init the stores
   apiStore = new ApiStore(setupOptions)
@@ -80,6 +80,7 @@ export {
   APIVERSION,
   VERSION,
   apiStore,
+  createApi,
   getFile,
   getFiles,
   getInfo,

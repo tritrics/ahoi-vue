@@ -28,7 +28,7 @@ function forms(mixed: string|IFormOptions, setupOptions?: IFormOptions): IFormSt
 /**
  * Addon factory
  */
-export function createForm(): IApiAddon {
+function createForm(): IApiAddon {
   return {
     name: 'form',
     export: {
@@ -41,5 +41,6 @@ export function createForm(): IApiAddon {
  * Export module
  */
 export {
+  createForm,
   forms,
 }

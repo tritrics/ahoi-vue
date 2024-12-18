@@ -11,7 +11,7 @@ const i18nStore: II18nStore = new I18nStore()
 /**
  * Addon factory
  */
-export function createI18n(): IApiAddon {
+function createI18n(): IApiAddon {
   return {
     name: 'i18n',
     store: i18nStore,
@@ -30,5 +30,6 @@ export function createI18n(): IApiAddon {
  * Export module
  */
 export {
+  createI18n,
   i18nStore,
 }

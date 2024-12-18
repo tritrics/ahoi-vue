@@ -11,7 +11,7 @@ const metaStore: IMetaStore = new MetaStore()
  /**
  * Addon factory
  */
-export function createMeta(): IApiAddon {
+function createMeta(): IApiAddon {
   return {
     name: 'meta',
     store: metaStore,
@@ -30,5 +30,6 @@ export function createMeta(): IApiAddon {
  * Export module
  */
 export {
+  createMeta,
   metaStore,
 }
