@@ -1,5 +1,6 @@
 import { toKey, inArr } from '../utils'
 import { mainStore } from '../plugin'
+import type { InstalledTracker } from './types'
 import type { Object, IApiAddon } from '../types'
 
 declare global {
@@ -12,7 +13,7 @@ declare global {
 /**
  * Tracker types
  */
-const installedTracker: string[] = [ 'matomo' ]
+const installedTracker: InstalledTracker = [ 'matomo' ]
 
 /**
  * Tracker interface

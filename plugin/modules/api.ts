@@ -108,8 +108,8 @@ export async function postCreate(action: string|string[], data: IFormParams = {}
  * Parse response, if core plugin is installed.
  */
 function convertResponse(requestOptions: Object, json: JSONObject): JSONObject {
-  if (inject('site') && !isTrue(requestOptions.raw)) {
-    const fn = inject('site', 'convertResponse') as Function
+  if (inject('template') && !isTrue(requestOptions.raw)) {
+    const fn = inject('template', 'convertResponse') as Function
     return fn(json)
   }
   return json

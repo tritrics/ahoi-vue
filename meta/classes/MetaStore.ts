@@ -1,6 +1,6 @@
 import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../utils'
 import { BaseStore, mainStore, inject, stores } from '../../plugin'
-import { createThumb } from '../../site'
+import { createThumb } from '../../template'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
 import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel, IPageModel, ISiteModel } from '../../types'
 
@@ -43,10 +43,10 @@ class MetaStore extends BaseStore implements IMetaStore {
     // fields defined in config, taken from config, site or page
     const config = this.#setMetaFields(mainStore.get('addons.meta'))
     if (config.site) {
-      stores('site').watch('site', () => this.#updateMeta())
+      stores('template').watch('site', () => this.#updateMeta())
     }
     if (config.page) {
-      stores('site').watch('page', () => this.#updateMeta())
+      stores('template').watch('page', () => this.#updateMeta())
     }
 
     // lang from mainStore
@@ -246,13 +246,13 @@ class MetaStore extends BaseStore implements IMetaStore {
   }
 
   /**
-   * Batch-update meta fields, which are taken from siteStore.
+   * Batch-update meta fields, which are taken from templateStore.
    * Try to get content field 1st from page and 2nd from site.
    */
   #updateMeta(): void {
-    const siteStore: IBaseStore = stores('site') as IBaseStore
-    const site: ISiteModel = siteStore.get('site')
-    const page: IPageModel|null = siteStore.get('page')
+    const templateStore: IBaseStore = stores('template') as IBaseStore
+    const site: ISiteModel = templateStore.get('site')
+    const page: IPageModel|null = templateStore.get('page')
     each(this.#metaFields, (def: IMetaConfigField, metaField: string) => {
       let res
       if (page && def.page && page.fields && page.fields[def.page]) {

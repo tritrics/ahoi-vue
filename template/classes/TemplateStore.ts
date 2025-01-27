@@ -1,12 +1,12 @@
 import { uuid, toPath, isStr } from '../../utils'
 import { ImmutableStore, getPage, mainStore } from '../../plugin'
 import { convertResponse } from '../index'
-import type { Object, ISiteStore } from '../../types'
+import type { Object, ITemplateStore } from '../../types'
 
 /**
  * Store holding site, page and home-page models.
  */
-class SiteStore extends ImmutableStore implements ISiteStore {
+class TemplateStore extends ImmutableStore implements ITemplateStore {
 
   /**
    * Intern storage of requested objects, before commited.
@@ -140,4 +140,4 @@ class SiteStore extends ImmutableStore implements ISiteStore {
   }
 }
 
-export default SiteStore
+export default TemplateStore

@@ -1,7 +1,7 @@
 import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../utils'
 import ImmutableStore from './ImmutableStore'
 import { inject } from '../index'
-import type { Object, IMainStore, II18nStore, ISiteStore } from '../../types'
+import type { Object, IMainStore, II18nStore, ITemplateStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
@@ -178,10 +178,10 @@ class MainStore extends ImmutableStore implements IMainStore {
   async updateStores(): Promise<void> {
     const promises: Promise<void>[] = []
     const lang = this.get('lang')
-    if (inject('site')) {
-      const siteStore = inject('site', 'store') as ISiteStore
-      promises.push(siteStore.loadSite(lang))
-      promises.push(siteStore.loadHome(lang))
+    if (inject('template')) {
+      const templateStore = inject('template', 'store') as ITemplateStore
+      promises.push(templateStore.loadSite(lang))
+      promises.push(templateStore.loadHome(lang))
     }
     if (inject('i18n')) {
       const i18nStore = inject('i18n', 'store') as II18nStore

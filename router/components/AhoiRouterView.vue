@@ -4,7 +4,7 @@ import { RouterView } from 'vue-router'
 
 const { stores } = inject('ahoi')
 const init = stores('router').ref('init')
-onUpdated(() => stores('site').commitPage())
+onUpdated(() => stores('template').commitPage())
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 import { createRouter as createVueRouter } from 'vue-router'
 import { isTrue, isStr, toPath } from '../../utils'
 import { routerStore } from '../index'
-import { siteStore } from '../../site'
+import { templateStore } from '../../template'
 import { mainStore, getPage } from '../../plugin'
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 
@@ -28,7 +28,7 @@ async function getRouteRecord(path: string): Promise<RouteRecordRaw> {
 
 /**
  * Factory for router with dynamically added routes and
- * automatically page loades in siteStore.
+ * automatically page loades in templateStore.
  */
 export function routerFactory(track: Function): Router {
   const router = createVueRouter({
@@ -66,7 +66,7 @@ export function routerFactory(track: Function): Router {
     if (to.name === 'dynamic') {
 
       // request page, fields are defined in router.blueprints or set to '*' as default
-      await siteStore.loadPageByPath(
+      await templateStore.loadPageByPath(
         to.meta.error ? toPath(mainStore.get('lang'), mainStore.get('error')) : to.path,
         to.meta.fields as string[]|boolean|'*',
         true,
@@ -98,7 +98,7 @@ export function routerFactory(track: Function): Router {
     // track
     track(
       to.fullPath,
-      siteStore.get('page')?.meta?.title,
+      templateStore.get('page')?.meta?.title,
       from?.fullPath
     )
   })

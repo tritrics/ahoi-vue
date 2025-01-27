@@ -4,7 +4,7 @@ import type { II18nStore } from './types'
 import type { IApiAddon } from '../types'
 
 /**
- * Module's store
+ * Addon store
  */
 const i18nStore: II18nStore = new I18nStore()
 
@@ -17,7 +17,7 @@ function createI18n(): IApiAddon {
     store: i18nStore,
     export: {},
     dependencies(addons: string[]): void {
-      if(!inArr('site', addons)) {
+      if(!inArr('template', addons)) {
         throw new Error('[AHOI] Addon i18n requires addon site.')
       }
     }

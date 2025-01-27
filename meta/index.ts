@@ -4,7 +4,7 @@ import type { IMetaStore } from './types'
 import type { IApiAddon } from '../types'
 
 /**
- * Module's store
+ * Addon store
  */
 const metaStore: IMetaStore = new MetaStore()
 
@@ -17,7 +17,7 @@ function createMeta(): IApiAddon {
     store: metaStore,
     export: {},
     dependencies(addons: string[]): void {
-      if(!inArr('site', addons)) {
+      if(!inArr('template', addons)) {
         throw new Error('[AHOI] Addon meta requires addon site.')
       }
     }

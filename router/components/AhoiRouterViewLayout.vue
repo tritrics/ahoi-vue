@@ -8,7 +8,7 @@ const init = stores('router').ref('init')
 const layout = computed(() => {
   return defineAsyncComponent(route.meta.layout)
 })
-onUpdated(() => stores('site').commitPage())
+onUpdated(() => stores('template').commitPage())
 </script>
 
 <template>

@@ -37,7 +37,7 @@ class I18nStore extends ImmutableStore implements II18nStore {
       return Promise.resolve()
     }
     this.#lang = lang
-    const convertResponse = inject('site', 'convertResponse') as Function
+    const convertResponse = inject('template', 'convertResponse') as Function
     const res = convertResponse(json)
     this._set('terms', res.fields)
   }

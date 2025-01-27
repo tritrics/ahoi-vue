@@ -1,4 +1,3 @@
-import type { Ref } from 'vue'
 import type { Object, DateTimeFormat, IImmutableStore } from "../types"
 
 /**
@@ -66,7 +65,7 @@ export interface IThumbDimensions {
   height: number
 }
 
-export interface ISiteStore extends IImmutableStore {
+export interface ITemplateStore extends IImmutableStore {
   commitPage(): void
   loadHome(lang?: string|null): Promise<void>
   loadPage(node: string, fields?: string[]|boolean|'*', languages?: boolean|'*', commit?: boolean): Promise<void>

@@ -1,6 +1,6 @@
 import { isObj } from '../utils'
 import { getInfo, mainStore } from '../plugin'
-import SiteStore from './classes/SiteStore'
+import TemplateStore from './classes/TemplateStore'
 import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
 import AhoiLink from './components/AhoiLink.vue'
@@ -8,27 +8,27 @@ import AhoiThumb from './components/AhoiThumb.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
 import type { Ref } from 'vue'
-import type { IApiAddon, ISiteStore, IPageModel } from '../types'
+import type { IApiAddon, ITemplateStore, IPageModel } from '../types'
 
 /**
- * Site, Page and Home store
+ * Addon store
  */
-const siteStore: ISiteStore = new SiteStore()
+const templateStore: ITemplateStore = new TemplateStore()
 
 /**
- * Shortcuts
+ * Shortcuts for Site, Page and Home objects
  */
-const home: Ref<IPageModel> = siteStore.ref('home')
-const page: Ref<IPageModel> = siteStore.ref('page')
-const site: Ref<IPageModel> = siteStore.ref('site')
+const home: Ref<IPageModel> = templateStore.ref('home')
+const page: Ref<IPageModel> = templateStore.ref('page')
+const site: Ref<IPageModel> = templateStore.ref('site')
 
 /**
  * Addon factory, returns site and page
  */
-function createSite(): IApiAddon[] {
+function createTemplate(): IApiAddon[] {
   return [{
-    name: 'site',
-    store: siteStore,
+    name: 'template',
+    store: templateStore,
     components: {
       'AhoiHtml': AhoiHtml,
       'AhoiLink': AhoiLink,
@@ -76,12 +76,12 @@ async function init(): Promise<void> {
  */
 export {
   convertResponse,
-  createSite,
+  createTemplate,
   createThumb,
   home,
   page,
   parse,
   site,
-  siteStore,
+  templateStore,
   Thumb,
 }

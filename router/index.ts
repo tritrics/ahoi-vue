@@ -6,12 +6,7 @@ import type { Object, IApiAddon } from "../types"
 import type { Router } from 'vue-router'
 
 /**
- * The Router
- */
-let routerInstance: Router
-
-/**
- * Module's store
+ * Addon store
  */
 const routerStore: IRouterStore = new RouterStore()
 
@@ -19,6 +14,11 @@ const routerStore: IRouterStore = new RouterStore()
  * Router types, must exist in ./modules
  */
 const installedRouter: string[] = [ 'dynamic-load' ]
+
+/**
+ * The Router
+ */
+let routerInstance: Router
 
 /**
  * Addon factory
@@ -32,7 +32,7 @@ function createRouter(): IApiAddon[] {
       initRouter,
     },
     dependencies(addons: string[]): void {
-      if(!inArr('site', addons)) {
+      if(!inArr('template', addons)) {
         throw new Error('[AHOI] Addon router requires addon site.')
       }
     }
