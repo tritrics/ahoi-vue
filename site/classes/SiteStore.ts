@@ -1,5 +1,5 @@
 import { uuid, toPath, isStr } from '../../utils'
-import { ImmutableStore, getPage, apiStore } from '../../plugin'
+import { ImmutableStore, getPage, mainStore } from '../../plugin'
 import { convertResponse } from '../index'
 import type { Object, ISiteStore } from '../../types'
 
@@ -45,7 +45,7 @@ class SiteStore extends ImmutableStore implements ISiteStore {
    * mixed can be node or path
    */
   async loadHome(lang: string|null): Promise<void> {
-    const node = toPath(lang, apiStore.get('home'))
+    const node = toPath(lang, mainStore.get('home'))
     return this.#request('home', node, [ 'title' ])
   }
 
@@ -70,14 +70,14 @@ class SiteStore extends ImmutableStore implements ISiteStore {
     languages: boolean|'*' = true,
     commit: boolean = true
   ): Promise<void> {
-    return this.#request('page', apiStore.getNodeFromPath(path), fields, languages, commit)
+    return this.#request('page', mainStore.getNodeFromPath(path), fields, languages, commit)
   }
 
   /**
    * Request site.
    */
   async loadSite(lang: string = ''): Promise<void> {
-    if (!apiStore.isValidLang(lang)) {
+    if (!mainStore.isValidLang(lang)) {
       return Promise.resolve()
     }
     return this.#request('site', lang)

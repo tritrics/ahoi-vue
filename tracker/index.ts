@@ -1,5 +1,5 @@
 import { toKey, inArr } from '../utils'
-import { apiStore } from '../plugin'
+import { mainStore } from '../plugin'
 import type { Object, IApiAddon } from '../types'
 
 declare global {
@@ -23,13 +23,13 @@ let tracker: Object = {}
  * Load and configure tracker.
  */
 async function init() {
-  const options = apiStore.get('addons.tracker');
-  const name = toKey(options?.name)
+  const config = mainStore.get('addons.tracker');
+  const name = toKey(config?.name)
   if (inArr(name, installedTracker)) {
     return import(`./modules/${name}.ts`)
       .then((mod: Object) => {
           tracker = mod
-          return tracker.init(options)
+          return tracker.init(config)
         }
       )
       .then(() => {
@@ -40,7 +40,7 @@ async function init() {
 
 /**
  */
-function setConfig(...args: any[]): void {
+function configTracker(...args: any[]): void {
   tracker?.setConfig(...args)
 }
 
@@ -62,7 +62,7 @@ function createTracker(): IApiAddon[] {
   return [{
     name: 'tracker',
     export: {
-      setConfig,
+      configTracker,
       setConsent,
       track,
     },
@@ -75,7 +75,7 @@ function createTracker(): IApiAddon[] {
  */
 export {
   createTracker,
-  setConfig,
+  configTracker,
   setConsent,
   track,
 }

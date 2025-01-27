@@ -4,7 +4,7 @@ import PageModel from '../models/PageModel'
 import FileModel from '../models/FileModel'
 import LanguageModel from '../models/LanguageModel'
 import { isStr, isObj, toStr, has } from '../../utils'
-import { apiStore } from '../../plugin'
+import { mainStore } from '../../plugin'
 import type { Ref } from 'vue'
 import type { Object } from '../../types'
 import type { Props, Attributes, ILinkA, ILinkRouter, ILinkRouterName, ILinkRouterPath } from './AhoiLink'
@@ -26,11 +26,11 @@ const emit = defineEmits<{
 }>()
 
 /**
- * Using router-link depends on setting in apiStore AND if router is installed.
+ * Using router-link depends on setting in mainStore AND if router is installed.
  * (needs to be computed value, fails otherwise in watchEffect())
  */
 const useRouter = computed(() => {
-  return apiStore.hasRouter() && !!getCurrentInstance()?.appContext.config.globalProperties.$router
+  return mainStore.hasRouter() && !!getCurrentInstance()?.appContext.config.globalProperties.$router
 })
 
 /**

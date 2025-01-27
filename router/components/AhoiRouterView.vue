@@ -2,10 +2,9 @@
 import { inject, onUpdated } from 'vue'
 import { RouterView } from 'vue-router'
 
-const { store: routerStore } = inject('api.router')
-const { store: siteStore } = inject('api.site')
-const init = routerStore.ref('init')
-onUpdated(() => siteStore.commitPage())
+const { stores } = inject('ahoi')
+const init = stores('router').ref('init')
+onUpdated(() => stores('site').commitPage())
 </script>
 
 <template>

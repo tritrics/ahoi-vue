@@ -95,7 +95,7 @@ function track(path?: string, title?: string, referrer?: string) :void {
  */
 export {
   init,
-  setConsent,
   setConfig,
+  setConsent,
   track,
 }

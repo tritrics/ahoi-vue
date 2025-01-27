@@ -1,5 +1,5 @@
 import { uuid, isStr } from '../../utils'
-import { ImmutableStore, getLanguage, inject, apiStore } from '../../plugin'
+import { ImmutableStore, getLanguage, inject, mainStore } from '../../plugin'
 import type { II18nStore } from '../types'
 import type { JSONObject } from '../../types'
 
@@ -28,7 +28,7 @@ class I18nStore extends ImmutableStore implements II18nStore {
    * Request terms
    */
   async load(lang: string): Promise<void> {
-    if (!isStr(lang, 1) || !apiStore.isValidLang(lang) || this.#lang === lang) {
+    if (!isStr(lang, 1) || !mainStore.isValidLang(lang) || this.#lang === lang) {
       return
     }
     this.#requestid = uuid()

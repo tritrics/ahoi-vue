@@ -1,13 +1,13 @@
 import { each } from '../utils'
 import ImmutableStore from './classes/ImmutableStore'
 import BaseStore from './classes/BaseStore'
-import ApiStore from './classes/ApiStore'
+import MainStore from './classes/MainStore'
 import Request from './classes/Request'
 import { loadAddons, inject } from './modules/addons'
 import { getFile, getFiles, getInfo, getLanguage, getPage, getPages, postCreate } from './modules/api'
 import { stores } from './modules/stores'
 import { version as VERSION } from '../../package.json'
-import type { IApiOptions, IApiAddon, IApiStore, Object } from '../types'
+import type { IApiOptions, IApiAddon, IMainStore, Object } from '../types'
 
 /**
  * The API interface version.
@@ -18,16 +18,16 @@ const APIVERSION: string = 'v1'
 /**
  * The global store. Initialized before all other stores.
  */
-let apiStore: IApiStore
+let mainStore: IMainStore
 
 /** 
  * Plugin factory
  */
-async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
+async function createAhoi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Promise<Object> {
 
   // init the stores
-  apiStore = new ApiStore(setupOptions)
-  stores('api', apiStore)
+  mainStore = new MainStore(setupOptions)
+  stores('main', mainStore)
 
   // load addons
   const addonsLoaded: IApiAddon[] = await loadAddons(addons)
@@ -42,10 +42,19 @@ async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Pro
   // register plugin
   return {
     install: async (app: any) => {
-      app.config.globalProperties['$api'] = {
+      let exports = {}
+       each(addonsLoaded, (addon: IApiAddon) => {
+        exports = { ...exports, ...addon.export}
+        each(addon?.components, (component: any, name: string) => {
+          app.component(name, component)
+        })
+      })
+
+      // in case of name conflicts: plugin exports overwrite addon exports
+      app.config.globalProperties['$ahoi'] = {
+        ...exports,
         APIVERSION,
         VERSION,
-        store: apiStore,
         getFile,
         getFiles,
         getInfo,
@@ -55,14 +64,7 @@ async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Pro
         postCreate,
         stores,
       }
-      app.provide('api',  app.config.globalProperties['$api'])
-      each(addonsLoaded, (addon: IApiAddon) => {
-        app.config.globalProperties['$api'][addon.name] = addon.export
-        app.provide(`api.${addon.name}`, addon.export)
-        each(addon?.components, (component: any, name: string) => {
-          app.component(name, component)
-        })
-      })
+      app.provide('ahoi',  app.config.globalProperties['$ahoi'])
 
       // add router (last step!)
       if (Router) {
@@ -79,8 +81,8 @@ async function createApi(setupOptions: IApiOptions, ...addons: IApiAddon[]): Pro
 export {
   APIVERSION,
   VERSION,
-  apiStore,
-  createApi,
+  mainStore,
+  createAhoi,
   getFile,
   getFiles,
   getInfo,

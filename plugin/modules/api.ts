@@ -1,5 +1,5 @@
 import { each, count, unique, inArr, isStr, isUrl, isArr, isNum, isInt, isTrue, toPath, toKey, toInt } from '../../utils'
-import { Request, inject, apiStore, APIVERSION } from '../index'
+import { Request, inject, mainStore, APIVERSION } from '../index'
 import type { Object, IFormParams, IApiRequestOptions, ApiPagesStatus, JSONObject } from '../../types'
 
 /**
@@ -235,8 +235,8 @@ function getUrl(requestOptions: Object, ...args: (string|string[]|null)[]): stri
   let host: string|null = null
   if (isUrl(requestOptions.host)) {
     host = requestOptions.host
-  } else if (isUrl(apiStore.get('host'))) {
-    host = apiStore.get('host')
+  } else if (isUrl(mainStore.get('host'))) {
+    host = mainStore.get('host')
   }
   if (isStr(host) && host.endsWith('/')) {
     host = host.substring(0, host.length - 1)

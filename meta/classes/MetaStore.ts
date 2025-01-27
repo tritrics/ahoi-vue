@@ -1,5 +1,5 @@
 import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../utils'
-import { BaseStore, apiStore, inject, stores } from '../../plugin'
+import { BaseStore, mainStore, inject, stores } from '../../plugin'
 import { createThumb } from '../../site'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
 import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel, IPageModel, ISiteModel } from '../../types'
@@ -41,27 +41,27 @@ class MetaStore extends BaseStore implements IMetaStore {
   async init(): Promise<void> {
 
     // fields defined in config, taken from config, site or page
-    const watch = this.#setMetaFields(apiStore.get('addons.meta'))
-    if (watch.site) {
+    const config = this.#setMetaFields(mainStore.get('addons.meta'))
+    if (config.site) {
       stores('site').watch('site', () => this.#updateMeta())
     }
-    if (watch.page) {
+    if (config.page) {
       stores('site').watch('page', () => this.#updateMeta())
     }
 
-    // lang from apiStore
-    if (apiStore.isTrue('multilang')) {
-      apiStore.watch('lang', (newVal: string) => {
+    // lang from mainStore
+    if (mainStore.isTrue('multilang')) {
+      mainStore.watch('lang', (newVal: string) => {
         this._setLang(newVal)
       }, { immediate: true })
     } else {
-      apiStore.watch('detected', (newVal: string) => {
+      mainStore.watch('detected', (newVal: string) => {
         this._setLang(newVal)
       }, { immediate: true })
     }
 
-    // locale from apiStore
-    apiStore.watch('locale', (newVal: string) => {
+    // locale from mainStore
+    mainStore.watch('locale', (newVal: string) => {
       this._setLocale(newVal)
     }, { immediate: true })
 

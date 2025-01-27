@@ -15,9 +15,7 @@ function createMeta(): IApiAddon {
   return {
     name: 'meta',
     store: metaStore,
-    export: {
-      store: metaStore,
-    },
+    export: {},
     dependencies(addons: string[]): void {
       if(!inArr('site', addons)) {
         throw new Error('[AHOI] Addon meta requires addon site.')

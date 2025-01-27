@@ -15,9 +15,7 @@ function createI18n(): IApiAddon {
   return {
     name: 'i18n',
     store: i18nStore,
-    export: {
-      store: i18nStore,
-    },
+    export: {},
     dependencies(addons: string[]): void {
       if(!inArr('site', addons)) {
         throw new Error('[AHOI] Addon i18n requires addon site.')

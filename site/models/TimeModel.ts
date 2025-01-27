@@ -1,6 +1,6 @@
 import { now } from '../../utils'
 import DatetimeModel from '../data/DatetimeModel'
-import { apiStore } from '../../plugin'
+import { mainStore } from '../../plugin'
 import type { ITimeModel, ISiteOptions } from '../types'
 import type { JSONObject } from '../../types'
 
@@ -29,9 +29,9 @@ export default class TimeModel extends DatetimeModel implements ITimeModel {
    */
   str(options: ISiteOptions = {}) {
     return this.value.toLocaleTimeString(
-      options?.locale ?? apiStore.get('locale'),
+      options?.locale ?? mainStore.get('locale'),
       {
-        ...(options?.time ?? apiStore.get('time')),
+        ...(options?.time ?? mainStore.get('time')),
         timeZone: 'UTC'
       }
     )

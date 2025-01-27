@@ -44,8 +44,9 @@ export async function loadAddons(addons: IApiAddon[]): Promise<IApiAddon[]> {
     if (!inArr(key, registeredAddons)) {
       registered.push(addons[i])
       registeredAddons.push(key)
-      if (isObj(addons[i].export)) {
-        registeredExports[key] = addons[i].export as Object
+      registeredExports[key] = addons[i].export as Object
+      if (isObj(addons[i].store)) {
+        registeredExports[key].store = addons[i].store
       }
     }
   }

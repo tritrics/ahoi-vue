@@ -1,12 +1,12 @@
 import { each, count, has, trim, lower, regEsc, rtrim, unique, isUrl, isArr, isBool, isStr, isObj, isEmpty, isLocale, toBool, isUndef, isTrue, toLocale, toKey } from '../../utils'
 import ImmutableStore from './ImmutableStore'
 import { inject } from '../index'
-import type { Object, IApiStore, II18nStore, ISiteStore } from '../../types'
+import type { Object, IMainStore, II18nStore, ISiteStore } from '../../types'
 
 /**
  * Store with plugin and addons options.
  */
-class ApiStore extends ImmutableStore implements IApiStore {
+class MainStore extends ImmutableStore implements IMainStore {
 
   /**
    * Intern lookup map with meta-values of languages
@@ -34,7 +34,7 @@ class ApiStore extends ImmutableStore implements IApiStore {
   /** */
   constructor(setupOptions: Object) {
     super({
-      addons: {},
+      addons: {}, // config objects for addons
       date: { year: 'numeric', month: 'numeric', day: 'numeric' },
       direction: 'ltr',
       home: 'home',
@@ -172,7 +172,7 @@ class ApiStore extends ImmutableStore implements IApiStore {
   }
 
   /**
-   * Update Stores with apiStore data in cases, where watch() doesn't work, because
+   * Update Stores with mainStore data in cases, where watch() doesn't work, because
    * result must be awaited to continue with parent procedure.
    */
   async updateStores(): Promise<void> {
@@ -434,4 +434,4 @@ class ApiStore extends ImmutableStore implements IApiStore {
   }
 }
 
-export default ApiStore
+export default MainStore

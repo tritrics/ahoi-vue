@@ -2,7 +2,7 @@ import { createRouter as createVueRouter } from 'vue-router'
 import { isTrue, isStr, toPath } from '../../utils'
 import { routerStore } from '../index'
 import { siteStore } from '../../site'
-import { apiStore, getPage } from '../../plugin'
+import { mainStore, getPage } from '../../plugin'
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 
 /**
@@ -10,14 +10,14 @@ import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router
  */
 async function getRouteRecord(path: string): Promise<RouteRecordRaw> {
   try {
-    if (apiStore.isTrue('multilang')) {
+    if (mainStore.isTrue('multilang')) {
       const url = new URL(path, window.location.href)
-      const changed = apiStore.setLangFromUrl(url.href)
+      const changed = mainStore.setLangFromUrl(url.href)
       if (changed) {
-        await apiStore.updateStores()
+        await mainStore.updateStores()
       }
     }
-    const page = await getPage(apiStore.getNodeFromPath(path), { raw: true })
+    const page = await getPage(mainStore.getNodeFromPath(path), { raw: true })
     return routerStore.getRouteRecord(page.body.meta.blueprint, path, { error: false })
   }
   catch (E) {
@@ -67,7 +67,7 @@ export function routerFactory(track: Function): Router {
 
       // request page, fields are defined in router.blueprints or set to '*' as default
       await siteStore.loadPageByPath(
-        to.meta.error ? toPath(apiStore.get('lang'), apiStore.get('error')) : to.path,
+        to.meta.error ? toPath(mainStore.get('lang'), mainStore.get('error')) : to.path,
         to.meta.fields as string[]|boolean|'*',
         true,
         false
@@ -75,7 +75,7 @@ export function routerFactory(track: Function): Router {
 
       // handle home slug
       if (to.path === '/') {
-        const home = apiStore.getHomeSlug()
+        const home = mainStore.getHomeSlug()
         if (isStr(home, 1) && home !== '/') {
           await routerStore.beforeResolve()
           return home

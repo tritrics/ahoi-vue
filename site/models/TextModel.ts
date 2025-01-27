@@ -1,6 +1,6 @@
 import { isTrue } from '../../utils'
 import BaseModel from '../data/BaseModel'
-import { apiStore } from '../../plugin'
+import { mainStore } from '../../plugin'
 import type { ITextModel, ISiteOptions } from '../types'
 import type { JSONObject } from '../../types'
 
@@ -24,7 +24,7 @@ export default class TextModel extends BaseModel implements ITextModel {
    */
   str(options: ISiteOptions = {}): string {
     let str: string = this.value
-    if(isTrue(options?.nl2br ?? apiStore.get('nl2br'))) {
+    if(isTrue(options?.nl2br ?? mainStore.get('nl2br'))) {
       str = str.replace(/\n/mg, '<br />')
     }
     return str

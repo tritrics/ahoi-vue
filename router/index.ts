@@ -30,7 +30,6 @@ function createRouter(): IApiAddon[] {
     export: {
       getRouter,
       initRouter,
-      store: routerStore,
     },
     dependencies(addons: string[]): void {
       if(!inArr('site', addons)) {

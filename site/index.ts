@@ -1,5 +1,5 @@
 import { isObj } from '../utils'
-import { getInfo, apiStore } from '../plugin'
+import { getInfo, mainStore } from '../plugin'
 import SiteStore from './classes/SiteStore'
 import Thumb from './classes/Thumb'
 import AhoiHtml from './components/AhoiHtml.vue'
@@ -17,7 +17,6 @@ const siteStore: ISiteStore = new SiteStore()
 
 /**
  * Shortcuts
- * allows: const { site, home, page } = inject('api.site')
  */
 const home: Ref<IPageModel> = siteStore.ref('home')
 const page: Ref<IPageModel> = siteStore.ref('page')
@@ -41,7 +40,6 @@ function createSite(): IApiAddon[] {
       home,
       page,
       site,
-      store: siteStore,
     },
     init
   }]
@@ -57,17 +55,17 @@ async function init(): Promise<void> {
     })
     .then((json) => {
       if (isObj(json) && json.ok) {
-        apiStore.set('home', json.body.meta.home)
-        apiStore.set('error', json.body.meta.error)
+        mainStore.set('home', json.body.meta.home)
+        mainStore.set('error', json.body.meta.error)
         if(json.body.meta.multilang) {
-          apiStore.set('languages', json.body.languages ?? [])
-          if (apiStore.isTrue('langdetect')) {
-            apiStore.setLangFromDetected()
-            return apiStore.updateStores()
+          mainStore.set('languages', json.body.languages ?? [])
+          if (mainStore.isTrue('langdetect')) {
+            mainStore.setLangFromDetected()
+            return mainStore.updateStores()
           }
           // if langdetect is false, the language must be detected by router
         } else {
-          return apiStore.updateStores()
+          return mainStore.updateStores()
         }
       }
     })

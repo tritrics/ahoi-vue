@@ -31,7 +31,7 @@ export interface IImmutableStore extends IBaseStore {
   ADD_PROPERTIES: false
 }
 
-export interface IApiStore extends IImmutableStore {
+export interface IMainStore extends IImmutableStore {
   getNodeFromPath(val: string): string
   getHomeSlug(lang?: string): string
   hasRouter(): boolean
