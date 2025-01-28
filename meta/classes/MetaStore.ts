@@ -1,8 +1,9 @@
-import { escape, upperFirst, has, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../utils'
+import { escape, upperFirst, has, get, each, isStr, isUrl, isEmpty, isNull, toStr, isFn } from '../../utils'
 import { BaseStore, mainStore, inject, stores } from '../../plugin'
+import { site, page } from '../../template'
 import { createThumb } from '../../template'
 import type { IMetaStore, IMetaConfigFields, IMetaConfigField } from '../types'
-import type { Object, IBaseStore, IBaseModel, IFileModel, IFilesModel, IPageModel, ISiteModel } from '../../types'
+import type { Object, IBaseModel, IFileModel, IFilesModel } from '../../types'
 
 /**
  * Meta value store, extends user store, because user can add more properties.
@@ -41,13 +42,9 @@ class MetaStore extends BaseStore implements IMetaStore {
   async init(): Promise<void> {
 
     // fields defined in config, taken from config, site or page
-    const config = this.#setMetaFields(mainStore.get('addons.meta'))
-    if (config.site) {
-      stores('template').watch('site', () => this.#updateMeta())
-    }
-    if (config.page) {
-      stores('template').watch('page', () => this.#updateMeta())
-    }
+    this.#initMetaFields(mainStore.get('addons.meta'))
+    stores('template').watch('site', () => this.#updateMeta())
+    stores('template').watch('page', () => this.#updateMeta())
 
     // lang from mainStore
     if (mainStore.isTrue('multilang')) {
@@ -191,6 +188,24 @@ class MetaStore extends BaseStore implements IMetaStore {
   }
 
   /**
+   * Helper for init().
+   * Set #metaFields from user options.
+   */
+  #initMetaFields(config: Object): void {
+    each(this.#metaFields, (def: IMetaConfigField, field: string) => {
+      if (has(config, field)) {
+        this.set(field, config[field]?.default ?? config[field])
+        if (isStr(config[field]?.site, 1)) {
+          this.#metaFields[field].site = config[field].site
+        }
+        if (isStr(config[field]?.page, 1)) {
+          this.#metaFields[field].page = config[field].page
+        }
+      }
+    })
+  }
+
+  /**
    * Set a meta value from a given field from a model.
    */
   #setFromModel(model: IBaseModel|undefined, metaField: string): boolean {
@@ -223,43 +238,17 @@ class MetaStore extends BaseStore implements IMetaStore {
   }
 
   /**
-   * Helper for init().
-   * Set #metaFields from user options.
-   */
-  #setMetaFields(config: Object): { page: boolean, site: boolean } {
-    const res = { page: false, site: false }
-    const hasPage: boolean = inject('page') as boolean
-    each(this.#metaFields, (def: IMetaConfigField, field: string) => {
-      if (has(config, field)) {
-        this.set(field, config[field]?.default ?? config[field])
-        if (isStr(config[field]?.site, 1)) {
-          this.#metaFields[field].site = config[field].site
-          res.site = true
-        }
-        if (hasPage && isStr(config[field]?.page, 1)) {
-           this.#metaFields[field].page = config[field].page
-           res.page = true
-        }
-      }
-    })
-    return res
-  }
-
-  /**
    * Batch-update meta fields, which are taken from templateStore.
    * Try to get content field 1st from page and 2nd from site.
    */
   #updateMeta(): void {
-    const templateStore: IBaseStore = stores('template') as IBaseStore
-    const site: ISiteModel = templateStore.get('site')
-    const page: IPageModel|null = templateStore.get('page')
     each(this.#metaFields, (def: IMetaConfigField, metaField: string) => {
       let res
-      if (page && def.page && page.fields && page.fields[def.page]) {
-        res = this.#setFromModel(page.fields[def.page].str(), metaField)
+      if (def.page && page.value && page.value.fields && has(page.value.fields, def.page)) {
+        res = this.#setFromModel(get(page.value.fields, def.page), metaField)
       }
-      if (!res && def.site && site.fields && site.fields[def.site]) {
-        this.#setFromModel(site.fields[def.site].str(), metaField)
+      if (!res && def.site && site.value && site.value.fields && has(site.value.fields, def.site)) {
+        this.#setFromModel(get(site.value.fields, def.site), metaField)
       }
     })
   }

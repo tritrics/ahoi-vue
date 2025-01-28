@@ -1,5 +1,6 @@
 import { has, isFn, inArr, isObj, isStr } from '../../utils'
 import { stores } from './stores'
+import type { Ref } from 'vue'
 import type { Object, IApiAddon, IBaseStore } from '../../types'
 
 /**
@@ -17,10 +18,14 @@ const registeredExports: { [ key: string ]: Object } = {}
  * Inject a method from other addon.
  * If not method is given, the function returnes the existance of the addon as boolean.
  */
-export function inject(addon: string, method: string|null = null, fnDefault: Function = () => {}): Function|IBaseStore|boolean {
-  if (isStr(method, 1)) {
-    if (has(registeredExports, addon, method)) {
-      return registeredExports[addon][method]
+export function inject(
+  addon: string,
+  ressource: string|null = null,
+  fnDefault: Function = () => {}
+): Function|IBaseStore|boolean|Ref {
+  if (isStr(ressource, 1)) {
+    if (has(registeredExports, addon, ressource)) {
+      return registeredExports[addon][ressource]
     } else {
       return fnDefault
     }

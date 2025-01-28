@@ -8,7 +8,7 @@ import AhoiThumb from './components/AhoiThumb.vue'
 import { createThumb } from './modules/thumb'
 import { convertResponse, parse } from './modules/parser'
 import type { Ref } from 'vue'
-import type { IApiAddon, ITemplateStore, IPageModel } from '../types'
+import type { IApiAddon, ITemplateStore, IPageModel, ISiteModel } from '../types'
 
 /**
  * Addon store
@@ -20,7 +20,7 @@ const templateStore: ITemplateStore = new TemplateStore()
  */
 const home: Ref<IPageModel> = templateStore.ref('home')
 const page: Ref<IPageModel> = templateStore.ref('page')
-const site: Ref<IPageModel> = templateStore.ref('site')
+const site: Ref<ISiteModel> = templateStore.ref('site')
 
 /**
  * Addon factory, returns site and page

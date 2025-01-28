@@ -33,7 +33,7 @@ function createRouter(): IApiAddon[] {
     },
     dependencies(addons: string[]): void {
       if(!inArr('template', addons)) {
-        throw new Error('[AHOI] Addon router requires addon site.')
+        throw new Error('[AHOI] Addon router requires addon template.')
       }
     }
   }]

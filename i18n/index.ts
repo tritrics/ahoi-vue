@@ -18,7 +18,7 @@ function createI18n(): IApiAddon {
     export: {},
     dependencies(addons: string[]): void {
       if(!inArr('template', addons)) {
-        throw new Error('[AHOI] Addon i18n requires addon site.')
+        throw new Error('[AHOI] Addon i18n requires addon template.')
       }
     }
   }
