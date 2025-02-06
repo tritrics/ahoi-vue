@@ -271,6 +271,7 @@ export interface ISiteModel extends IObjectModel {
 export interface IStringModel extends IBaseModel {
   type: 'string'
   value: string
+  truncate(length: number, ellipsis: string): string
 }
 
 export interface IStructureModel extends IEntriesModel {
