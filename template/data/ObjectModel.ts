@@ -35,7 +35,11 @@ export default class ObjectModel extends FieldsModel implements IObjectModel {
       }
     }
     if (isStr(this.meta?.href, 1)) {
-      this.link = createLinkByValues('page', this.meta.title ?? this.meta.href, this.meta.href)
+      this.link = createLinkByValues(
+        obj.type === 'file' ? 'file' : 'page',
+        this.meta.title ?? this.meta.href,
+        this.meta.href
+      )
     }
     if (has(obj, 'languages')) {
       this.languages = parse(obj.languages) as ILanguageModel[]
